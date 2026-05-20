@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Altimates 🏔️</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --green: #1D9E75; --green-light: #E1F5EE; --green-mid: #9FE1CB; --green-dark: #0F6E56;
+    --amber: #EF9F27; --amber-light: #FAEEDA; --amber-dark: #854F0B;
+    --red: #E24B4A; --red-light: #FCEBEB; --red-dark: #A32D2D;
+    --blue: #378ADD; --blue-light: #E6F1FB; --blue-dark: #185FA5;
+    --purple: #7F77DD; --purple-light: #EEEDFE; --purple-dark: #534AB7;
+    --bg: #f5f4f0; --card: #ffffff; --border: rgba(0,0,0,0.08);
+    --text: #1a1a18; --muted: #6b6b67; --hint: #9c9a92;
+    --radius: 12px; --radius-sm: 8px;
+    --font: 'DM Sans', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110; --card: #1c1c1a; --border: rgba(255,255,255,0.08);
+      --text: #e8e6dc; --muted: #9c9a92; --hint: #5f5e5a;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap');
+
+  /* Layout */
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+  .header { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .logo { display: flex; align-items: center; gap: 9px; }
+  .logo-mark { width: 30px; height: 30px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark i { color: #fff; font-size: 16px; }
+  .logo-name { font-size: 16px; font-weight: 500; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--muted); }
+  .avatar-btn { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+
+  /* Nav */
+  .nav { display: flex; background: var(--card); border-bottom: 0.5px solid var(--border); }
+  .nav-btn { flex: 1; padding: 10px 4px 8px; border: none; background: none; font-size: 10px; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; border-bottom: 2px solid transparent; font-family: var(--font); transition: color .15s; }
+  .nav-btn i { font-size: 18px; }
+  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* Tabs */
+  .tab { display: none; padding: 14px; flex: 1; }
+  .tab.active { display: block; }
+  .sec { font-size: 10px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; margin-top: 2px; }
+
+  /* Cards */
+  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 13px 15px; margin-bottom: 10px; }
+
+  /* Buttons */
+  .btn { padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; border: 0.5px solid var(--border); background: transparent; color: var(--text); display: inline-flex; align-items: center; gap: 5px; transition: background .15s, opacity .15s; font-family: var(--font); }
+  .btn:hover { background: var(--bg); }
+  .btn:active { opacity: .8; }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+  .btn-danger { background: var(--red-light); color: var(--red-dark); border-color: transparent; }
+
+  /* Tags */
+  .tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; display: inline-flex; align-items: center; gap: 3px; font-weight: 500; }
+  .tg { background: var(--green-light); color: var(--green-dark); }
+  .ta { background: var(--amber-light); color: var(--amber-dark); }
+  .tr { background: var(--red-light); color: var(--red-dark); }
+  .tb { background: var(--blue-light); color: var(--blue-dark); }
+  .tp { background: var(--purple-light); color: var(--purple-dark); }
+
+  /* Form */
+  .form-lbl { font-size: 11px; color: var(--muted); margin-bottom: 5px; display: block; }
+  .form-input { width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--card); color: var(--text); font-family: var(--font); outline: none; transition: border-color .15s; }
+  .form-input:focus { border-color: var(--green); }
+  select.form-input { appearance: none; }
+  .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  /* Rando card */
+  .rcard { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; cursor: pointer; transition: border-color .15s; }
+  .rcard:hover { border-color: var(--green-mid); }
+  .rcard-top { display: flex; }
+  .rcard-main { flex: 1; padding: 12px 14px; }
+  .rcard-weather { width: 78px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; border-left: 0.5px solid var(--border); }
+  .w-ok { background: var(--green-light); } .w-mid { background: var(--amber-light); } .w-bad { background: var(--red-light); }
+  .w-icon { font-size: 24px; line-height: 1; margin-bottom: 2px; }
+  .w-temp { font-size: 15px; font-weight: 500; }
+  .w-ok .w-temp { color: var(--green-dark); } .w-mid .w-temp { color: var(--amber-dark); } .w-bad .w-temp { color: var(--red-dark); }
+  .w-lbl { font-size: 9px; font-weight: 500; padding: 1px 6px; border-radius: 8px; margin-top: 2px; }
+  .w-ok .w-lbl { background: var(--green-mid); color: #085041; } .w-mid .w-lbl { background: #FAC775; color: #633806; } .w-bad .w-lbl { background: #F7C1C1; color: #791F1F; }
+  .w-wind { font-size: 9px; margin-top: 2px; }
+  .w-ok .w-wind { color: var(--green-dark); } .w-mid .w-wind { color: var(--amber-dark); } .w-bad .w-wind { color: var(--red-dark); }
+  .w-loading { background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  .spinner { width: 12px; height: 12px; border: 1.5px solid var(--green-mid); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .forecast { display: flex; gap: 3px; padding: 8px 14px; border-top: 0.5px solid var(--border); background: var(--bg); }
+  .fc { flex: 1; text-align: center; }
+  .fc-d { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+  .fc-i { font-size: 13px; line-height: 1; }
+  .fc-t { font-size: 10px; font-weight: 500; margin-top: 1px; }
+  .fc-r { font-size: 9px; color: var(--blue); }
+  .rname { font-size: 14px; font-weight: 500; margin-bottom: 2px; line-height: 1.3; }
+  .rreg { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 3px; margin-bottom: 7px; }
+  .rstats { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .rst { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); }
+  .rst i { font-size: 12px; }
+  .vrow { display: flex; align-items: center; gap: 6px; padding-top: 9px; border-top: 0.5px solid var(--border); margin-top: 9px; }
+  .vbtn { flex: 1; padding: 6px; border-radius: var(--radius-sm); font-size: 11px; cursor: pointer; border: 0.5px solid var(--border); background: transparent; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 4px; transition: background .15s; font-family: var(--font); }
+  .vbtn:hover { background: var(--bg); }
+  .vyes { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+  .vmay { background: var(--amber-light); color: var(--amber-dark); border-color: #FAC775; }
+  .vtally { font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .alert-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); display: inline-block; margin-left: 4px; vertical-align: middle; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .alert-band { background: var(--red-light); border: 0.5px solid #F09595; border-radius: var(--radius-sm); padding: 8px 11px; margin-top: 8px; display: flex; align-items: flex-start; gap: 7px; }
+  .alert-band i { color: var(--red-dark); flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .alert-text { font-size: 11px; color: var(--red-dark); line-height: 1.5; }
+  .gpx-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; border: 0.5px solid var(--green-mid); background: var(--green-light); color: var(--green-dark); cursor: pointer; font-family: var(--font); transition: background .15s; }
+  .gpx-btn:hover { background: var(--green-mid); }
+
+  /* Kit */
+  .gear-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+  .gear-item:last-child { border-bottom: none; }
+  .gear-check { width: 19px; height: 19px; border-radius: 5px; border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-top: 1px; transition: all .15s; }
+  .gear-check.done { background: var(--green); border-color: var(--green); }
+  .gear-check.done i { color: #fff; font-size: 12px; }
+  .gear-body { flex: 1; min-width: 0; }
+  .gear-name { font-size: 13px; line-height: 1.4; margin-bottom: 2px; }
+  .gear-name.done { text-decoration: line-through; color: var(--muted); }
+  .gear-note { font-size: 11px; color: var(--muted); margin-bottom: 3px; line-height: 1.4; }
+  .gear-links { display: flex; gap: 6px; flex-wrap: wrap; }
+  .gear-link { font-size: 10px; color: var(--blue-dark); text-decoration: none; display: inline-flex; align-items: center; gap: 2px; padding: 2px 6px; border: 0.5px solid #B5D4F4; border-radius: 6px; background: var(--blue-light); }
+  .gear-link:hover { background: #B5D4F4; }
+  .progress-bar { height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .4s; }
+  .sec-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 10px 0; border-bottom: 0.5px solid var(--border); user-select: none; }
+  .sec-toggle-title { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+
+  /* Members */
+  .member-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+  .member-row:last-child { border-bottom: none; }
+  .sm-av { width: 33px; height: 33px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+
+  /* Profile stat */
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+  .sbox { background: var(--bg); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+  .sval { font-size: 18px; font-weight: 500; color: var(--green); }
+  .slbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Onboarding */
+  .onb-opt { padding: 11px; border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; text-align: center; transition: all .15s; }
+  .onb-opt:hover { border-color: var(--green); background: var(--green-light); }
+  .onb-opt.sel { border: 1.5px solid var(--green); background: var(--green-light); }
+  .onb-opt-icon i { font-size: 22px; color: var(--green); display: block; margin-bottom: 4px; }
+  .onb-opt-name { font-size: 12px; font-weight: 500; }
+  .onb-opt-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Modal */
+  .modal-wrap { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.5); align-items: flex-end; justify-content: center; }
+  .modal-wrap.open { display: flex; }
+  .modal { background: var(--card); border-radius: 16px 16px 0 0; width: 100%; max-width: 480px; padding: 18px 18px 28px; max-height: 88vh; overflow-y: auto; }
+  .modal-handle { width: 32px; height: 3px; background: var(--border); border-radius: 2px; margin: 0 auto 15px; }
+  .modal-title { font-size: 15px; font-weight: 500; margin-bottom: 14px; }
+
+  /* Modal rando stats */
+  .modal-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+  .modal-stat { background: var(--bg); border-radius: var(--radius-sm); padding: 9px; text-align: center; }
+  .modal-stat-val { font-size: 14px; font-weight: 500; color: var(--green); }
+  .modal-stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Feedback */
+  .feedback-item { padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .feedback-item:last-child { border-bottom: none; }
+  .feedback-meta { font-size: 11px; color: var(--muted); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  .feedback-text { font-size: 13px; line-height: 1.5; }
+  .vote-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border); background: transparent; color: var(--muted); font-family: var(--font); transition: all .15s; }
+  .vote-chip:hover { background: var(--bg); }
+  .vote-chip.up-active { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+  .vote-chip.down-active { background: var(--red-light); color: var(--red-dark); border-color: #F09595; }
+  .info-box { background: var(--blue-light); border: 0.5px solid #B5D4F4; border-radius: var(--radius-sm); padding: 11px 13px; display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+  .info-box i { font-size: 14px; color: var(--blue-dark); flex-shrink: 0; margin-top: 1px; }
+  .info-box p { font-size: 12px; color: var(--blue-dark); line-height: 1.6; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a1a18; color: #fff; padding: 9px 16px; border-radius: 20px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  /* Email preview */
+  .email-preview { background: var(--bg); border-radius: var(--radius-sm); padding: 12px; font-size: 11px; line-height: 1.8; max-height: 200px; overflow-y: auto; border: 0.5px solid var(--border); font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark"><i class="ti ti-mountain"></i></div>
+      <div>
+        <div class="logo-name">Altimates</div>
+        <div class="logo-sub" id="grp-sub">Chargement...</div>
+      </div>
+    </div>
+    <button class="avatar-btn" id="hdr-av" onclick="showTab('profil')" style="background:#E1F5EE;color:#0F6E56">?</button>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('randos')" id="nav-randos"><i class="ti ti-mountain"></i>Randos</button>
+    <button class="nav-btn" onclick="showTab('kit')" id="nav-kit"><i class="ti ti-backpack"></i>Kit</button>
+    <button class="nav-btn" onclick="showTab('feedback')" id="nav-feedback"><i class="ti ti-bulb"></i>Idées</button>
+    <button class="nav-btn" onclick="showTab('groupe')" id="nav-groupe"><i class="ti ti-users"></i>Groupe</button>
+    <button class="nav-btn" onclick="showTab('profil')" id="nav-profil"><i class="ti ti-user"></i>Moi</button>
+  </nav>
+
+  <!-- RANDOS -->
+  <div class="tab active" id="tab-randos">
+    <div class="sec">Ce weekend</div>
+    <div id="rando-list"></div>
+    <button class="btn btn-primary btn-full" onclick="openModal('add-modal')">
+      <i class="ti ti-plus" style="font-size:14px"></i>Proposer une rando
+    </button>
+  </div>
+
+  <!-- KIT -->
+  <div class="tab" id="tab-kit">
+    <div id="kit-body"></div>
+  </div>
+
+  <!-- FEEDBACK / IDÉES -->
+  <div class="tab" id="tab-feedback">
+    <div class="info-box">
+      <i class="ti ti-bulb"></i>
+      <p>Propose une amélioration pour Altimates. Les idées les plus votées seront intégrées à la prochaine version.</p>
+    </div>
+    <div class="sec">Soumettre une idée</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="margin-bottom:10px">
+        <label class="form-lbl">Ton idée</label>
+        <textarea class="form-input" id="fb-text" rows="3" placeholder="ex: Pouvoir filtrer les randos par dénivelé max..." style="resize:vertical"></textarea>
+      </div>
+      <div style="margin-bottom:10px">
+        <label class="form-lbl">Catégorie</label>
+        <select class="form-input" id="fb-cat">
+          <option value="feature">Nouvelle fonctionnalité</option>
+          <option value="ux">Amélioration UX</option>
+          <option value="bug">Bug à corriger</option>
+          <option value="content">Contenu / données</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="submitFeedback()">
+        <i class="ti ti-send" style="font-size:13px"></i>Proposer au groupe
+      </button>
+    </div>
+    <div class="sec">Idées du groupe</div>
+    <div id="feedback-list"></div>
+  </div>
+
+  <!-- GROUPE -->
+  <div class="tab" id="tab-groupe">
+    <div class="sec">Membres</div>
+    <div class="card" id="membres-list"></div>
+    <div class="sec" style="margin-top:12px">Inviter quelqu'un</div>
+    <div class="card" style="display:flex;gap:8px;align-items:center">
+      <input class="form-input" style="flex:1;font-size:12px" readonly id="invite-link" value="">
+      <button class="btn btn-sm" onclick="copyInvite()"><i class="ti ti-copy" style="font-size:13px"></i>Copier</button>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="tab" id="tab-profil">
+    <div id="profil-body"></div>
+  </div>
+
+</div>
+
+<!-- RANDO DETAIL MODAL -->
+<div class="modal-wrap" id="rando-modal" onclick="closeModalOuter('rando-modal',event)">
+  <div class="modal"><div class="modal-handle"></div><div id="rando-modal-body"></div></div>
+</div>
+
+<!-- ADD RANDO MODAL -->
+<div class="modal-wrap" id="add-modal" onclick="closeModalOuter('add-modal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Proposer une rando</div>
+    <div style="margin-bottom:10px"><label class="form-lbl">Nom</label><input class="form-input" id="f-name" placeholder="ex: Lac Blanc"></div>
+    <div class="form-row2" style="margin-bottom:10px">
+      <div><label class="form-lbl">Région</label><input class="form-input" id="f-reg" placeholder="ex: Haute-Savoie"></div>
+      <div><label class="form-lbl">Date</label><input class="form-input" id="f-date" type="date"></div>
+    </div>
+    <div class="form-row3" style="margin-bottom:10px">
+      <div><label class="form-lbl">km</label><input class="form-input" id="f-km" type="number" placeholder="15"></div>
+      <div><label class="form-lbl">D+ (m)</label><input class="form-input" id="f-dp" type="number" placeholder="800"></div>
+      <div><label class="form-lbl">Niveau</label>
+        <select class="form-input" id="f-diff"><option>Facile</option><option selected>Moyen</option><option>Difficile</option><option>Trek</option></select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1;justify-content:center" onclick="closeModal('add-modal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center" onclick="submitRando()"><i class="ti ti-send" style="font-size:13px"></i>Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL -->
+<div class="modal-wrap" id="onb-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <p style="font-size:16px;font-weight:500;margin-bottom:4px">Bienvenue sur Altimates 🏔️</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">2 questions rapides pour ton kit personnalisé</p>
+    <div style="margin-bottom:14px">
+      <label class="form-lbl">Ton prénom</label>
+      <input class="form-input" id="onb-name" placeholder="ex: Sophie">
+    </div>
+    <div style="margin-bottom:14px">
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px">Ton niveau ?</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div class="onb-opt" id="lvl-newbie" onclick="selLvl('newbie')"><div class="onb-opt-icon"><i class="ti ti-seedling"></i></div><div class="onb-opt-name">Débutant</div><div class="onb-opt-sub">Premières randos</div></div>
+        <div class="onb-opt" id="lvl-intermediate" onclick="selLvl('intermediate')"><div class="onb-opt-icon"><i class="ti ti-mountain"></i></div><div class="onb-opt-name">Intermédiaire</div><div class="onb-opt-sub">Quelques saisons</div></div>
+        <div class="onb-opt" id="lvl-expert" onclick="selLvl('expert')"><div class="onb-opt-icon"><i class="ti ti-medal"></i></div><div class="onb-opt-name">Expert</div><div class="onb-opt-sub">Trekkeur confirmé</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px">Type de sortie ?</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="onb-opt" id="mode-journee" onclick="selMode('journee')"><div class="onb-opt-icon"><i class="ti ti-sun"></i></div><div class="onb-opt-name">Journée</div><div class="onb-opt-sub">Retour le soir</div></div>
+        <div class="onb-opt" id="mode-trek" onclick="selMode('trek')"><div class="onb-opt-icon"><i class="ti ti-tent"></i></div><div class="onb-opt-name">Trek</div><div class="onb-opt-sub">Bivouac / refuges</div></div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="finishOnb()"><i class="ti ti-check" style="font-size:13px"></i>Voir mon kit</button>
+  </div>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-wrap" id="email-modal" onclick="closeModalOuter('email-modal',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Recevoir mon kit par email</div>
+    <div style="margin-bottom:12px"><label class="form-lbl">Adresse email</label><input class="form-input" id="email-addr" type="email" placeholder="prenom@email.com"></div>
+    <div style="margin-bottom:14px"><label class="form-lbl" style="margin-bottom:6px">Aperçu</label><div class="email-preview" id="email-preview"></div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1;justify-content:center" onclick="closeModal('email-modal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center" onclick="sendEmail()"><i class="ti ti-mail" style="font-size:13px"></i>Ouvrir ma messagerie</button>
+    </div>
+    <p style="font-size:10px;color:var(--hint);margin-top:8px;text-align:center">Aucune donnée envoyée à un serveur — ouvre ta messagerie locale.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────
+const GEAR = {
+  trek: {
+    indispensable: [
+      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide, semelle Vibram recommandée',links:[]},
+      {id:'batons',name:'Bâtons de rando',note:null,links:[]},
+      {id:'sac50',name:'Sac à dos trek 50+10L',note:null,links:[{l:'Decathlon MT900',u:'https://www.decathlon.fr/p/sac-a-dos-de-trekking-homme-50-10l-mt900-symbium/_/R-p-342061'}]},
+      {id:'frontale',name:'Frontale',note:null,links:[]},
+      {id:'powerbank',name:'Power bank',note:null,links:[]},
+      {id:'matelas',name:'Matelas gonflable',note:null,links:[{l:'Decathlon MT500',u:'https://www.decathlon.fr/p/matelas-gonflable-de-trekking-mt500-air-isolant-l-180-x-52-cm-1-personne/_/R-p-311475'}]},
+      {id:'duvet',name:'Duvet / sac de couchage',note:'0°C synthétique ou duvet selon budget',links:[{l:'Synthétique',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt500-0degc-synthetique/_/R-p-346447'},{l:'Duvet',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt900-0degc-duvet/_/R-p-309272'}]},
+      {id:'coupevent',name:'Coupe-vent',note:null,links:[]},
+      {id:'polaire',name:'Polaire',note:null,links:[]},
+      {id:'raincover',name:'Raincover (souvent fourni avec le sac)',note:null,links:[]},
+      {id:'calecons',name:'Caleçons longs Merinos / technique',note:'Évite les brûlures par frottement sur longues marches',links:[{l:'Decathlon Merinos',u:'https://www.decathlon.fr/p/sous-vetement-boxer-en-laine-merinos-de-trek-montagne-mt500-homme/_/R-p-306561'}]},
+      {id:'chaussettes',name:'Chaussettes techniques séchage rapide',note:'Éviter absolument le coton',links:[]},
+      {id:'claquettes',name:'Claquettes (camp)',note:null,links:[]},
+      {id:'bonnet',name:'Bonnet ou buff',note:'Nuits froides + casquette/buff la journée',links:[]},
+      {id:'camelbak',name:'Camelbak 3L',note:null,links:[]},
+      {id:'lifestraw',name:'Lifestraw — gourde filtrante 1L',note:null,links:[]},
+      {id:'barres',name:'Barres céréales, fruits secs, noix',note:null,links:[]},
+      {id:'lyophilise',name:'Lyophilisés — 2 repas/jour',note:null,links:[]},
+    ],
+    recommande: [
+      {id:'tshirt',name:'T-shirt Merinos MC/ML',note:'Sèche vite, chaud en froid, ne sent pas mauvais',links:[{l:'Decathlon Merinos',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
+      {id:'serviette',name:'Serviette microfibre',note:null,links:[]},
+      {id:'cuillere',name:'Cuillère trek pliable',note:null,links:[]},
+    ],
+    facultatif: [
+      {id:'oreiller',name:'Oreiller gonflable',note:null,links:[{l:'Decathlon MT500',u:'https://www.decathlon.fr/p/oreiller-de-trekking-gonflable-mt500/_/R-p-343604'}]},
+      {id:'pantpluie',name:'Pantalon de pluie',note:null,links:[]},
+      {id:'poncho',name:'Veste poncho pluie',note:null,links:[]},
+      {id:'gourdes',name:'Gourdes 2×1.2L',note:null,links:[]},
+      {id:'solaire',name:'Stick solaire SPF50',note:'Indispensable pour les peaux claires en altitude',links:[]},
+      {id:'sacetanche',name:'Sac étanche',note:null,links:[{l:'Sea to Summit 13L',u:'https://www.decathlon.fr/p/mp/sea-to-summit/sac-etanche-ultra-leger-sea-to-summit-13l/_/R-p-1a4f06ca'}]},
+      {id:'sactri',name:'Sac pour trier vêtements',note:null,links:[]},
+      {id:'crampons',name:'Crampons',note:'Début/fin de saison uniquement',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
+      {id:'short',name:'Short',note:'Selon préférences',links:[]},
+      {id:'pantleger',name:'Pantalon léger',note:'Selon préférences',links:[]},
+    ]
+  },
+  journee: {
+    indispensable: [
+      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide',links:[]},
+      {id:'batons',name:'Bâtons de marche',note:null,links:[]},
+      {id:'sac20',name:'Sac à dos 20–30L',note:null,links:[]},
+      {id:'coupevent',name:'Coupe-vent / veste imperméable',note:null,links:[]},
+      {id:'camelbak',name:'Gourde / Camelbak 1.5–2L min',note:null,links:[]},
+      {id:'frontale',name:'Frontale',note:'Même en journée — en cas de retard',links:[]},
+      {id:'barres',name:'Barres céréales, fruits secs, noix',note:null,links:[]},
+      {id:'bonnet',name:'Casquette + buff',note:null,links:[]},
+    ],
+    recommande: [
+      {id:'tshirt',name:'T-shirt Merinos',note:'Sèche vite, ne sent pas mauvais',links:[{l:'Decathlon Merinos',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
+      {id:'chaussettes',name:'Chaussettes techniques',note:'Éviter le coton',links:[]},
+      {id:'solaire',name:'Stick solaire SPF50',note:null,links:[]},
+      {id:'powerbank',name:'Power bank',note:null,links:[]},
+    ],
+    facultatif: [
+      {id:'poncho',name:'Poncho pluie',note:null,links:[]},
+      {id:'crampons',name:'Crampons',note:'Début/fin de saison',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
+      {id:'gourdes',name:'Gourdes extra',note:null,links:[]},
+    ]
+  }
+};
+
+const WICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌦️',61:'🌧️',63:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+const wi = c => WICONS[c] || '🌤️';
+const AVCOLORS = [['#CECBF6','#3C3489'],['#9FE1CB','#085041'],['#FAC775','#633806'],['#F4C0D1','#72243E'],['#B5D4F4','#0C447C']];
+const avS = i => { const [b,c]=AVCOLORS[i%AVCOLORS.length]; return `background:${b};color:${c}`; };
+const LVLS = {newbie:{l:'Débutant',cls:'ta'},intermediate:{l:'Intermédiaire',cls:'tg'},expert:{l:'Expert',cls:'tb'}};
+
+let randos = [
+  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR.'},
+  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024 (Refuges.info). Vérifier ouverture avant départ.',src:'Refuges.info'},desc:'Traversée avec bivouac. Grand Veymont 2341m. Eau régulière.'},
+  {id:3,name:"Canyon de l'Ardèche",region:'Ardèche',diff:'Facile',km:9,dplus:280,dur:'1j',lat:44.37,lon:4.38,votes:{oui:2,peut:2},myVote:null,alert:null,desc:'Gorges spectaculaires. GR4. Baignade possible.'},
+];
+
+let feedbacks = [
+  {id:1,text:'Pouvoir filtrer les randos par dénivelé max',cat:'feature',author:'Thomas',votes:{up:3,down:0},myVote:null,ts:'il y a 2j'},
+  {id:2,text:'Ajouter une section "après rando" pour partager des photos',cat:'feature',author:'Sofia',votes:{up:5,down:0},myVote:'up',ts:'il y a 1j'},
+  {id:3,text:'Le bouton vote est un peu petit sur mobile',cat:'ux',author:'Lucas',votes:{up:2,down:0},myVote:null,ts:'hier'},
+];
+
+const membres = [
+  {name:'Thomas',initials:'TH',level:'expert',km:510,dplus:29000},
+  {name:'Sofia',initials:'SF',level:'intermediate',km:210,dplus:9800},
+  {name:'Lucas',initials:'LM',level:'newbie',km:30,dplus:800},
+  {name:'Camille',initials:'CA',level:'newbie',km:15,dplus:300},
+];
+
+let user = null;
+let onbLvl = null, onbMode = null;
+let openSec = {indispensable:true,recommande:false,facultatif:false};
+
+// ─── UTILS ─────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('nav-'+t).classList.add('active');
+  if (t === 'kit') renderKit();
+  if (t === 'profil') renderProfil();
+  if (t === 'groupe') renderGroupe();
+  if (t === 'feedback') renderFeedback();
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOuter(id, e) { if (e.target === document.getElementById(id)) closeModal(id); }
+function saveUser() { try { localStorage.setItem('altimates_v2_user', JSON.stringify(user)); } catch(e) {} }
+function loadUser() {
+  try { const s = localStorage.getItem('altimates_v2_user'); if (s) { user = JSON.parse(s); return true; } } catch(e) {}
+  return false;
+}
+function saveFeedbacks() { try { localStorage.setItem('altimates_feedbacks', JSON.stringify(feedbacks)); } catch(e) {} }
+function loadFeedbacks() { try { const s = localStorage.getItem('altimates_feedbacks'); if (s) feedbacks = JSON.parse(s); } catch(e) {} }
+function saveRandos() { try { localStorage.setItem('altimates_randos', JSON.stringify(randos)); } catch(e) {} }
+function loadRandos() { try { const s = localStorage.getItem('altimates_randos'); if (s) { const r = JSON.parse(s); if (r.length) randos = r; } } catch(e) {} }
+
+// ─── RANDOS ────────────────────────────────────────────────
+function renderRandos() {
+  const c = document.getElementById('rando-list');
+  c.innerHTML = randos.map(r => `
+    <div class="rcard" id="rc-${r.id}">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px">
+        <div class="spinner"></div>
+        <span style="font-size:11px;color:var(--muted)">Météo en cours…</span>
+      </div>
+    </div>`).join('');
+  randos.forEach(r => fetchWeather(r));
+}
+
+async function fetchWeather(r) {
+  const el = document.getElementById('rc-'+r.id);
+  if (!el) return;
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&daily=temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode&forecast_days=4&timezone=Europe/Paris`;
+    const res = await fetch(url);
+    const d = await res.json();
+    const days = d.daily;
+    const temp = Math.round(days.temperature_2m_max[0]);
+    const wind = Math.round(days.windspeed_10m_max[0]);
+    const rain = days.precipitation_sum[0];
+    const code = days.weathercode[0];
+    let wcls = 'w-ok', wlbl = 'Idéal';
+    if (rain > 5 || code >= 61) { wcls = 'w-bad'; wlbl = 'Pluie'; }
+    else if (rain > 1 || code >= 51 || wind > 40) { wcls = 'w-mid'; wlbl = 'Mitigé'; }
+    else if (wind > 25) { wcls = 'w-mid'; wlbl = 'Venteux'; }
+    const fcHTML = days.weathercode.slice(0,4).map((c,i) => {
+      const dt = new Date(days.time[i]);
+      const dn = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][dt.getDay()];
+      const rr = days.precipitation_sum[i];
+      return `<div class="fc"><div class="fc-d">${dn}</div><div class="fc-i">${wi(c)}</div><div class="fc-t">${Math.round(days.temperature_2m_max[i])}°</div><div class="fc-r">${rr>0?rr.toFixed(1)+'mm':''}</div></div>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="rcard-top" onclick="openRando(${r.id})">
+        <div class="rcard-main">${rcardMain(r)}</div>
+        <div class="rcard-weather ${wcls}">
+          <div class="w-icon">${wi(code)}</div>
+          <div class="w-temp">${temp}°</div>
+          <div class="w-lbl">${wlbl}</div>
+          <div class="w-wind"><i class="ti ti-wind" style="font-size:9px"></i>${wind}km/h</div>
+        </div>
+      </div>
+      <div class="forecast">${fcHTML}</div>
+      ${r.alert ? `<div style="padding:0 14px 10px"><div class="alert-band"><i class="ti ti-alert-triangle"></i><div class="alert-text"><strong>Alerte :</strong> ${r.alert.text}</div></div></div>` : ''}`;
+  } catch(e) {
+    el.innerHTML = `<div class="rcard-top" onclick="openRando(${r.id})"><div class="rcard-main">${rcardMain(r)}</div><div class="rcard-weather w-mid" style="justify-content:center"><div style="font-size:9px;color:var(--amber-dark);text-align:center">Météo<br>indispo</div></div></div>`;
+  }
+}
+
+function rcardMain(r) {
+  const dc = r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':r.diff==='Trek'?'tb':'tr';
+  return `<div class="rname">${r.name}${r.alert?'<span class="alert-dot" title="Alerte sécurité"></span>':''}</div>
+    <div class="rreg"><i class="ti ti-map-pin" style="font-size:11px"></i>${r.region}</div>
+    <div class="rstats"><span class="rst"><i class="ti ti-ruler-2"></i>${r.km}km</span><span class="rst"><i class="ti ti-trending-up"></i>+${r.dplus}m</span><span class="rst"><i class="ti ti-clock"></i>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
+    <div class="vrow">
+      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote(${r.id},'oui')"><i class="ti ti-thumb-up" style="font-size:11px"></i>${r.myVote==='oui'?'Voté !':'Partant·e'}</button>
+      <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote(${r.id},'peut')"><i class="ti ti-question-mark" style="font-size:11px"></i>Peut-être</button>
+      <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
+    </div>`;
+}
+
+function vote(id, v) {
+  const r = randos.find(x => x.id === id);
+  if (r.myVote === v) { r.myVote = null; r.votes[v]--; }
+  else { if (r.myVote) r.votes[r.myVote]--; r.myVote = v; r.votes[v]++; }
+  saveRandos();
+  const el = document.getElementById('rc-'+id);
+  const main = el.querySelector('.rcard-main');
+  if (main) main.innerHTML = rcardMain(r);
+  toast(v==='oui'?'✓ Partant·e !':'Vote enregistré');
+}
+
+function openRando(id) {
+  const r = randos.find(x => x.id === id);
+  document.getElementById('rando-modal-body').innerHTML = `
+    <p style="font-size:16px;font-weight:500;margin-bottom:3px">${r.name}</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px"><i class="ti ti-map-pin" style="font-size:11px"></i> ${r.region}</p>
+    <div class="modal-stats">
+      ${[['ti-ruler-2',r.km+'km'],['ti-trending-up','+'+r.dplus+'m'],['ti-clock',r.dur],['ti-mountain',r.diff]].map(([ic,v])=>`<div class="modal-stat"><i class="ti ${ic}" style="font-size:15px;color:var(--green)"></i><div class="modal-stat-val">${v}</div></div>`).join('')}
+    </div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px">${r.desc}</p>
+    ${r.alert?`<div class="alert-band" style="margin-bottom:14px"><i class="ti ti-alert-triangle"></i><div class="alert-text"><strong>Alerte :</strong> ${r.alert.text} <em>(${r.alert.src})</em></div></div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"><i class="ti ti-device-watch" style="font-size:13px"></i>Envoyer sur Garmin</button>
+      <button class="btn btn-sm btn-primary" onclick="vote(${r.id},'oui');closeModal('rando-modal')"><i class="ti ti-thumb-up" style="font-size:12px"></i>Partant·e</button>
+    </div>`;
+  openModal('rando-modal');
+}
+
+function downloadGPX(id, name) {
+  const r = randos.find(x => x.id === id);
+  const gpx = `<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="Altimates" xmlns="http://www.topografix.com/GPX/1/1"><metadata><name>${name}</name></metadata><trk><name>${name}</name><trkseg><trkpt lat="${r.lat}" lon="${r.lon}"><ele>1000</ele></trkpt></trkseg></trk></gpx>`;
+  const a = document.createElement('a');
+  a.href = 'data:application/gpx+xml;charset=utf-8,' + encodeURIComponent(gpx);
+  a.download = name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '.gpx';
+  a.click();
+  toast('📥 GPX téléchargé — ouvre Garmin Connect pour importer');
+}
+
+function submitRando() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('⚠️ Donne un nom'); return; }
+  const r = {id: Date.now(), name, region: document.getElementById('f-reg').value||'France',
+    diff: document.getElementById('f-diff').value,
+    km: parseInt(document.getElementById('f-km').value)||15,
+    dplus: parseInt(document.getElementById('f-dp').value)||800,
+    dur:'1j', lat:45.5, lon:6.0, votes:{oui:1,peut:0}, myVote:'oui', alert:null,
+    desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  randos.unshift(r);
+  saveRandos();
+  closeModal('add-modal');
+  renderRandos();
+  toast('🏔️ Rando proposée au groupe !');
+}
+
+// ─── KIT ───────────────────────────────────────────────────
+function renderKit() {
+  const c = document.getElementById('kit-body');
+  if (!user) {
+    c.innerHTML = `<div style="text-align:center;padding:32px 16px;color:var(--muted)">
+      <i class="ti ti-backpack" style="font-size:40px;display:block;margin-bottom:10px;color:var(--green)"></i>
+      <p style="font-size:14px;font-weight:500;margin-bottom:6px">Configure ton kit</p>
+      <p style="font-size:13px;margin-bottom:16px;line-height:1.5">2 questions rapides pour voir ta liste personnalisée avec les liens Decathlon.</p>
+      <button class="btn btn-primary" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:13px"></i>Configurer mon kit</button>
+    </div>`; return;
+  }
+  const gear = GEAR[user.mode];
+  const all = [...gear.indispensable,...gear.recommande,...gear.facultatif];
+  const done = all.filter(g => user.checked && user.checked[g.id]).length;
+  const pct = Math.round(done/all.length*100);
+  const secs = [
+    {k:'indispensable',l:'Indispensables',tag:'tr',items:gear.indispensable},
+    {k:'recommande',l:'Recommandés',tag:'ta',items:gear.recommande},
+    {k:'facultatif',l:'Facultatifs',tag:'tp',items:gear.facultatif},
+  ];
+  c.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-size:14px;font-weight:500">${user.name}</div>
+          <span class="tag ${LVLS[user.level].cls}" style="margin-top:3px">${LVLS[user.level].l}</span>
+          <span class="tag ${user.mode==='trek'?'tb':'tg'}" style="margin-top:3px;margin-left:4px">${user.mode==='trek'?'Trek':'Journée'}</span>
+        </div>
+        <div style="text-align:right"><div style="font-size:20px;font-weight:500;color:var(--green)">${pct}%</div><div style="font-size:10px;color:var(--muted)">${done}/${all.length} items</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" onclick="openEmailModal()"><i class="ti ti-mail" style="font-size:12px"></i>Recevoir par email</button>
+        <button class="btn btn-sm" onclick="switchMode()"><i class="ti ti-refresh" style="font-size:12px"></i>${user.mode==='trek'?'Mode journée':'Mode trek'}</button>
+      </div>
+    </div>
+    ${user.level==='newbie'?`<div class="info-box"><i class="ti ti-bulb"></i><p>Coche les articles que tu possèdes déjà. Les liens renvoient vers Decathlon pour les achats manquants.</p></div>`:''}
+    <div class="card" style="padding:0 15px">
+      ${secs.map(s=>{
+        const doneS = s.items.filter(g=>user.checked&&user.checked[g.id]).length;
+        const open = openSec[s.k];
+        return `<div class="sec-toggle" onclick="toggleSec('${s.k}')">
+          <div class="sec-toggle-title"><span class="tag ${s.tag}">${s.l}</span><span style="font-size:11px;color:var(--muted)">${s.items.length} articles</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:var(--muted)">${doneS}/${s.items.length}</span><i class="ti ${open?'ti-chevron-up':'ti-chevron-down'}" style="font-size:15px;color:var(--muted)"></i></div>
+        </div>
+        ${open?`<div>${s.items.map(g=>gearRow(g)).join('')}</div>`:''}`;
+      }).join('')}
+    </div>`;
+}
+
+function gearRow(g) {
+  const done = user && user.checked && user.checked[g.id];
+  return `<div class="gear-item">
+    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}" aria-label="${g.name}">
+      ${done?'<i class="ti ti-check"></i>':''}
+    </div>
+    <div class="gear-body">
+      <div class="gear-name ${done?'done':''}">${g.name}</div>
+      ${g.note?`<div class="gear-note">${g.note}</div>`:''}
+      ${g.links&&g.links.length?`<div class="gear-links">${g.links.map(l=>`<a class="gear-link" href="${l.u}" target="_blank"><i class="ti ti-external-link" style="font-size:10px"></i>${l.l}</a>`).join('')}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function toggleGear(id) {
+  if (!user) return;
+  if (!user.checked) user.checked = {};
+  user.checked[id] = !user.checked[id];
+  saveUser(); renderKit();
+}
+function toggleSec(k) { openSec[k] = !openSec[k]; renderKit(); }
+function switchMode() { user.mode = user.mode==='trek'?'journee':'trek'; saveUser(); renderKit(); }
+
+// ─── FEEDBACK ──────────────────────────────────────────────
+const CATL = {feature:'Fonctionnalité',ux:'UX',bug:'Bug',content:'Contenu'};
+const CATCLS = {feature:'tb',ux:'tg',bug:'tr',content:'ta'};
+
+function renderFeedback() {
+  const c = document.getElementById('feedback-list');
+  if (!feedbacks.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Aucune idée pour l\'instant. Sois le premier !</div>'; return; }
+  const sorted = [...feedbacks].sort((a,b) => (b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
+  c.innerHTML = sorted.map(f => `
+    <div class="card feedback-item" style="padding:12px 14px;margin-bottom:8px">
+      <div class="feedback-meta">
+        <span class="tag ${CATCLS[f.cat]}">${CATL[f.cat]}</span>
+        <span>${f.author}</span>
+        <span>${f.ts}</span>
+      </div>
+      <div class="feedback-text" style="margin-bottom:10px">${f.text}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')">
+          <i class="ti ti-thumb-up" style="font-size:12px"></i>${f.votes.up}
+        </button>
+        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')">
+          <i class="ti ti-thumb-down" style="font-size:12px"></i>${f.votes.down}
+        </button>
+        ${f.votes.up >= 3 ? '<span class="tag tg" style="margin-left:auto"><i class="ti ti-star" style="font-size:10px"></i>Populaire</span>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+function voteFb(id, v) {
+  const f = feedbacks.find(x => x.id === id);
+  if (f.myVote === v) { f.myVote = null; f.votes[v]--; }
+  else { if (f.myVote) f.votes[f.myVote]--; f.myVote = v; f.votes[v]++; }
+  saveFeedbacks(); renderFeedback();
+}
+
+function submitFeedback() {
+  const text = document.getElementById('fb-text').value.trim();
+  if (!text) { toast('⚠️ Écris ton idée'); return; }
+  const fb = {id: Date.now(), text, cat: document.getElementById('fb-cat').value,
+    author: user ? user.name : 'Anonyme', votes:{up:1,down:0}, myVote:'up', ts:'à l\'instant'};
+  feedbacks.unshift(fb);
+  saveFeedbacks();
+  document.getElementById('fb-text').value = '';
+  renderFeedback();
+  toast('💡 Idée soumise au groupe !');
+}
+
+// ─── GROUPE ────────────────────────────────────────────────
+function renderGroupe() {
+  document.getElementById('membres-list').innerHTML = membres.map((m,i) => `
+    <div class="member-row">
+      <div class="sm-av" style="${avS(i)}">${m.initials}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${m.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${m.km}km · +${m.dplus.toLocaleString()}m D+</div>
+      </div>
+      <span class="tag ${LVLS[m.level].cls}">${LVLS[m.level].l}</span>
+    </div>`).join('');
+  document.getElementById('invite-link').value = window.location.href;
+}
+
+function copyInvite() {
+  const link = document.getElementById('invite-link').value;
+  navigator.clipboard.writeText(link).catch(()=>{});
+  toast('🔗 Lien copié !');
+}
+
+// ─── PROFIL ────────────────────────────────────────────────
+function renderProfil() {
+  const c = document.getElementById('profil-body');
+  if (!user) {
+    c.innerHTML = `<div class="card" style="text-align:center;padding:24px">
+      <p style="font-size:14px;margin-bottom:12px">Aucun profil configuré</p>
+      <button class="btn btn-primary" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:13px"></i>Créer mon profil</button>
+    </div>`; return;
+  }
+  const gear = GEAR[user.mode];
+  const all = [...gear.indispensable,...gear.recommande,...gear.facultatif];
+  const done = all.filter(g => user.checked && user.checked[g.id]).length;
+  c.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="sm-av" style="${avS(4)};width:50px;height:50px;font-size:16px">${user.name.slice(0,2).toUpperCase()}</div>
+        <div><div style="font-size:16px;font-weight:500">${user.name}</div>
+          <span class="tag ${LVLS[user.level].cls}">${LVLS[user.level].l}</span>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="sbox"><div class="sval">${done}</div><div class="slbl">équip. cochés</div></div>
+        <div class="sbox"><div class="sval">${all.length-done}</div><div class="slbl">à acheter</div></div>
+        <div class="sbox"><div class="sval">${Math.round(done/all.length*100)}%</div><div class="slbl">kit complet</div></div>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-primary" onclick="showTab('kit')"><i class="ti ti-backpack" style="font-size:12px"></i>Mon kit</button>
+        <button class="btn btn-sm" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:12px"></i>Modifier</button>
+        <button class="btn btn-sm btn-danger" onclick="resetUser()"><i class="ti ti-trash" style="font-size:12px"></i>Réinitialiser</button>
+      </div>
+    </div>
+    ${user.level==='newbie'?`<div class="info-box"><i class="ti ti-sparkles"></i><p>Ton starter pack est prêt dans l'onglet Kit — avec les liens Decathlon pour chaque article manquant.</p></div>`:''}`;
+}
+
+function resetUser() { user = null; saveUser(); renderProfil(); document.getElementById('hdr-av').textContent = '?'; document.getElementById('hdr-av').style = 'background:#E1F5EE;color:#0F6E56'; }
+
+// ─── ONBOARDING ────────────────────────────────────────────
+function selLvl(l) {
+  document.querySelectorAll('[id^=lvl-]').forEach(x => x.classList.remove('sel'));
+  document.getElementById('lvl-'+l).classList.add('sel');
+  onbLvl = l;
+}
+function selMode(m) {
+  document.querySelectorAll('[id^=mode-]').forEach(x => x.classList.remove('sel'));
+  document.getElementById('mode-'+m).classList.add('sel');
+  onbMode = m;
+}
+function finishOnb() {
+  const name = document.getElementById('onb-name').value.trim();
+  if (!name) { toast('⚠️ Entre ton prénom'); return; }
+  if (!onbLvl) { toast('⚠️ Choisis ton niveau'); return; }
+  if (!onbMode) { toast('⚠️ Choisis le type de sortie'); return; }
+  user = { name, level: onbLvl, mode: onbMode, checked: {} };
+  if (document.getElementById('onb-name').value) {
+    const old = document.getElementById('onb-name');
+    if (old._prev) { user.checked = old._prev.checked || {}; }
+  }
+  saveUser();
+  closeModal('onb-modal');
+  const av = document.getElementById('hdr-av');
+  av.textContent = name.slice(0,2).toUpperCase();
+  av.style = avS(4);
+  toast('Bienvenue ' + name + ' ! 🏔️');
+  if (onbLvl === 'newbie') { setTimeout(() => showTab('kit'), 400); }
+  else { renderProfil(); }
+}
+
+// ─── EMAIL ─────────────────────────────────────────────────
+function openEmailModal() {
+  buildEmailPreview();
+  openModal('email-modal');
+}
+function buildEmailPreview() {
+  if (!user) return '';
+  const gear = GEAR[user.mode];
+  const modeL = user.mode==='trek'?'Trek multi-jours':'Journée';
+  let lines = [`Kit Altimates — ${user.name} · ${modeL}`, ''];
+  [['indispensable','✅ INDISPENSABLES'],['recommande','👍 RECOMMANDÉS'],['facultatif','💡 FACULTATIFS']].forEach(([k,label]) => {
+    lines.push(label);
+    gear[k].forEach(g => {
+      const ch = user.checked&&user.checked[g.id]?'[x]':'[ ]';
+      lines.push(`${ch} ${g.name}${g.note?' — '+g.note:''}`);
+      if (g.links) g.links.forEach(l => lines.push(`    → ${l.l}: ${l.u}`));
+    });
+    lines.push('');
+  });
+  lines.push('---\nGénéré par Altimates 🏔️');
+  const preview = lines.map(l => `<div>${l||'&nbsp;'}</div>`).join('');
+  document.getElementById('email-preview').innerHTML = preview;
+  return lines.join('\n');
+}
+function sendEmail() {
+  const addr = document.getElementById('email-addr').value.trim();
+  const body = buildEmailPreview().replace ? buildEmailPreview() : '';
+  const subject = encodeURIComponent(`Mon kit Altimates — ${user?user.mode==='trek'?'Trek':'Journée':''}`);
+  window.location.href = `mailto:${addr}?subject=${subject}&body=${encodeURIComponent(body)}`;
+  setTimeout(() => { closeModal('email-modal'); toast('📧 Messagerie ouverte !'); }, 300);
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+function init() {
+  loadRandos();
+  loadFeedbacks();
+  document.getElementById('grp-sub').textContent = `Groupe · ${membres.length+1} membres`;
+  if (loadUser()) {
+    const av = document.getElementById('hdr-av');
+    av.textContent = user.name.slice(0,2).toUpperCase();
+    av.style = avS(4);
+  } else {
+    setTimeout(() => openModal('onb-modal'), 500);
+  }
+  renderRandos();
+}
+init();
+</script>
+</body>
+</html>
