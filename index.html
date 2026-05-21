@@ -1,98 +1,103 @@
-<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Altimates</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>ALTImates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,700;0,800;1,700&family=DM+Mono:wght@400;500&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
-:root {
-  --kraft:#F7F3EC; --kraft2:#F0EBE0; --kraft3:#E8E0D0;
-  --ink:#2D2D2A; --ink2:#4A4840; --ink3:#6B6560;
-  --gold:#E8C84A; --gold2:#C9A832; --gold-bg:#FDF8E6;
-  --red:#C4531A; --red-bg:#FAE8DC;
-  --blue:#4A7FA8; --blue-bg:#E4EEF7;
-  --border:rgba(45,45,42,.1); --border2:rgba(45,45,42,.18);
-  --font:'DM Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
-  --r:10px; --r-lg:14px;
+/* ── VARIABLES ── */
+:root{
+  --kraft:#F7F3EC;--kraft2:#F0EBE0;--kraft3:#E4DDD0;--kraft4:#D8D0C0;
+  --ink:#2D2D2A;--ink2:#4A4840;--ink3:#6B6560;--ink4:#9C9588;
+  --gold:#E8C84A;--gold2:#C9A832;--gold3:#8C7000;--gold-bg:#FDF8E6;
+  --red:#C4531A;--red-bg:#FAE8DC;--red2:#A02020;--red-bg2:#FCE8E8;
+  --blue:#4A7FA8;--blue-bg:#E4EEF7;
+  --green:#2A5C35;--green-bg:#D4EDD9;--green2:#3D6B4F;
+  --border:rgba(45,45,42,.1);--border2:rgba(45,45,42,.16);
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:10px;--rl:14px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--kraft);color:var(--ink);font-family:var(--font);font-size:15px;overscroll-behavior:none}
-
-/* ── TOPO BACKGROUND ── */
-.topo-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:.55}
-.topo-bg svg{width:100%;height:100%}
-
+ 
+/* ── TOPO BG ── */
+.topo-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+ 
 /* ── LAYOUT ── */
-.app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
-.header{background:rgba(247,243,236,.95);backdrop-filter:blur(8px);border-bottom:0.5px solid var(--border2);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
-.logo{display:flex;align-items:center;gap:8px}
-.logo-mark{width:30px;height:30px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center}
-.logo-mark i{color:var(--gold);font-size:16px}
-.logo-name{font-size:15px;font-weight:500;letter-spacing:-.3px}
-.logo-elev{font-size:9px;color:var(--ink3);font-family:var(--mono);letter-spacing:.05em}
-.av-btn{width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;background:var(--gold-bg);color:var(--ink);font-family:var(--mono)}
-
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+ 
+/* ── HEADER ── */
+.header{background:rgba(247,243,236,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-icon{width:30px;height:30px;flex-shrink:0}
+.logo-name{line-height:1}
+.logo-name .alti{font-family:var(--font);font-weight:800;font-size:16px;color:var(--ink);letter-spacing:.04em}
+.logo-name .mates{font-family:var(--font);font-weight:700;font-style:italic;font-size:16px;color:var(--gold2);letter-spacing:-.1px}
+.logo-sub{font-size:8px;color:var(--ink4);font-family:var(--mono);letter-spacing:.08em;margin-top:1px}
+.av-btn{width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;background:var(--gold-bg);color:var(--ink);font-family:var(--mono);transition:transform .15s}
+.av-btn:active{transform:scale(.9)}
+ 
 /* ── NAV ── */
-.nav{display:flex;background:rgba(247,243,236,.95);backdrop-filter:blur(8px);border-bottom:0.5px solid var(--border2)}
-.nav-btn{flex:1;padding:9px 4px 7px;border:none;background:none;font-size:9px;color:var(--ink3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;transition:color .15s}
-.nav-btn i{font-size:17px}
+.nav{display:flex;background:rgba(247,243,236,.95);backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:1;min-width:52px;padding:8px 3px 6px;border:none;background:none;font-size:8px;color:var(--ink4);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase;transition:color .15s;white-space:nowrap}
+.nav-btn svg{width:17px;height:17px;flex-shrink:0}
 .nav-btn.active{color:var(--ink);border-bottom-color:var(--gold)}
-
+ 
 /* ── TABS ── */
 .tab{display:none;padding:14px;flex:1}
 .tab.active{display:block}
 .sec{font-size:9px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;margin-top:2px;font-family:var(--mono)}
-
+ 
 /* ── CARDS ── */
-.card{background:rgba(255,255,255,.75);border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:13px 15px;margin-bottom:10px;backdrop-filter:blur(4px)}
-
+.card{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--rl);padding:13px 15px;margin-bottom:10px;backdrop-filter:blur(4px)}
+ 
 /* ── BUTTONS ── */
-.btn{padding:8px 14px;border-radius:var(--r);font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--ink);display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font)}
-.btn:hover{background:var(--kraft2)}
-.btn:active{transform:scale(.98)}
+.btn{padding:8px 14px;border-radius:var(--r);font-size:12px;cursor:pointer;border:.5px solid var(--border2);background:transparent;color:var(--ink);display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font)}
+.btn:hover{background:var(--kraft2)}.btn:active{transform:scale(.97)}
 .btn-primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
-.btn-primary:hover{background:var(--ink2);border-color:var(--ink2)}
+.btn-primary:hover{background:var(--ink2)}
 .btn-gold{background:var(--gold);color:var(--ink);border-color:var(--gold2)}
 .btn-gold:hover{background:var(--gold2)}
 .btn-sm{padding:5px 10px;font-size:11px}
 .btn-full{width:100%;justify-content:center}
 .btn-danger{background:var(--red-bg);color:var(--red);border-color:transparent}
-.close-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--border2);background:var(--kraft2);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px}
+.close-btn{width:28px;height:28px;border-radius:50%;border:.5px solid var(--border2);background:var(--kraft2);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px;transition:background .15s}
 .close-btn:hover{background:var(--kraft3)}
-
+ 
 /* ── TAGS ── */
 .tag{font-size:9px;padding:2px 7px;border-radius:20px;display:inline-flex;align-items:center;gap:2px;font-weight:500;font-family:var(--mono);letter-spacing:.03em}
-.tg{background:#D4EDD9;color:#2A5C35}
+.tg{background:var(--green-bg);color:var(--green)}
 .ta{background:var(--red-bg);color:var(--red)}
-.tr{background:#FCE8E8;color:#A02020}
+.tr{background:var(--red-bg2);color:var(--red2)}
 .tb{background:var(--blue-bg);color:var(--blue)}
-.tgold{background:var(--gold-bg);color:var(--gold2)}
-
+.tgold{background:var(--gold-bg);color:var(--gold3)}
+ 
 /* ── FORM ── */
-.form-lbl{font-size:10px;color:var(--ink3);margin-bottom:4px;display:block;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
-.form-input{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:var(--r);font-size:13px;background:rgba(255,255,255,.8);color:var(--ink);font-family:var(--font);outline:none;transition:border-color .15s}
+.form-lbl{font-size:10px;color:var(--ink3);margin-bottom:4px;display:block;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;padding:8px 10px;border:.5px solid var(--border2);border-radius:var(--r);font-size:13px;background:rgba(255,255,255,.8);color:var(--ink);font-family:var(--font);outline:none;transition:border-color .15s}
 .form-input:focus{border-color:var(--gold2)}
+select.form-input{appearance:none}
 .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-
-/* ── RANDO CARD ── */
-.rcard{background:rgba(255,255,255,.78);border:0.5px solid var(--border2);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .15s;backdrop-filter:blur(4px)}
+ 
+/* ── RANDO CARDS ── */
+.rcard{background:rgba(255,255,255,.78);border:.5px solid var(--border2);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .rcard:hover{border-color:var(--gold2)}
 .rcard-top{display:flex}
-.rcard-main{flex:1;padding:12px 13px}
-.rcard-wx{width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-left:0.5px solid var(--border)}
-.wx-ok{background:#EEF8EE} .wx-mid{background:var(--gold-bg)} .wx-bad{background:var(--red-bg)}
+.rcard-main{flex:1;padding:11px 13px}
+.rcard-wx{width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-left:.5px solid var(--border)}
+.wx-ok{background:#EEF8EE}.wx-mid{background:var(--gold-bg)}.wx-bad{background:var(--red-bg)}
 .wx-icon{font-size:22px;line-height:1;margin-bottom:1px}
 .wx-temp{font-size:14px;font-weight:500;font-family:var(--mono)}
-.wx-ok .wx-temp{color:#2A5C35} .wx-mid .wx-temp{color:var(--gold2)} .wx-bad .wx-temp{color:var(--red)}
-.wx-lbl{font-size:8px;font-weight:500;padding:1px 5px;border-radius:8px;margin-top:2px;font-family:var(--mono)}
-.wx-ok .wx-lbl{background:#C4E8C4;color:#1A4020} .wx-mid .wx-lbl{background:#F5D870;color:#6B4A00} .wx-bad .wx-lbl{background:#F5C0B0;color:#8A2010}
+.wx-ok .wx-temp{color:var(--green)}.wx-mid .wx-temp{color:var(--gold2)}.wx-bad .wx-temp{color:var(--red)}
+.wx-lbl{font-size:8px;padding:1px 5px;border-radius:8px;margin-top:2px;font-family:var(--mono);font-weight:500}
+.wx-ok .wx-lbl{background:#C4E8C4;color:#1A4020}.wx-mid .wx-lbl{background:#F5D870;color:#6B4A00}.wx-bad .wx-lbl{background:#F5C0B0;color:#8A2010}
 .wx-wind{font-size:8px;margin-top:2px;font-family:var(--mono)}
-.wx-ok .wx-wind{color:#2A5C35} .wx-mid .wx-wind{color:var(--gold2)} .wx-bad .wx-wind{color:var(--red)}
-.forecast{display:flex;gap:3px;padding:7px 13px;border-top:0.5px solid var(--border);background:rgba(240,235,224,.5)}
+.wx-ok .wx-wind{color:var(--green)}.wx-mid .wx-wind{color:var(--gold2)}.wx-bad .wx-wind{color:var(--red)}
+.forecast{display:flex;gap:3px;padding:7px 13px;border-top:.5px solid var(--border);background:rgba(240,235,224,.5)}
 .fc{flex:1;text-align:center}
 .fc-d{font-size:8px;color:var(--ink3);font-family:var(--mono);margin-bottom:1px}
 .fc-i{font-size:12px;line-height:1}
@@ -102,203 +107,501 @@ html,body{height:100%;background:var(--kraft);color:var(--ink);font-family:var(-
 .rreg{font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:2px;margin-bottom:6px;font-family:var(--mono)}
 .rstats{display:flex;gap:8px;margin-bottom:7px;flex-wrap:wrap}
 .rst{display:flex;align-items:center;gap:2px;font-size:10px;color:var(--ink3);font-family:var(--mono)}
-.rst i{font-size:11px}
-.vrow{display:flex;align-items:center;gap:5px;padding-top:8px;border-top:0.5px solid var(--border);margin-top:8px}
-.vbtn{flex:1;padding:5px;border-radius:var(--r);font-size:10px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:3px;transition:background .15s;font-family:var(--mono)}
+.vrow{display:flex;align-items:center;gap:5px;padding-top:8px;border-top:.5px solid var(--border);margin-top:8px}
+.vbtn{flex:1;padding:5px;border-radius:var(--r);font-size:10px;cursor:pointer;border:.5px solid var(--border2);background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:3px;transition:background .15s;font-family:var(--mono)}
 .vbtn:hover{background:var(--kraft2)}
-.vyes{background:#D4EDD9;color:#2A5C35;border-color:#A8D8B0}
-.vmay{background:var(--gold-bg);color:var(--gold2);border-color:#E8D070}
+.vyes{background:var(--green-bg);color:var(--green);border-color:#A8D8B0}
+.vmay{background:var(--gold-bg);color:var(--gold3);border-color:#E8D070}
 .vtally{font-size:9px;color:var(--ink3);white-space:nowrap;font-family:var(--mono)}
 .alert-dot{width:6px;height:6px;border-radius:50%;background:var(--red);display:inline-block;margin-left:4px;vertical-align:middle;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.alert-band{background:var(--red-bg);border:0.5px solid #F0A090;border-radius:var(--r);padding:7px 10px;margin-top:7px;display:flex;align-items:flex-start;gap:6px}
-.alert-band i{color:var(--red);flex-shrink:0;font-size:13px;margin-top:1px}
+.alert-band{background:var(--red-bg);border:.5px solid #F0A090;border-radius:var(--r);padding:7px 10px;margin-top:7px;display:flex;align-items:flex-start;gap:6px}
 .alert-text{font-size:10px;color:var(--red);line-height:1.5;font-family:var(--mono)}
-.spinner{width:11px;height:11px;border:1.5px solid var(--kraft3);border-top-color:var(--gold2);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.spinner-wrap{display:flex;align-items:center;gap:8px;padding:12px 13px}
+.spinner{width:11px;height:11px;border:1.5px solid var(--kraft3);border-top-color:var(--gold2);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
+ 
 /* ── MAP ── */
-#rando-map{height:180px;border-radius:var(--r);overflow:hidden;margin-bottom:12px;border:0.5px solid var(--border2)}
-.leaflet-container{background:var(--kraft2)}
-.gpx-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:0.5px solid var(--gold2);background:var(--gold-bg);color:var(--ink);cursor:pointer;font-family:var(--mono);transition:background .15s}
+#rando-map{height:180px;border-radius:var(--r);overflow:hidden;margin-bottom:12px;border:.5px solid var(--border2)}
+.gpx-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:.5px solid var(--gold2);background:var(--gold-bg);color:var(--ink);cursor:pointer;font-family:var(--mono);transition:background .15s}
 .gpx-btn:hover{background:#F5E87A}
-.ign-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:0.5px solid var(--blue);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-family:var(--mono);transition:background .15s;text-decoration:none}
+.ign-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:.5px solid var(--blue);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-family:var(--mono);text-decoration:none;transition:background .15s}
 .ign-btn:hover{background:#C8DDF0}
-
+ 
 /* ── KIT ── */
-.gear-item{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.gear-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:.5px solid var(--border)}
 .gear-item:last-child{border-bottom:none}
-.gear-check{width:18px;height:18px;border-radius:4px;border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .15s}
+.gear-check{width:18px;height:18px;border-radius:4px;border:.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s}
 .gear-check.done{background:var(--ink);border-color:var(--ink)}
-.gear-check.done i{color:var(--gold);font-size:11px}
+.gear-check.done::after{content:'✓';color:var(--gold);font-size:11px;font-weight:700}
 .gear-name{font-size:12px;line-height:1.4;margin-bottom:2px}
 .gear-name.done{text-decoration:line-through;color:var(--ink3)}
-.gear-note{font-size:10px;color:var(--ink3);margin-bottom:3px;line-height:1.4;font-family:var(--mono)}
-.gear-links{display:flex;gap:5px;flex-wrap:wrap}
-.gear-link{font-size:9px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border:0.5px solid #B0CCE4;border-radius:6px;background:var(--blue-bg);font-family:var(--mono)}
-.gear-link:hover{background:#C8DDF0}
+.gear-note{font-size:10px;color:var(--ink3);margin-bottom:4px;line-height:1.4;font-family:var(--mono)}
+.gear-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.gear-price{font-size:10px;font-family:var(--mono);color:var(--ink2);font-weight:500;white-space:nowrap}
+.gear-price.missing{color:var(--red)}
+.gear-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--gold-bg);border:.5px solid rgba(200,168,50,.35);font-size:9px;color:var(--ink);text-decoration:none;font-family:var(--mono);white-space:nowrap;transition:background .15s}
+.gear-chip:hover{background:#F5E87A}
 .prog-bar{height:4px;background:var(--kraft3);border-radius:2px;overflow:hidden;margin-bottom:5px}
 .prog-fill{height:100%;background:var(--ink);border-radius:2px;transition:width .4s}
-.sec-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:9px 0;border-bottom:0.5px solid var(--border);user-select:none}
+.sec-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:9px 0;border-bottom:.5px solid var(--border);user-select:none}
 .sec-toggle-title{font-size:11px;font-weight:500;display:flex;align-items:center;gap:7px;font-family:var(--mono)}
-
+.budget-summary{background:var(--ink);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px;position:relative;overflow:hidden}
+.budget-topo{position:absolute;inset:0;opacity:.06;pointer-events:none}
+.budget-content{position:relative;z-index:1}
+.budget-total{font-size:28px;font-weight:700;color:var(--gold);font-family:var(--mono);line-height:1}
+.budget-sub{font-size:10px;color:rgba(255,255,255,.4);font-family:var(--mono);margin-top:2px}
+.budget-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.budget-stat{background:rgba(255,255,255,.08);border-radius:8px;padding:8px;text-align:center;border:.5px solid rgba(255,255,255,.08)}
+.budget-stat-val{font-size:14px;font-weight:500;color:var(--gold);font-family:var(--mono)}
+.budget-stat-lbl{font-size:8px;color:rgba(255,255,255,.4);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+ 
+/* ── BASE CAMP ── */
+.bc-hero{background:var(--ink);border-radius:var(--rl);padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.bc-hero-bg{position:absolute;inset:0;opacity:.07;pointer-events:none}
+.bc-hero-content{position:relative;z-index:1}
+.bc-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px;margin-bottom:2px}
+.bc-meta{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.bc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bc-stat{background:rgba(255,255,255,.08);border-radius:8px;padding:9px 8px;text-align:center;border:.5px solid rgba(255,255,255,.08)}
+.bc-stat-val{font-size:16px;font-weight:600;color:var(--gold);font-family:var(--mono)}
+.bc-stat-lbl{font-size:8px;color:rgba(255,255,255,.45);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.bc-section{margin-bottom:10px}
+.bc-section-title{font-size:9px;font-weight:500;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.bc-next{background:var(--ink2);border:.5px solid rgba(232,200,74,.3);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.bc-next-date{text-align:center;min-width:36px}
+.bc-next-day{font-size:18px;font-weight:600;color:var(--gold);font-family:var(--mono);line-height:1}
+.bc-next-month{font-size:8px;color:var(--gold2);font-family:var(--mono);text-transform:uppercase}
+.bc-next-info{flex:1}
+.bc-next-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.bc-next-sub{font-size:10px;color:rgba(255,255,255,.58);font-family:var(--mono)}
+.bc-countdown{font-size:11px;color:var(--gold);font-family:var(--mono);font-weight:500}
+.bc-kit-bar{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--r);padding:11px 13px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.bc-kit-circle{width:44px;height:44px;flex-shrink:0;position:relative}
+.bc-kit-circle svg{transform:rotate(-90deg)}
+.bc-kit-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:var(--mono);color:var(--ink)}
+.bc-record{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border)}
+.bc-record:last-child{border-bottom:none}
+.bc-record-icon{width:30px;height:30px;border-radius:8px;background:var(--kraft2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:.5px solid var(--border)}
+.bc-level-bar{height:6px;background:var(--kraft3);border-radius:3px;overflow:hidden;margin-top:5px}
+.bc-level-fill{height:100%;background:linear-gradient(90deg,var(--ink),var(--gold2));border-radius:3px;transition:width .6s}
+.bc-garmin{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .15s}
+.bc-garmin:hover{background:var(--kraft2)}
+ 
+/* ── RADIO ── */
+.radio-header{background:var(--ink);border-radius:var(--rl);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.radio-title{font-size:13px;font-weight:600;color:var(--gold);font-family:var(--mono);letter-spacing:.04em}
+.radio-sub{font-size:9px;color:rgba(255,255,255,.4);font-family:var(--mono);margin-top:2px}
+.radio-online{display:flex;align-items:center;gap:5px;font-size:9px;color:rgba(255,255,255,.5);font-family:var(--mono)}
+.radio-online-dot{width:6px;height:6px;border-radius:50%;background:#4CAF50;animation:pulse 2s infinite}
+.msg-pinned{background:rgba(232,200,74,.1);border:.5px solid rgba(232,200,74,.25);border-radius:var(--r);padding:9px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px}
+.msg-pin-icon{font-size:11px;color:var(--gold2);flex-shrink:0;margin-top:1px;font-family:var(--mono)}
+.msg-pinned-text{font-size:11px;color:var(--ink);line-height:1.5;flex:1}
+.msg-pinned-meta{font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:3px}
+.msg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.msg{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:12px;padding:10px 12px}
+.msg.me{background:var(--ink);border-color:var(--ink);margin-left:20px}
+.msg-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.msg-type{font-size:9px;padding:1px 6px;border-radius:20px;font-family:var(--mono);font-weight:500}
+.type-alerte{background:var(--red-bg);color:var(--red)}
+.type-position{background:var(--blue-bg);color:var(--blue)}
+.type-confirmation{background:var(--green-bg);color:var(--green)}
+.type-message{background:var(--kraft3);color:var(--ink3)}
+.msg-author{font-size:10px;font-weight:500;color:var(--ink2)}
+.msg.me .msg-author{color:rgba(255,255,255,.6)}
+.msg-time{font-size:9px;color:var(--ink4);font-family:var(--mono);margin-left:auto}
+.msg.me .msg-time{color:rgba(255,255,255,.4)}
+.msg-text{font-size:12px;line-height:1.6;color:var(--ink)}
+.msg.me .msg-text{color:#fff}
+.msg-receipts{display:flex;align-items:center;gap:3px;margin-top:5px;justify-content:flex-end}
+.receipt{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:600;font-family:var(--mono)}
+.receipt.read{background:var(--green-bg);color:var(--green)}
+.receipt.unread{background:var(--kraft3);color:var(--ink4)}
+.msg-compose{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--rl);padding:12px 14px}
+.msg-type-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.type-btn{padding:4px 10px;border-radius:20px;font-size:10px;cursor:pointer;border:.5px solid var(--border2);background:transparent;color:var(--ink3);font-family:var(--mono);transition:all .15s}
+.type-btn.active{border-color:var(--gold2);background:var(--gold-bg);color:var(--ink)}
+.msg-input-row{display:flex;gap:8px;align-items:flex-end}
+.msg-textarea{flex:1;padding:8px 10px;border:.5px solid var(--border2);border-radius:var(--r);font-size:13px;background:rgba(255,255,255,.8);color:var(--ink);font-family:var(--font);outline:none;resize:none;min-height:38px;transition:border-color .15s}
+.msg-textarea:focus{border-color:var(--gold2)}
+.send-btn{width:36px;height:36px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.send-btn:hover{background:var(--ink2)}
+.send-btn svg{width:16px;height:16px}
+ 
+/* ── KIT PARTAGÉ ── */
+.shared-kit-member{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border)}
+.shared-kit-member:last-child{border-bottom:none}
+.shared-kit-items{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.shared-item{font-size:9px;padding:2px 6px;border-radius:6px;background:var(--kraft2);color:var(--ink2);font-family:var(--mono);border:.5px solid var(--border)}
+ 
+/* ── CHECKLIST DÉPART ── */
+.depart-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border)}
+.depart-item:last-child{border-bottom:none}
+.depart-check{width:18px;height:18px;border-radius:4px;border:.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.depart-check.done{background:var(--ink);border-color:var(--ink)}
+.depart-check.done::after{content:'✓';color:var(--gold);font-size:11px;font-weight:700}
+.depart-name{flex:1;font-size:12px}
+.depart-name.done{text-decoration:line-through;color:var(--ink3)}
+.depart-assignee{display:flex;gap:5px;align-items:center}
+ 
 /* ── MEMBERS ── */
-.member-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.member-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:.5px solid var(--border)}
 .member-row:last-child{border-bottom:none}
-.sm-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;font-family:var(--mono)}
-
-/* ── STAT ── */
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.sbox{background:var(--kraft2);border-radius:var(--r);padding:9px;text-align:center;border:0.5px solid var(--border)}
-.sval{font-size:17px;font-weight:500;color:var(--ink);font-family:var(--mono)}
-.slbl{font-size:9px;color:var(--ink3);margin-top:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
-
-/* ── ONB ── */
-.onb-opt{padding:10px;border:0.5px solid var(--border2);border-radius:var(--r-lg);cursor:pointer;text-align:center;transition:all .15s;background:rgba(255,255,255,.6)}
-.onb-opt:hover{border-color:var(--gold2);background:var(--gold-bg)}
-.onb-opt.sel{border:1.5px solid var(--gold2);background:var(--gold-bg)}
-.onb-opt i{font-size:20px;color:var(--ink);display:block;margin-bottom:3px}
-.onb-opt-name{font-size:11px;font-weight:500;font-family:var(--mono)}
-.onb-opt-sub{font-size:9px;color:var(--ink3);margin-top:1px;font-family:var(--mono)}
-
+.sm-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+ 
+/* ── RANDO DU MOIS ── */
+.rando-mois{background:var(--ink);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px;position:relative;overflow:hidden;cursor:pointer}
+.rando-mois-bg{position:absolute;inset:0;opacity:.08;pointer-events:none}
+.rando-mois-content{position:relative;z-index:1}
+.rando-mois-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(232,200,74,.2);border:.5px solid rgba(232,200,74,.3);border-radius:20px;padding:3px 9px;font-size:9px;color:var(--gold);font-family:var(--mono);letter-spacing:.05em;margin-bottom:8px}
+.ai-loading{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:12px;font-family:var(--mono)}
+ 
 /* ── FEEDBACK ── */
-.fb-item{background:rgba(255,255,255,.75);border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:11px 13px;margin-bottom:8px}
+.fb-item{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--rl);padding:11px 13px;margin-bottom:8px}
 .fb-meta{font-size:9px;color:var(--ink3);margin-bottom:3px;display:flex;align-items:center;gap:7px;font-family:var(--mono)}
 .fb-text{font-size:12px;line-height:1.5;margin-bottom:8px}
-.vote-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:3px 8px;border-radius:20px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--ink3);font-family:var(--mono);transition:all .15s}
+.vote-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:3px 8px;border-radius:20px;cursor:pointer;border:.5px solid var(--border2);background:transparent;color:var(--ink3);font-family:var(--mono);transition:all .15s}
 .vote-chip:hover{background:var(--kraft2)}
-.vote-chip.up-active{background:#D4EDD9;color:#2A5C35;border-color:#A8D8B0}
+.vote-chip.up-active{background:var(--green-bg);color:var(--green);border-color:#A8D8B0}
 .vote-chip.down-active{background:var(--red-bg);color:var(--red);border-color:#F0A090}
-.info-box{background:rgba(74,127,168,.08);border:0.5px solid rgba(74,127,168,.25);border-radius:var(--r);padding:10px 12px;display:flex;gap:7px;align-items:flex-start;margin-bottom:11px}
-.info-box i{font-size:13px;color:var(--blue);flex-shrink:0;margin-top:1px}
+.info-box{background:rgba(74,127,168,.08);border:.5px solid rgba(74,127,168,.25);border-radius:var(--r);padding:10px 12px;display:flex;gap:7px;align-items:flex-start;margin-bottom:11px}
 .info-box p{font-size:11px;color:var(--blue);line-height:1.6;font-family:var(--mono)}
-
+ 
+/* ── ONB OPTS ── */
+.onb-opt{padding:10px;border:.5px solid var(--border2);border-radius:var(--rl);cursor:pointer;text-align:center;transition:all .15s;background:rgba(255,255,255,.6)}
+.onb-opt:hover{border-color:var(--gold2);background:var(--gold-bg)}
+.onb-opt.sel{border:1.5px solid var(--gold2);background:var(--gold-bg)}
+.onb-opt-icon{font-size:20px;display:block;margin-bottom:3px}
+.onb-opt-name{font-size:11px;font-weight:600;font-family:var(--mono)}
+.onb-opt-sub{font-size:9px;color:var(--ink3);margin-top:1px;font-family:var(--mono)}
+ 
 /* ── MODAL ── */
-.modal-wrap{display:none;position:fixed;inset:0;z-index:100;background:rgba(45,45,42,.5);align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+.modal-wrap{display:none;position:fixed;inset:0;z-index:100;background:rgba(45,45,42,.55);align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
 .modal-wrap.open{display:flex}
-.modal{background:var(--kraft);border-radius:18px 18px 0 0;width:100%;max-width:480px;padding:16px 18px 32px;max-height:90vh;overflow-y:auto;border-top:0.5px solid var(--border2)}
+.modal{background:var(--kraft);border-radius:18px 18px 0 0;width:100%;max-width:480px;padding:16px 18px 32px;max-height:90vh;overflow-y:auto;border-top:.5px solid var(--border2)}
 .modal-handle{width:30px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 14px}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.modal-title{font-size:14px;font-weight:500;letter-spacing:-.2px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.modal-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
 .modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
-.modal-stat{background:var(--kraft2);border-radius:var(--r);padding:8px;text-align:center;border:0.5px solid var(--border)}
-.modal-stat-val{font-size:13px;font-weight:500;color:var(--ink);font-family:var(--mono)}
+.modal-stat{background:var(--kraft2);border-radius:var(--r);padding:8px;text-align:center;border:.5px solid var(--border)}
+.modal-stat-val{font-size:13px;font-weight:600;color:var(--ink);font-family:var(--mono)}
 .modal-stat-lbl{font-size:9px;color:var(--ink3);margin-top:1px;font-family:var(--mono);text-transform:uppercase}
-
+ 
+/* ── TUTORIAL ── */
+.tuto-wrap{display:none;position:fixed;inset:0;z-index:200;background:var(--kraft);flex-direction:column}
+.tuto-wrap.open{display:flex}
+.tuto-skip{background:none;border:none;cursor:pointer;font-size:11px;color:var(--ink3);font-family:var(--mono);padding:8px}
+.tuto-slide{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center}
+.tuto-slide.active{display:flex}
+.tuto-illo{width:110px;height:110px;border-radius:22px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+.tuto-title{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px;color:var(--ink)}
+.tuto-desc{font-size:14px;color:var(--ink2);line-height:1.7;max-width:300px}
+.tuto-dots{display:flex;gap:7px;justify-content:center;padding:14px 0}
+.tuto-dot{width:6px;height:6px;border-radius:3px;background:var(--border2);transition:all .3s;cursor:pointer}
+.tuto-dot.active{width:20px;background:var(--ink)}
+.tuto-footer{padding:14px 24px 32px;display:flex;gap:10px;align-items:center}
+ 
+/* ── TOOLTIP ── */
+.tooltip-wrap{display:none;position:fixed;inset:0;z-index:150}
+.tooltip-wrap.active{display:block;pointer-events:all}
+.tooltip-overlay{position:absolute;inset:0;background:rgba(45,45,42,.6)}
+.tooltip-box{position:absolute;background:var(--ink);color:#fff;border-radius:12px;padding:13px 15px;max-width:230px;pointer-events:all;z-index:1}
+.tooltip-box::before{content:'';position:absolute;width:10px;height:10px;background:var(--ink);top:-5px;left:var(--arrow-left,50%);transform:translateX(-50%) rotate(45deg)}
+.tt-title{font-size:12px;font-weight:600;color:var(--gold);font-family:var(--mono);margin-bottom:4px;letter-spacing:.04em}
+.tt-text{font-size:11px;line-height:1.6;color:rgba(255,255,255,.8)}
+.tt-nav{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.tt-step{font-size:9px;color:rgba(255,255,255,.35);font-family:var(--mono)}
+.tt-next{font-size:11px;background:var(--gold);color:var(--ink);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-weight:600}
+ 
+/* ── DEMO BANNER ── */
+.demo-banner{background:rgba(232,200,74,.12);border:.5px solid rgba(200,168,50,.3);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.demo-banner-text{font-size:10px;color:var(--gold3);font-family:var(--mono);line-height:1.5}
+ 
 /* ── EMAIL PREVIEW ── */
-.email-preview{background:var(--kraft2);border-radius:var(--r);padding:11px;font-size:10px;line-height:1.8;max-height:180px;overflow-y:auto;border:0.5px solid var(--border2);font-family:var(--mono);color:var(--ink)}
-
+.email-preview{background:var(--kraft2);border-radius:var(--r);padding:11px;font-size:10px;line-height:1.8;max-height:180px;overflow-y:auto;border:.5px solid var(--border2);font-family:var(--mono);color:var(--ink)}
+ 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--gold);padding:8px 16px;border-radius:20px;font-size:11px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;font-family:var(--mono);letter-spacing:.04em}
 .toast.show{opacity:1}
+ 
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sbox{background:var(--kraft2);border-radius:var(--r);padding:9px;text-align:center;border:.5px solid var(--border)}
+.sval{font-size:17px;font-weight:600;color:var(--ink);font-family:var(--mono)}
+.slbl{font-size:9px;color:var(--ink3);margin-top:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+/* ── DESIGN SYSTEM UNIFIÉ v6 ── */
+.card{background:rgba(255,255,255,.75);border:.5px solid rgba(45,45,42,.15);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.card-hero{background:var(--ink);border-radius:12px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.section-gap{margin-top:14px}
+/* Typographie unifiée */
+.t-title{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.2px;margin-bottom:2px}
+.t-body{font-size:12px;color:var(--ink2);line-height:1.5}
+.t-meta{font-size:10px;color:var(--ink3);font-family:var(--mono);letter-spacing:.04em}
+.t-label{font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+/* Boutons unifiés */
+.btn-icon{display:inline-flex;align-items:center;gap:5px}
+.btn-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+/* Statuts Idées */
+.status-todo{background:#E4EEF7;color:#0C447C;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
+.status-wip{background:#FDF8E6;color:#8C7000;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
+.status-done{background:#D4EDD9;color:#2A5C35;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
+.status-wontdo{background:#F0EBE0;color:#6B6560;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
+/* Tooltip info kit */
+.kit-tooltip{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--kraft);border-top:.5px solid var(--border2);border-radius:18px 18px 0 0;padding:16px 18px 32px;z-index:120;max-height:70vh;overflow-y:auto}
+.kit-tooltip.open{display:block}
+.kit-tooltip-overlay{display:none;position:fixed;inset:0;background:rgba(45,45,42,.4);z-index:119}
+.kit-tooltip-overlay.open{display:block}
+/* Favicons plateformes */
+.favicon{width:14px;height:14px;border-radius:3px;object-fit:contain;flex-shrink:0}
+.platform-link{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;background:var(--kraft2);border:.5px solid var(--border);font-size:10px;color:var(--ink);text-decoration:none;font-family:var(--mono);transition:background .15s}
+.platform-link:hover{background:var(--kraft3)}
+ 
 </style>
 </head>
 <body>
-
-<!-- TOPO BACKGROUND -->
+ 
+<!-- TOPO BG -->
 <div class="topo-bg">
-<svg viewBox="0 0 480 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-  <g fill="none" stroke="#8C856E" stroke-width="0.6" opacity="0.4">
-    <path d="M-20,180 Q60,140 140,160 Q220,180 300,150 Q380,120 480,145"/>
-    <path d="M-20,210 Q70,168 150,190 Q230,212 310,178 Q390,144 500,172"/>
-    <path d="M-20,240 Q80,196 160,220 Q240,244 320,206 Q400,168 520,199"/>
-    <path d="M-20,270 Q90,224 170,250 Q250,276 330,234 Q410,192 540,226"/>
-    <path d="M-20,300 Q100,252 180,280 Q260,308 340,262 Q420,216 560,253"/>
-    <path d="M-20,340 Q110,288 200,318 Q290,348 370,297 Q450,246 570,286"/>
-    <path d="M-20,380 Q120,324 210,356 Q300,388 390,333 Q470,278 580,320"/>
-    <path d="M-20,420 Q130,360 220,394 Q310,428 400,370 Q490,312 590,356"/>
-    <path d="M-20,460 Q140,396 230,432 Q320,468 410,407 Q500,346 600,392"/>
-    <path d="M-20,510 Q150,440 250,478 Q350,516 440,450 Q530,384 610,432"/>
-    <path d="M-20,560 Q160,484 260,524 Q360,564 460,494 Q550,424 620,474"/>
-    <path d="M-20,620 Q170,536 280,578 Q390,620 490,546 Q570,472 630,524"/>
-    <path d="M-20,680 Q180,588 300,632 Q420,676 520,598 Q590,520 640,574"/>
-    <path d="M-20,740 Q190,640 320,686 Q450,732 550,650 Q610,568 650,624"/>
-    <path d="M-20,800 Q200,692 340,740 Q480,788 580,702 Q630,616 660,674"/>
-    <path d="M-20,100 Q50,80 140,90 Q230,100 300,82 Q380,64 480,78"/>
-    <path d="M-20,130 Q55,108 145,120 Q235,132 305,112 Q385,92 490,108"/>
-    <path d="M0,860 Q210,744 360,794 Q510,844 610,754 Q650,664 670,724"/>
-  </g>
-  <g fill="none" stroke="#8C856E" stroke-width="0.35" opacity="0.25">
-    <line x1="0" y1="0" x2="0" y2="900"/>
-    <line x1="40" y1="0" x2="40" y2="900"/>
-    <line x1="80" y1="0" x2="80" y2="900"/>
-    <line x1="120" y1="0" x2="120" y2="900"/>
-    <line x1="160" y1="0" x2="160" y2="900"/>
-    <line x1="200" y1="0" x2="200" y2="900"/>
-    <line x1="240" y1="0" x2="240" y2="900"/>
-    <line x1="280" y1="0" x2="280" y2="900"/>
-    <line x1="320" y1="0" x2="320" y2="900"/>
-    <line x1="360" y1="0" x2="360" y2="900"/>
-    <line x1="400" y1="0" x2="400" y2="900"/>
-    <line x1="440" y1="0" x2="440" y2="900"/>
-    <line x1="0" y1="0" x2="480" y2="0"/>
-    <line x1="0" y1="40" x2="480" y2="40"/>
-    <line x1="0" y1="80" x2="480" y2="80"/>
-    <line x1="0" y1="120" x2="480" y2="120"/>
-    <line x1="0" y1="160" x2="480" y2="160"/>
-    <line x1="0" y1="200" x2="480" y2="200"/>
-    <line x1="0" y1="240" x2="480" y2="240"/>
-    <line x1="0" y1="280" x2="480" y2="280"/>
-    <line x1="0" y1="320" x2="480" y2="320"/>
-    <line x1="0" y1="360" x2="480" y2="360"/>
-    <line x1="0" y1="400" x2="480" y2="400"/>
-    <line x1="0" y1="440" x2="480" y2="440"/>
-    <line x1="0" y1="480" x2="480" y2="480"/>
-    <line x1="0" y1="520" x2="480" y2="520"/>
-    <line x1="0" y1="560" x2="480" y2="560"/>
-    <line x1="0" y1="600" x2="480" y2="600"/>
-    <line x1="0" y1="640" x2="480" y2="640"/>
-    <line x1="0" y1="680" x2="480" y2="680"/>
-    <line x1="0" y1="720" x2="480" y2="720"/>
-    <line x1="0" y1="760" x2="480" y2="760"/>
-    <line x1="0" y1="800" x2="480" y2="800"/>
-    <line x1="0" y1="840" x2="480" y2="840"/>
-    <line x1="0" y1="880" x2="480" y2="880"/>
-  </g>
-  <g font-family="'DM Mono',monospace" font-size="7" fill="#8C856E" opacity="0.35">
-    <text x="6" y="182">550</text><text x="6" y="212">540</text><text x="6" y="242">530</text>
-    <text x="6" y="272">520</text><text x="6" y="302">510</text><text x="6" y="342">500</text>
-    <text x="6" y="382">490</text><text x="6" y="422">480</text><text x="6" y="462">470</text>
-    <text x="6" y="512">460</text><text x="6" y="562">450</text><text x="6" y="622">440</text>
-  </g>
+<svg width="100%" height="100%" viewBox="0 0 480 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<style>
+.cm{fill:none;stroke:#8C856E;stroke-width:0.9;stroke-linecap:round;opacity:0.5}
+.cs{fill:none;stroke:#8C856E;stroke-width:0.4;stroke-linecap:round;opacity:0.25}
+.al{font-family:"DM Mono",monospace;font-size:7px;fill:#8C856E;opacity:0.4}
+</style>
+ 
+<!-- Courbes maîtresses (100m) — plus épaisses, plus marquées -->
+<!-- Style IGN : lignes qui ondulent naturellement, se resserrent sur les pentes fortes -->
+ 
+<!-- Zone haute — pentes raides (courbes très serrées) -->
+<path class="cm" d="M-10,44 Q30,36 70,42 Q110,48 160,34 Q200,22 250,38 Q300,54 340,36 Q390,18 440,32 Q460,37 490,34"/>
+<path class="cs" d="M-10,52 Q35,43 75,50 Q115,57 165,42 Q205,29 255,46 Q305,63 345,44 Q395,25 445,40 Q462,45 490,42"/>
+<path class="cm" d="M-10,62 Q38,52 78,60 Q122,68 170,52 Q212,37 260,55 Q310,73 352,54 Q400,34 448,50 Q464,55 490,52"/>
+<path class="cs" d="M-10,73 Q40,62 82,71 Q126,80 174,63 Q218,46 265,65 Q315,84 356,64 Q406,43 450,60 Q465,66 490,63"/>
+<path class="cm" d="M-10,86 Q42,74 85,84 Q130,94 178,75 Q224,57 270,77 Q320,97 362,76 Q412,53 453,72 Q467,78 490,75"/>
+<path class="cs" d="M-10,100 Q44,87 88,98 Q135,109 182,88 Q230,68 275,90 Q325,112 368,89 Q418,64 456,85 Q470,91 490,88"/>
+<path class="cm" d="M-10,116 Q46,101 92,113 Q140,125 186,103 Q236,81 280,104 Q330,127 374,103 Q424,77 459,99 Q472,106 490,103"/>
+<path class="cs" d="M-10,133 Q48,117 95,130 Q145,143 190,119 Q242,95 284,120 Q334,145 378,119 Q430,91 462,114 Q474,121 490,119"/>
+<path class="cm" d="M-10,152 Q50,135 98,149 Q150,163 194,137 Q248,111 288,137 Q338,163 383,136 Q436,107 465,131 Q476,138 490,136"/>
+ 
+<!-- Zone intermédiaire — pente moyenne -->
+<path class="cs" d="M-10,175 Q55,161 105,173 Q158,185 205,161 Q260,137 305,160 Q355,183 400,158 Q446,133 470,153 Q479,158 490,156"/>
+<path class="cm" d="M-10,202 Q58,186 110,200 Q164,214 213,188 Q270,162 316,185 Q366,208 413,182 Q458,157 474,175 Q481,180 490,178"/>
+<path class="cs" d="M-10,232 Q62,215 115,230 Q170,245 220,217 Q280,189 326,213 Q376,237 425,209 Q466,183 478,199 Q484,203 490,202"/>
+<path class="cm" d="M-10,266 Q65,247 120,263 Q177,279 228,249 Q290,219 337,244 Q387,269 438,239 Q472,217 482,227 Q486,230 490,229"/>
+ 
+<!-- Vallée — courbes très espacées (terrain plat) -->
+<path class="cs" d="M-10,308 Q70,296 130,306 Q196,316 254,298 Q316,280 366,298 Q416,316 460,298 Q476,292 490,294"/>
+<path class="cm" d="M-10,356 Q72,342 135,354 Q202,366 260,346 Q324,326 374,346 Q424,366 464,346 Q478,340 490,342"/>
+ 
+<!-- Deuxième massif — pentes raides -->
+<path class="cs" d="M-10,394 Q40,376 85,390 Q138,404 192,378 Q248,352 300,374 Q352,396 408,370 Q452,348 478,362 Q485,365 490,364"/>
+<path class="cm" d="M-10,420 Q42,400 88,415 Q143,430 198,402 Q256,374 308,397 Q360,420 416,392 Q458,368 480,383 Q487,387 490,386"/>
+<path class="cs" d="M-10,448 Q44,426 92,442 Q148,458 204,428 Q264,398 316,422 Q368,446 424,416 Q464,390 482,406 Q488,410 490,409"/>
+<path class="cm" d="M-10,479 Q46,455 95,472 Q153,489 210,457 Q272,425 323,450 Q375,475 432,443 Q469,420 484,434 Q489,437 490,437"/>
+<path class="cs" d="M-10,512 Q48,487 98,505 Q157,523 215,489 Q280,455 330,481 Q382,507 440,473 Q474,450 485,462"/>
+<path class="cm" d="M-10,549 Q52,522 102,541 Q163,560 221,524 Q288,488 337,515 Q389,542 448,506 Q478,484 490,492"/>
+ 
+<!-- Fond large — courbes douces -->
+<path class="cs" d="M-10,594 Q75,574 155,590 Q235,606 310,582 Q385,558 450,576 Q472,582 490,580"/>
+<path class="cm" d="M-10,645 Q78,622 160,639 Q244,656 320,630 Q396,604 460,623 Q480,629 490,628"/>
+<path class="cs" d="M-10,700 Q82,675 165,693 Q252,711 328,683 Q406,655 466,675 Q484,681 490,680"/>
+<path class="cm" d="M-10,760 Q85,733 170,752 Q258,771 336,741 Q416,711 472,732 Q487,738 490,737"/>
+ 
+<!-- Grille de coordonnées légère style IGN -->
+<g stroke="#8C856E" stroke-width="0.25" opacity="0.18">
+  <line x1="0" y1="0" x2="0" y2="900"/>
+  <line x1="80" y1="0" x2="80" y2="900"/>
+  <line x1="160" y1="0" x2="160" y2="900"/>
+  <line x1="240" y1="0" x2="240" y2="900"/>
+  <line x1="320" y1="0" x2="320" y2="900"/>
+  <line x1="400" y1="0" x2="400" y2="900"/>
+  <line x1="0" y1="80" x2="480" y2="80"/>
+  <line x1="0" y1="160" x2="480" y2="160"/>
+  <line x1="0" y1="240" x2="480" y2="240"/>
+  <line x1="0" y1="320" x2="480" y2="320"/>
+  <line x1="0" y1="400" x2="480" y2="400"/>
+  <line x1="0" y1="480" x2="480" y2="480"/>
+  <line x1="0" y1="560" x2="480" y2="560"/>
+  <line x1="0" y1="640" x2="480" y2="640"/>
+  <line x1="0" y1="720" x2="480" y2="720"/>
+  <line x1="0" y1="800" x2="480" y2="800"/>
+</g>
+ 
+<!-- Graduations altitude 2500→3800m -->
+<text class="al" x="4" y="48">3800</text>
+<text class="al" x="4" y="90">3600</text>
+<text class="al" x="4" y="120">3400</text>
+<text class="al" x="4" y="156">3200</text>
+<text class="al" x="4" y="206">3000</text>
+<text class="al" x="4" y="270">2800</text>
+<text class="al" x="4" y="360">2600</text>
+<text class="al" x="4" y="430">2500</text>
+<g stroke="#8C856E" stroke-width="0.5" opacity="0.3">
+  <line x1="24" y1="44" x2="30" y2="44"/>
+  <line x1="24" y1="86" x2="30" y2="86"/>
+  <line x1="24" y1="116" x2="30" y2="116"/>
+  <line x1="24" y1="152" x2="30" y2="152"/>
+  <line x1="24" y1="202" x2="30" y2="202"/>
+  <line x1="24" y1="266" x2="30" y2="266"/>
+  <line x1="24" y1="356" x2="30" y2="356"/>
+  <line x1="24" y1="426" x2="30" y2="426"/>
+</g>
 </svg>
 </div>
-
-<div class="app">
+ 
+<!-- TUTORIAL -->
+<div class="tuto-wrap" id="tuto-wrap">
+  <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg width="22" height="22" viewBox="0 0 44 44"><rect width="44" height="44" rx="10" fill="#2D2D2A"/><path d="M4,36 L14,10 L24,28 L34,8 L44,36" fill="none" stroke="#E8C84A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      <span style="font-family:var(--font);font-weight:800;font-size:14px;color:var(--ink);letter-spacing:.02em">ALTI</span><span style="font-family:var(--font);font-weight:700;font-style:italic;font-size:14px;color:var(--gold2)">mates</span>
+    </div>
+    <button class="tuto-skip" onclick="finishTuto()">Passer →</button>
+  </div>
+  <div style="flex:1;position:relative;overflow:hidden">
+    <div class="tuto-slide active" id="tslide-0">
+      <div class="tuto-illo">
+        <svg width="52" height="52" viewBox="0 0 44 44"><path d="M4,36 L14,10 L24,28 L34,8 L44,36" fill="none" stroke="#E8C84A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      </div>
+      <h1 class="tuto-title">Bienvenue sur ALTImates</h1>
+      <p class="tuto-desc">Ton QG de rando — planifier, s'équiper et partir ensemble, quel que soit ton niveau.</p>
+    </div>
+    <div class="tuto-slide" id="tslide-1">
+      <div class="tuto-illo"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3l4 8 5-5 5 15H2L8 3z"/></svg></div>
+      <h1 class="tuto-title">Planifie les Sommets</h1>
+      <p class="tuto-desc">Propose des randos, vote pour le weekend, consulte la météo en temps réel et envoie la trace GPX sur ta Garmin en un clic.</p>
+    </div>
+    <div class="tuto-slide" id="tslide-2">
+      <div class="tuto-illo"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="3" y="8" width="5" height="12"/><rect x="16" y="12" width="5" height="8"/></svg></div>
+      <h1 class="tuto-title">Prépare ton Kit</h1>
+      <p class="tuto-desc">Ta liste d'équipement selon ton niveau, avec fourchettes de prix et liens d'achat. Télécharge le PDF avant de partir.</p>
+    </div>
+    <div class="tuto-slide" id="tslide-3">
+      <div class="tuto-illo"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg></div>
+      <h1 class="tuto-title">La Radio de la Cordée</h1>
+      <p class="tuto-desc">Alertes, positions, confirmations — les infos critiques de ta cordée, organisées et épinglées pour que personne ne rate rien.</p>
+    </div>
+    <div class="tuto-slide" id="tslide-4">
+      <div class="tuto-illo"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+      <h1 class="tuto-title">Ton Base Camp</h1>
+      <p class="tuto-desc">Ton tableau de bord perso — stats de saison, prochaine sortie, progression de ton kit et ton niveau dans la cordée.</p>
+    </div>
+  </div>
+  <div class="tuto-dots" id="tuto-dots">
+    <div class="tuto-dot active" onclick="goSlide(0)"></div>
+    <div class="tuto-dot" onclick="goSlide(1)"></div>
+    <div class="tuto-dot" onclick="goSlide(2)"></div>
+    <div class="tuto-dot" onclick="goSlide(3)"></div>
+    <div class="tuto-dot" onclick="goSlide(4)"></div>
+  </div>
+  <div class="tuto-footer">
+    <button class="btn btn-sm" id="tuto-back" onclick="prevSlide()" style="display:none"><span>←</span></button>
+    <button class="btn btn-primary btn-full" id="tuto-next" onclick="nextSlide()">Suivant →</button>
+  </div>
+</div>
+ 
+<!-- TOOLTIP OVERLAY -->
+<div class="tooltip-wrap" id="tooltip-wrap">
+  <div class="tooltip-overlay" onclick="nextTooltip()"></div>
+  <div class="tooltip-box" id="tooltip-box">
+    <div class="tt-title" id="tt-title"></div>
+    <div class="tt-text" id="tt-text"></div>
+    <div class="tt-nav">
+      <span class="tt-step" id="tt-step"></span>
+      <button class="tt-next" onclick="nextTooltip()" id="tt-btn">Suivant →</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- APP -->
+<div class="app" id="main-app" style="display:none">
   <div class="header">
     <div class="logo">
-      <div class="logo-mark"><i class="ti ti-mountain" aria-hidden="true"></i></div>
+      <svg class="logo-icon" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <rect width="44" height="44" rx="10" fill="#2D2D2A"/>
+        <path d="M4,36 L14,10 L24,28 L34,8 L44,36" fill="none" stroke="#E8C84A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
       <div>
-        <div class="logo-name">Altimates</div>
-        <div class="logo-elev" id="grp-sub">GROUPE · 5 MEMBRES</div>
+        <div class="logo-name"><span class="alti">ALTI</span><span class="mates">mates</span></div>
+        <div class="logo-sub" id="grp-sub">GROUPE · 5 MEMBRES</div>
       </div>
     </div>
-    <button class="av-btn" id="hdr-av" onclick="showTab('profil')" aria-label="Mon profil">?</button>
+    <button class="av-btn" id="hdr-av" onclick="showTab('basecamp')" aria-label="Base Camp">?</button>
   </div>
-
-  <nav class="nav" role="navigation">
-    <button class="nav-btn active" onclick="showTab('randos')" id="nav-randos"><i class="ti ti-mountain" aria-hidden="true"></i>Randos</button>
-    <button class="nav-btn" onclick="showTab('kit')" id="nav-kit"><i class="ti ti-backpack" aria-hidden="true"></i>Kit</button>
-    <button class="nav-btn" onclick="showTab('feedback')" id="nav-feedback"><i class="ti ti-bulb" aria-hidden="true"></i>Idées</button>
-    <button class="nav-btn" onclick="showTab('groupe')" id="nav-groupe"><i class="ti ti-users" aria-hidden="true"></i>Groupe</button>
-    <button class="nav-btn" onclick="showTab('profil')" id="nav-profil"><i class="ti ti-user" aria-hidden="true"></i>Moi</button>
+ 
+  <nav class="nav" id="main-nav">
+    <button class="nav-btn active" onclick="showTab('sommets')" id="nav-sommets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3l4 8 5-5 5 15H2L8 3z"/></svg>Sommets
+    </button>
+    <button class="nav-btn" onclick="showTab('kit')" id="nav-kit">
+      <svg width="17" height="17" viewBox="0 0 36 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 30 L6 9 Q6 3 13 3 L17 3 Q20 3 20 7 L20 20 Q28 19 32 22 L33 26 Q33 30 30 30 Z"/><path d="M3 30 L34 30"/><path d="M4 28 L33 28"/><line x1="8" y1="12" x2="19" y2="12"/><line x1="8" y1="16" x2="19" y2="16"/><line x1="8" y1="20" x2="19" y2="20"/></svg>Kit
+    </button>
+    <button class="nav-btn" onclick="showTab('radio')" id="nav-radio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>Radio
+    </button>
+    <button class="nav-btn" onclick="showTab('idees')" id="nav-idees">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.6-1.4 4.9-3.5 6.2V17a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1.8C6.4 13.9 5 11.6 5 9a7 7 0 0 1 7-7z"/></svg>Idées
+    </button>
+    <button class="nav-btn" onclick="showTab('cordee')" id="nav-cordee">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M13 15 Q16 17.5 19 15" stroke-dasharray="2 1.5"/></svg>Cordée
+    </button>
+    <button class="nav-btn" onclick="showTab('basecamp')" id="nav-basecamp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22L12 5l9 17H3z"/><line x1="12" y1="5" x2="12" y2="22"/><path d="M9.5 22v-3.5L12 16l2.5 2.5V22"/></svg>Base Camp
+    </button>
   </nav>
-
-  <div class="tab active" id="tab-randos">
+ 
+  <!-- SOMMETS -->
+  <div class="tab active" id="tab-sommets">
+    <div id="demo-banner-sommets"></div>
     <div class="sec">Ce weekend</div>
+    <div id="rando-mois-container"></div>
     <div id="rando-list"></div>
     <button class="btn btn-primary btn-full" onclick="openModal('add-modal')">
-      <i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i>Proposer une rando
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Proposer une rando
     </button>
   </div>
-
+ 
+  <!-- KIT -->
   <div class="tab" id="tab-kit"><div id="kit-body"></div></div>
-
-  <div class="tab" id="tab-feedback">
-    <div class="info-box"><i class="ti ti-bulb" aria-hidden="true"></i>
-      <p>Propose une amélioration. Les idées les plus votées seront intégrées.</p>
+ 
+  <!-- RADIO -->
+  <div class="tab" id="tab-radio">
+    <div class="radio-header">
+      <div>
+        <div class="radio-title">RADIO · LAC BLANC 24 MAI</div>
+        <div class="radio-sub">Messages de la cordée · Sortie confirmée</div>
+      </div>
+      <div class="radio-online"><div class="radio-online-dot"></div>3 en ligne</div>
     </div>
-    <div class="sec">Soumettre une idée</div>
+ 
+    <!-- Épinglés -->
+    <div class="sec">Épinglés</div>
+    <div id="pinned-msgs"></div>
+ 
+    <!-- Fil -->
+    <div class="sec" style="margin-top:4px">Fil de la cordée</div>
+    <div class="msg-list" id="msg-list"></div>
+ 
+    <!-- Composer -->
+    <div class="msg-compose">
+      <div class="msg-type-row" id="type-row"></div>
+      <div class="msg-input-row">
+        <textarea class="msg-textarea" id="msg-input" rows="1" placeholder="Ton message..." oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMsg()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- IDÉES -->
+  <div class="tab" id="tab-idees">
+    <div class="info-box">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4A7FA8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>Propose des améliorations pour ALTImates. Les idées les plus votées seront intégrées.</p>
+    </div>
+    <div class="sec">Nouvelle idée</div>
     <div class="card" style="margin-bottom:14px">
       <div style="margin-bottom:9px"><label class="form-lbl">Ton idée</label>
         <textarea class="form-input" id="fb-text" rows="3" placeholder="ex: Filtrer par dénivelé max..." style="resize:vertical"></textarea></div>
@@ -310,201 +613,309 @@ html,body{height:100%;background:var(--kraft);color:var(--ink);font-family:var(-
           <option value="content">Contenu</option>
         </select></div>
       <button class="btn btn-primary btn-full" onclick="submitFeedback()">
-        <i class="ti ti-send" style="font-size:12px" aria-hidden="true"></i>Soumettre
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Soumettre
       </button>
     </div>
     <div class="sec">Idées du groupe</div>
     <div id="feedback-list"></div>
   </div>
-
-  <div class="tab" id="tab-groupe">
+ 
+  <!-- CORDÉE -->
+  <div class="tab" id="tab-cordee">
     <div class="sec">Membres</div>
     <div class="card" id="membres-list"></div>
+ 
+    <div class="sec" style="margin-top:12px">Kit partagé du groupe</div>
+    <div style="background:rgba(74,127,168,.08);border:.5px solid rgba(74,127,168,.25);border-radius:var(--r);padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--blue);font-family:var(--mono);line-height:1.6">
+      Déduit automatiquement du kit coché de chacun. Coche tes équipements dans l'onglet Kit pour apparaître ici.
+    </div>
+    <div class="card" style="padding:0 14px" id="shared-kit-list"></div>
+ 
+    <div class="sec" style="margin-top:12px">Checklist départ · Lac Blanc</div>
+    <div style="background:rgba(74,127,168,.08);border:.5px solid rgba(74,127,168,.25);border-radius:var(--r);padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--blue);font-family:var(--mono);line-height:1.6">
+      Articles collectifs pour la sortie. Clique "Prendre en charge" pour t'assigner — les autres le verront en temps réel.
+    </div>
+    <div class="card" style="padding:0 14px" id="depart-list"></div>
+    <button class="btn btn-sm" style="margin-top:8px" onclick="addDepartItem()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter un article
+    </button>
+ 
     <div class="sec" style="margin-top:12px">Inviter</div>
     <div class="card" style="display:flex;gap:8px;align-items:center">
       <input class="form-input" style="flex:1;font-size:11px" readonly id="invite-link" value="">
-      <button class="btn btn-sm" onclick="copyInvite()"><i class="ti ti-copy" style="font-size:12px" aria-hidden="true"></i>Copier</button>
+      <button class="btn btn-sm" onclick="copyInvite()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copier
+      </button>
     </div>
   </div>
-
-  <div class="tab" id="tab-profil"><div id="profil-body"></div></div>
+ 
+  <!-- BASE CAMP -->
+  <div class="tab" id="tab-basecamp"><div id="basecamp-body"></div></div>
 </div>
-
+ 
 <!-- RANDO MODAL -->
 <div class="modal-wrap" id="rando-modal" onclick="closeModalOuter('rando-modal',event)">
-  <div class="modal" id="rando-modal-inner">
-    <div class="modal-handle"></div>
-    <div id="rando-map"></div>
-    <div id="rando-modal-body"></div>
-  </div>
+  <div class="modal"><div class="modal-handle"></div><div id="rando-map"></div><div id="rando-modal-body"></div></div>
 </div>
-
+ 
 <!-- ADD RANDO MODAL -->
 <div class="modal-wrap" id="add-modal" onclick="closeModalOuter('add-modal',event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
       <span class="modal-title">Proposer une rando</span>
-      <button class="close-btn" onclick="closeModal('add-modal')" aria-label="Fermer"><i class="ti ti-x" aria-hidden="true"></i></button>
+      <button class="close-btn" onclick="closeModal('add-modal')" aria-label="Fermer">✕</button>
     </div>
     <div style="margin-bottom:9px"><label class="form-lbl">Nom</label><input class="form-input" id="f-name" placeholder="ex: Lac Blanc"></div>
     <div class="form-row2" style="margin-bottom:9px">
       <div><label class="form-lbl">Région</label><input class="form-input" id="f-reg" placeholder="ex: Haute-Savoie"></div>
-      <div><label class="form-lbl">Date</label><input class="form-input" id="f-date" type="date"></div>
-    </div>
-    <div class="form-row3" style="margin-bottom:9px">
-      <div><label class="form-lbl">km</label><input class="form-input" id="f-km" type="number" placeholder="15"></div>
-      <div><label class="form-lbl">D+ m</label><input class="form-input" id="f-dp" type="number" placeholder="800"></div>
       <div><label class="form-lbl">Niveau</label>
-        <select class="form-input" id="f-diff"><option>Facile</option><option selected>Moyen</option><option>Difficile</option><option>Trek</option></select>
+        <select class="form-input" id="f-diff"><option>Facile</option><option selected>Moyen</option><option>Difficile</option><option>Trek</option></select></div>
+    </div>
+    <div style="margin-bottom:9px">
+      <label class="form-lbl">Durée</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button type="button" class="btn btn-sm btn-primary" id="dur-day" onclick="setDurType('day')" style="flex:1;justify-content:center">Journée</button>
+        <button type="button" class="btn btn-sm" id="dur-multi" onclick="setDurType('multi')" style="flex:1;justify-content:center">Plusieurs jours</button>
       </div>
+      <div id="dur-day-fields"><label class="form-lbl">Date</label><input class="form-input" id="f-date" type="date"></div>
+      <div id="dur-multi-fields" style="display:none">
+        <div class="form-row2">
+          <div><label class="form-lbl">Du</label><input class="form-input" id="f-date-start" type="date"></div>
+          <div><label class="form-lbl">Au</label><input class="form-input" id="f-date-end" type="date"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-row2" style="margin-bottom:12px">
+      <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="f-km" type="number" placeholder="15"></div>
+      <div><label class="form-lbl">D+ (m)</label><input class="form-input" id="f-dp" type="number" placeholder="800"></div>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-full" onclick="closeModal('add-modal')">Annuler</button>
-      <button class="btn btn-primary btn-full" onclick="submitRando()"><i class="ti ti-send" style="font-size:12px" aria-hidden="true"></i>Envoyer</button>
+      <button class="btn btn-primary btn-full" onclick="submitRando()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Envoyer
+      </button>
     </div>
   </div>
 </div>
-
+ 
 <!-- ONBOARDING MODAL -->
 <div class="modal-wrap" id="onb-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <p style="font-size:15px;font-weight:500;margin-bottom:3px;letter-spacing:-.3px">Bienvenue sur Altimates</p>
-    <p style="font-size:11px;color:var(--ink3);margin-bottom:15px;font-family:var(--mono)">2 QUESTIONS · KIT PERSONNALISÉ</p>
+    <p style="font-size:15px;font-weight:700;margin-bottom:3px;letter-spacing:-.3px">Configure ton Base Camp</p>
+    <p style="font-size:10px;color:var(--ink3);margin-bottom:15px;font-family:var(--mono)">2 QUESTIONS · KIT PERSONNALISÉ</p>
     <div style="margin-bottom:13px"><label class="form-lbl">Prénom</label><input class="form-input" id="onb-name" placeholder="ex: Sophie"></div>
     <div style="margin-bottom:13px">
-      <p style="font-size:10px;font-weight:500;margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)">Niveau</p>
+      <p class="form-lbl">Niveau</p>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        <div class="onb-opt" id="lvl-newbie" onclick="selLvl('newbie')"><i class="ti ti-seedling" aria-hidden="true"></i><div class="onb-opt-name">Débutant</div><div class="onb-opt-sub">1ères randos</div></div>
-        <div class="onb-opt" id="lvl-intermediate" onclick="selLvl('intermediate')"><i class="ti ti-mountain" aria-hidden="true"></i><div class="onb-opt-name">Inter.</div><div class="onb-opt-sub">Quelques saisons</div></div>
-        <div class="onb-opt" id="lvl-expert" onclick="selLvl('expert')"><i class="ti ti-medal" aria-hidden="true"></i><div class="onb-opt-name">Expert</div><div class="onb-opt-sub">Trekkeur confirmé</div></div>
+        <div class="onb-opt" id="lvl-newbie" onclick="selLvl('newbie')"><span class="onb-opt-icon" style="display:flex;justify-content:center;padding:4px 0"><svg width="36" height="18" viewBox="0 0 32 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M0 18 Q8 4 16 4 Q24 4 32 18"/></svg></span><div class="onb-opt-name">Débutant</div><div class="onb-opt-sub">1ères randos</div></div>
+        <div class="onb-opt" id="lvl-intermediate" onclick="selLvl('intermediate')">
+          <span class="onb-opt-icon" style="display:flex;justify-content:center;padding:2px 0"><svg width="36" height="22" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M0 20 L9 3 L18 20"/><path d="M14 20 L22 7 L30 20"/></svg></span>
+          <div class="onb-opt-name">Inter.</div><div class="onb-opt-sub">Quelques saisons</div>
+        </div>
+        <div class="onb-opt" id="lvl-expert" onclick="selLvl('expert')"><span class="onb-opt-icon" style="display:flex;justify-content:center;padding:4px 0"><svg width="40" height="20" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M0 20 L5 14 L9 17 L14 5 L19 15 L23 9 L28 17 L31 12 L36 20"/></svg></span><div class="onb-opt-name">Expert</div><div class="onb-opt-sub">Confirmé</div></div>
       </div>
     </div>
     <div style="margin-bottom:15px">
-      <p style="font-size:10px;font-weight:500;margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)">Type de sortie</p>
+      <p class="form-lbl">Type de sortie</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="onb-opt" id="mode-journee" onclick="selMode('journee')"><i class="ti ti-sun" aria-hidden="true"></i><div class="onb-opt-name">Journée</div><div class="onb-opt-sub">Retour le soir</div></div>
-        <div class="onb-opt" id="mode-trek" onclick="selMode('trek')"><i class="ti ti-tent" aria-hidden="true"></i><div class="onb-opt-name">Trek</div><div class="onb-opt-sub">Bivouac / refuges</div></div>
+        <div class="onb-opt" <div class="onb-opt" id="mode-journee" onclick="selMode('journee')">
+          <span class="onb-opt-icon" style="display:flex;justify-content:center;padding:2px 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:block;margin:0 auto"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+          <div class="onb-opt-name">Journée</div><div class="onb-opt-sub">Retour le soir</div>
+        </div>
+        <div class="onb-opt" id="mode-trek" onclick="selMode('trek')"><span class="onb-opt-icon">⛺</span><div class="onb-opt-name">Trek</div><div class="onb-opt-sub">Bivouac / refuges</div></div>
       </div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="finishOnb()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i>Voir mon kit</button>
+    <button class="btn btn-primary btn-full" onclick="finishOnb()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Installer mon Base Camp
+    </button>
   </div>
 </div>
-
+ 
 <!-- EMAIL MODAL -->
 <div class="modal-wrap" id="email-modal" onclick="closeModalOuter('email-modal',event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
       <span class="modal-title">Recevoir mon kit</span>
-      <button class="close-btn" onclick="closeModal('email-modal')" aria-label="Fermer"><i class="ti ti-x" aria-hidden="true"></i></button>
+      <button class="close-btn" onclick="closeModal('email-modal')" aria-label="Fermer">✕</button>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <button class="btn btn-gold btn-full" onclick="generatePDF()"><i class="ti ti-file-type-pdf" style="font-size:13px" aria-hidden="true"></i>Télécharger PDF</button>
-      <button class="btn btn-full" onclick="sendEmail()"><i class="ti ti-mail" style="font-size:13px" aria-hidden="true"></i>Ouvrir messagerie</button>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-full" onclick="generatePDF()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Télécharger PDF
+      </button>
+      <button class="btn btn-full" onclick="sendEmail()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Ouvrir messagerie
+      </button>
     </div>
-    <div style="margin-bottom:10px"><label class="form-lbl">Email (pour messagerie)</label><input class="form-input" id="email-addr" type="email" placeholder="prenom@email.com"></div>
+    <div style="margin-bottom:10px"><label class="form-lbl">Email</label><input class="form-input" id="email-addr" type="email" placeholder="prenom@email.com"></div>
     <div><label class="form-lbl" style="margin-bottom:5px">Aperçu</label><div class="email-preview" id="email-preview"></div></div>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
+<!-- GEAR INFO PANEL -->
+<div class="kit-tooltip-overlay" id="gear-info-overlay" onclick="closeGearInfo()"></div>
+<div class="kit-tooltip" id="gear-info-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.2px" id="gear-info-title"></div>
+    <button class="close-btn" onclick="closeGearInfo()">✕</button>
+  </div>
+  <div style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:14px;font-family:var(--font)" id="gear-info-text"></div>
+  <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Où acheter</div>
+  <div style="display:flex;flex-direction:column;gap:6px" id="gear-info-links"></div>
+</div>
+ 
+ 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const {jsPDF} = window.jspdf || {};
-const GEAR = {
+// ── DATA ──────────────────────────────────────────────────
+const GEAR={
   trek:{
     indispensable:[
-      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide · semelle Vibram',links:[]},
-      {id:'batons',name:'Bâtons de rando',note:null,links:[]},
-      {id:'sac50',name:'Sac à dos trek 50+10L',note:null,links:[{l:'Decathlon MT900',u:'https://www.decathlon.fr/p/sac-a-dos-de-trekking-homme-50-10l-mt900-symbium/_/R-p-342061'}]},
-      {id:'frontale',name:'Frontale',note:null,links:[]},
-      {id:'powerbank',name:'Power bank',note:null,links:[]},
-      {id:'matelas',name:'Matelas gonflable',note:null,links:[{l:'Decathlon MT500',u:'https://www.decathlon.fr/p/matelas-gonflable-de-trekking-mt500-air-isolant-l-180-x-52-cm-1-personne/_/R-p-311475'}]},
-      {id:'duvet',name:'Duvet / sac de couchage',note:'0°C synthétique ou duvet selon budget',links:[{l:'Synthétique',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt500-0degc-synthetique/_/R-p-346447'},{l:'Duvet',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt900-0degc-duvet/_/R-p-309272'}]},
-      {id:'coupevent',name:'Coupe-vent',note:null,links:[]},
-      {id:'polaire',name:'Polaire',note:null,links:[]},
-      {id:'raincover',name:'Raincover',note:'Souvent fourni avec le sac',links:[]},
-      {id:'calecons',name:'Caleçons longs Merinos',note:'Évite les brûlures par frottement',links:[{l:'Decathlon Merinos',u:'https://www.decathlon.fr/p/sous-vetement-boxer-en-laine-merinos-de-trek-montagne-mt500-homme/_/R-p-306561'}]},
-      {id:'chaussettes',name:'Chaussettes techniques',note:'Séchage rapide · éviter le coton',links:[]},
-      {id:'claquettes',name:'Claquettes (camp)',note:null,links:[]},
-      {id:'bonnet',name:'Bonnet ou buff',note:'Nuits froides + casquette la journée',links:[]},
-      {id:'camelbak',name:'Camelbak 3L',note:null,links:[]},
-      {id:'lifestraw',name:'Lifestraw gourde filtrante 1L',note:null,links:[]},
-      {id:'barres',name:'Barres céréales · fruits secs · noix',note:null,links:[]},
-      {id:'lyophilise',name:'Lyophilisés · 2 repas/jour',note:null,links:[]},
+      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide · Vibram recommandée',price:'80–180€',links:[]},
+      {id:'batons',name:'Bâtons de rando',note:null,price:'30–90€',links:[]},
+      {id:'sac50',name:'Sac à dos trek 50+10L',note:null,price:'60–150€',links:[{l:'MT900 · 50+10L',u:'https://www.decathlon.fr/p/sac-a-dos-de-trekking-homme-50-10l-mt900-symbium/_/R-p-342061'}]},
+      {id:'frontale',name:'Frontale',note:null,price:'15–50€',links:[]},
+      {id:'powerbank',name:'Power bank',note:null,price:'20–60€',links:[]},
+      {id:'matelas',name:'Matelas gonflable',note:null,price:'40–90€',links:[{l:'MT500 Air',u:'https://www.decathlon.fr/p/matelas-gonflable-de-trekking-mt500-air-isolant-l-180-x-52-cm-1-personne/_/R-p-311475'}]},
+      {id:'duvet',name:'Duvet / sac de couchage',note:'0°C · synthétique ou duvet selon budget',price:'50–180€',links:[{l:'Synthétique 0°C',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt500-0degc-synthetique/_/R-p-346447'},{l:'Duvet 0°C',u:'https://www.decathlon.fr/p/sac-de-couchage-de-trekking-mt900-0degc-duvet/_/R-p-309272'}]},
+      {id:'coupevent',name:'Coupe-vent',note:null,price:'30–80€',links:[]},
+      {id:'polaire',name:'Polaire',note:null,price:'25–70€',links:[]},
+      {id:'raincover',name:'Raincover',note:'Souvent fourni avec le sac',price:'0–25€',links:[]},
+      {id:'calecons',name:'Caleçons longs Merinos',note:'Évite les brûlures par frottement',price:'30–60€',links:[{l:'Merinos MT500',u:'https://www.decathlon.fr/p/sous-vetement-boxer-en-laine-merinos-de-trek-montagne-mt500-homme/_/R-p-306561'}]},
+      {id:'chaussettes',name:'Chaussettes techniques',note:'Séchage rapide · éviter le coton',price:'8–20€',links:[]},
+      {id:'claquettes',name:'Claquettes (camp)',note:null,price:'10–25€',links:[]},
+      {id:'bonnet',name:'Bonnet ou buff',note:null,price:'10–30€',links:[]},
+      {id:'camelbak',name:'Camelbak 3L',note:null,price:'20–50€',links:[]},
+      {id:'lifestraw',name:'Lifestraw gourde filtrante',note:null,price:'25–45€',links:[]},
+      {id:'barres',name:'Barres · fruits secs · noix',note:null,price:'15–30€',links:[]},
+      {id:'lyophilise',name:'Lyophilisés · 2 repas/jour',note:null,price:'10–18€/repas',links:[]},
     ],
     recommande:[
-      {id:'tshirt',name:'T-shirt Merinos MC/ML',note:'Sèche vite · chaud · ne sent pas',links:[{l:'Decathlon',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
-      {id:'serviette',name:'Serviette microfibre',note:null,links:[]},
-      {id:'cuillere',name:'Cuillère trek pliable',note:null,links:[]},
+      {id:'tshirt',name:'T-shirt Merinos',note:'Sèche vite · ne sent pas mauvais',price:'25–60€',links:[{l:'Merinos resist',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
+      {id:'serviette',name:'Serviette microfibre',note:null,price:'8–20€',links:[]},
+      {id:'cuillere',name:'Cuillère trek pliable',note:null,price:'5–15€',links:[]},
     ],
     facultatif:[
-      {id:'oreiller',name:'Oreiller gonflable',note:null,links:[{l:'Decathlon MT500',u:'https://www.decathlon.fr/p/oreiller-de-trekking-gonflable-mt500/_/R-p-343604'}]},
-      {id:'pantpluie',name:'Pantalon de pluie',note:null,links:[]},
-      {id:'poncho',name:'Poncho pluie',note:null,links:[]},
-      {id:'solaire',name:'Stick solaire SPF50',note:'Altitude = UV x2',links:[]},
-      {id:'sacetanche',name:'Sac étanche',note:null,links:[{l:'Sea to Summit',u:'https://www.decathlon.fr/p/mp/sea-to-summit/sac-etanche-ultra-leger-sea-to-summit-13l/_/R-p-1a4f06ca'}]},
-      {id:'crampons',name:'Crampons',note:'Début/fin de saison uniquement',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
-      {id:'short',name:'Short',note:'Selon préférences',links:[]},
-      {id:'pantleger',name:'Pantalon léger',note:'Selon préférences',links:[]},
+      {id:'oreiller',name:'Oreiller gonflable',note:null,price:'15–35€',links:[{l:'MT500',u:'https://www.decathlon.fr/p/oreiller-de-trekking-gonflable-mt500/_/R-p-343604'}]},
+      {id:'pantpluie',name:'Pantalon de pluie',note:null,price:'20–60€',links:[]},
+      {id:'solaire',name:'Stick solaire SPF50',note:'Altitude = UV x2',price:'5–15€',links:[]},
+      {id:'sacetanche',name:'Sac étanche 13L',note:null,price:'20–40€',links:[{l:'Sea to Summit',u:'https://www.decathlon.fr/p/mp/sea-to-summit/sac-etanche-ultra-leger-sea-to-summit-13l/_/R-p-1a4f06ca'}]},
+      {id:'crampons',name:'Crampons',note:'Début/fin de saison uniquement',price:'15–40€',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
     ]
   },
   journee:{
     indispensable:[
-      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide',links:[]},
-      {id:'batons',name:'Bâtons de marche',note:null,links:[]},
-      {id:'sac20',name:'Sac à dos 20–30L',note:null,links:[]},
-      {id:'coupevent',name:'Coupe-vent / imperméable',note:null,links:[]},
-      {id:'camelbak',name:'Gourde / Camelbak 1.5–2L',note:null,links:[]},
-      {id:'frontale',name:'Frontale',note:'Même en journée',links:[]},
-      {id:'barres',name:'Barres · fruits secs · noix',note:null,links:[]},
-      {id:'bonnet',name:'Casquette + buff',note:null,links:[]},
+      {id:'chaussures',name:'Chaussures de rando',note:'Gore-Tex si saison humide',price:'60–150€',links:[]},
+      {id:'batons',name:'Bâtons de marche',note:null,price:'25–70€',links:[]},
+      {id:'sac20',name:'Sac à dos 20–30L',note:null,price:'25–80€',links:[]},
+      {id:'coupevent',name:'Coupe-vent / imperméable',note:null,price:'30–80€',links:[]},
+      {id:'camelbak',name:'Gourde / Camelbak 1.5–2L',note:null,price:'15–40€',links:[]},
+      {id:'frontale',name:'Frontale',note:'Même en journée',price:'15–45€',links:[]},
+      {id:'barres',name:'Barres · fruits secs · noix',note:null,price:'8–20€',links:[]},
+      {id:'bonnet',name:'Casquette + buff',note:null,price:'10–25€',links:[]},
     ],
     recommande:[
-      {id:'tshirt',name:'T-shirt Merinos',note:'Sèche vite · ne sent pas',links:[{l:'Decathlon',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
-      {id:'chaussettes',name:'Chaussettes techniques',note:'Éviter le coton',links:[]},
-      {id:'solaire',name:'Stick solaire SPF50',note:null,links:[]},
-      {id:'powerbank',name:'Power bank',note:null,links:[]},
+      {id:'tshirt',name:'T-shirt Merinos',note:'Sèche vite · ne sent pas',price:'25–55€',links:[{l:'Merinos resist',u:'https://www.decathlon.fr/p/t-shirt-manches-courtes-en-laine-merinos-homme-merino-resist-kaki/_/R-p-356413'}]},
+      {id:'chaussettes',name:'Chaussettes techniques',note:'Éviter le coton',price:'8–18€',links:[]},
+      {id:'solaire',name:'Stick solaire SPF50',note:null,price:'5–12€',links:[]},
+      {id:'powerbank',name:'Power bank',note:null,price:'20–50€',links:[]},
     ],
     facultatif:[
-      {id:'poncho',name:'Poncho pluie',note:null,links:[]},
-      {id:'crampons',name:'Crampons',note:'Début/fin de saison',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
+      {id:'poncho',name:'Poncho pluie',note:null,price:'10–30€',links:[]},
+      {id:'crampons',name:'Crampons',note:'Début/fin de saison',price:'15–35€',links:[{l:'Amazon',u:'https://www.amazon.fr/s?k=crampons+randonn%C3%A9e+neige'}]},
     ]
   }
 };
-
+ 
 const WICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌦️',61:'🌧️',63:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
 const wi=c=>WICONS[c]||'🌤️';
 const AVCOLS=[['#F5E8C0','#5C4A00'],['#D4EDD9','#2A5C35'],['#FAC775','#633806'],['#F4C0D1','#72243E'],['#B5D4F4','#0C447C']];
 const avS=i=>{const[b,c]=AVCOLS[i%AVCOLS.length];return`background:${b};color:${c}`};
-const LVLS={newbie:{l:'Débutant',cls:'ta'},intermediate:{l:'Intermédiaire',cls:'tg'},expert:{l:'Expert',cls:'tb'}};
+const LVLS={newbie:{l:'Débutant',cls:'ta',next:'Intermédiaire',pct:20},intermediate:{l:'Intermédiaire',cls:'tg',next:'Expert',pct:55},expert:{l:'Expert',cls:'tb',next:null,pct:100}};
 const CATL={feature:'Feature',ux:'UX',bug:'Bug',content:'Contenu'};
+const STATUS_LABELS={'todo':'To do','wip':'WIP','done':'Done','wontdo':'Won\'t do'};
+const STATUS_CLS={'todo':'status-todo','wip':'status-wip','done':'status-done','wontdo':'status-wontdo'};
 const CATCLS={feature:'tb',ux:'tg',bug:'tr',content:'tgold'};
-
+ 
 let randos=[
-  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
-  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier ouverture avant départ.',src:'Refuges.info'},desc:'Traversée avec bivouac. Grand Veymont 2341m. Points d\'eau réguliers.'},
-  {id:3,name:"Canyon de l'Ardèche",region:'Ardèche',diff:'Facile',km:9,dplus:280,dur:'1j',lat:44.37,lon:4.38,votes:{oui:2,peut:2},myVote:null,alert:null,desc:'Gorges spectaculaires le long du GR4. Baignade possible en été.'},
+  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,date:'24 mai',desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
+  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier avant départ.',src:'Refuges.info'},date:'8 juin',desc:'Traversée avec bivouac. Grand Veymont 2341m.'},
+  {id:3,name:"Canyon de l'Ardèche",region:'Ardèche',diff:'Facile',km:9,dplus:280,dur:'1j',lat:44.37,lon:4.38,votes:{oui:2,peut:2},myVote:null,alert:null,date:'15 juin',desc:'Gorges spectaculaires le long du GR4.'},
 ];
+ 
 let feedbacks=[
-  {id:1,text:'Filtrer les randos par dénivelé max',cat:'feature',author:'Thomas',votes:{up:3,down:0},myVote:null,ts:'il y a 2j'},
-  {id:2,text:'Section photos après rando',cat:'feature',author:'Sofia',votes:{up:5,down:0},myVote:'up',ts:'hier'},
-  {id:3,text:'Bouton vote trop petit sur mobile',cat:'ux',author:'Lucas',votes:{up:2,down:0},myVote:null,ts:'hier'},
+  {id:1,text:'Filtrer les randos par dénivelé max',cat:'feature',author:'Thomas',votes:{up:3,down:0},myVote:null,ts:'il y a 2j',status:'wip',comments:[{author:'Thomas',text:'En cours pour la v7',ts:'hier'}]},
+  {id:2,text:'Section photos après rando',cat:'feature',author:'Sofia',votes:{up:5,down:0},myVote:'up',ts:'hier',status:'todo',comments:[]},
+  {id:3,text:'Bouton vote trop petit sur mobile',cat:'ux',author:'Lucas',votes:{up:2,down:0},myVote:null,ts:'hier',status:'done',comments:[{author:'Thomas',text:'Corrigé en v6',ts:'aujourd\'hui'}]},
 ];
+ 
 const membres=[
-  {name:'Thomas',initials:'TH',level:'expert',km:510,dplus:29000},
-  {name:'Sofia',initials:'SF',level:'intermediate',km:210,dplus:9800},
-  {name:'Lucas',initials:'LM',level:'newbie',km:30,dplus:800},
-  {name:'Camille',initials:'CA',level:'newbie',km:15,dplus:300},
+  {name:'Thomas',initials:'TH',level:'expert',km:510,dplus:29000,sorties:24,kit:['Tente 3p','Réchaud','Bâtons']},
+  {name:'Sofia',initials:'SF',level:'intermediate',km:210,dplus:9800,sorties:12,kit:['Trousse secours','Filtre eau']},
+  {name:'Lucas',initials:'LM',level:'newbie',km:30,dplus:800,sorties:3,kit:[]},
+  {name:'Camille',initials:'CA',level:'newbie',km:15,dplus:300,sorties:2,kit:[]},
 ];
+ 
+let messages=[
+  {id:1,type:'alerte',author:'Thomas',text:'Météo changeante samedi après-midi — prévoir veste imperméable. Départ avancé à 7h.',time:'il y a 3h',reads:['TH','SF','LM'],pinned:true},
+  {id:2,type:'confirmation',author:'Sofia',text:'Vu ! Je suis prête, départ 7h ok pour moi.',time:'il y a 2h',reads:['TH','SF'],pinned:false},
+  {id:3,type:'position',author:'Thomas',text:'Point de RDV : parking des Praz de Chamonix, coordonnées 45.9331, 6.8697',time:'il y a 1h',reads:['TH','SF','LM','CA'],pinned:true},
+  {id:4,type:'message',author:'Lucas',text:'Super, j\'apporte les barres de céréales pour tout le monde',time:'il y a 30min',reads:['TH','SF','LM'],pinned:false},
+];
+ 
+const MSG_TYPES=['message','position','alerte','confirmation'];
+const MSG_TYPE_LABELS={'message':'Message','position':'Position','alerte':'Alerte','confirmation':'Confirmation'};
+const MSG_TYPE_ICONS={
+  'alerte':'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>',
+  'position':'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  'confirmation':'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  'message':'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+};
+const MSG_TYPE_CLS={'alerte':'type-alerte','position':'type-position','confirmation':'type-confirmation','message':'type-message'};
+ 
+let departItems=[
+  {id:'tente',name:'Tente 3 places',assignee:'Thomas',done:true},
+  {id:'rechaud',name:'Réchaud + gaz',assignee:'Thomas',done:true},
+  {id:'trousse',name:'Trousse premiers secours',assignee:'Sofia',done:false},
+  {id:'filtreeau',name:'Filtre à eau',assignee:'Sofia',done:false},
+  {id:'barres',name:'Barres céréales (groupe)',assignee:'Lucas',done:false},
+  {id:'carte',name:'Carte IGN papier',assignee:'',done:false},
+];
+ 
 let user=null,onbLvl=null,onbMode=null;
 let openSec={indispensable:true,recommande:false,facultatif:false};
-let leafMap=null,activeRandoId=null;
-
+let leafMap=null;
+let tutoSlide=0,tutoTip=0;
+let activeType='message';
+const TUTO_KEY='altimates_v4_tuto';
+const USER_KEY='altimates_v4_user';
+const FB_KEY='altimates_v4_fb';
+const RANDOS_KEY='altimates_v4_randos';
+ 
+const TOOLTIPS=[
+  {tab:'sommets',title:'SOMMETS',text:'Les randos du groupe avec météo en temps réel. Propose et vote pour le prochain weekend.'},
+  {tab:'kit',title:'KIT',text:'Ta liste d\'équipement personnalisée avec fourchettes de prix et liens d\'achat. PDF téléchargeable.'},
+  {tab:'radio',title:'RADIO',text:'Le canal de communication de la cordée. Messages typés, épinglés, lus par tous.'},
+  {tab:'idees',title:'IDÉES',text:'Suggère des améliorations. Le groupe vote pour les meilleures features.'},
+  {tab:'cordee',title:'CORDÉE',text:'Tes coéquipiers, le kit partagé et la checklist de départ collective.'},
+  {tab:'basecamp',title:'BASE CAMP',text:'Ton QG perso — stats, prochaine sortie, progression et niveau dans la cordée.'},
+];
+ 
+// ── UTILS ──────────────────────────────────────────────────
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 function showTab(t){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -512,64 +923,145 @@ function showTab(t){
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('nav-'+t).classList.add('active');
   if(t==='kit')renderKit();
-  if(t==='profil')renderProfil();
-  if(t==='groupe')renderGroupe();
-  if(t==='feedback')renderFeedback();
+  if(t==='basecamp')renderBaseCamp();
+  if(t==='cordee')renderCordee();
+  if(t==='idees')renderFeedback();
+  if(t==='radio')renderRadio();
 }
-function openModal(id){
-  document.getElementById(id).classList.add('open');
-  history.pushState({modal:id},'');
-}
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-  if(id==='rando-modal'&&leafMap){leafMap.remove();leafMap=null;}
-}
-function closeModalOuter(id,e){if(e.target===document.getElementById(id))closeModal(id)}
-
-window.addEventListener('popstate',()=>{
-  const open=document.querySelector('.modal-wrap.open');
-  if(open)open.classList.remove('open');
-  if(leafMap){leafMap.remove();leafMap=null;}
-});
-
-// Swipe down to close
+function openModal(id){document.getElementById(id).classList.add('open');history.pushState({modal:id},'');}
+function closeModal(id){document.getElementById(id).classList.remove('open');if(id==='rando-modal'&&leafMap){leafMap.remove();leafMap=null;}}
+function closeModalOuter(id,e){if(e.target===document.getElementById(id))closeModal(id);}
+window.addEventListener('popstate',()=>{const o=document.querySelector('.modal-wrap.open');if(o){o.classList.remove('open');if(leafMap){leafMap.remove();leafMap=null;}}});
 let touchY=0;
-document.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY});
-document.addEventListener('touchend',e=>{
-  const dy=e.changedTouches[0].clientY-touchY;
-  if(dy>80){const open=document.querySelector('.modal-wrap.open');if(open){closeModal(open.id);history.back();}}
-});
-
-function saveUser(){try{localStorage.setItem('altimates_topo_user',JSON.stringify(user));}catch(e){}}
-function loadUser(){try{const s=localStorage.getItem('altimates_topo_user');if(s){user=JSON.parse(s);return true;}}catch(e){}return false;}
-function saveFeedbacks(){try{localStorage.setItem('altimates_topo_fb',JSON.stringify(feedbacks));}catch(e){}}
-function loadFeedbacks(){try{const s=localStorage.getItem('altimates_topo_fb');if(s)feedbacks=JSON.parse(s);}catch(e){}}
-function saveRandos(){try{localStorage.setItem('altimates_topo_randos',JSON.stringify(randos));}catch(e){}}
-function loadRandos(){try{const s=localStorage.getItem('altimates_topo_randos');if(s){const r=JSON.parse(s);if(r.length)randos=r;}}catch(e){}}
-
-// ── RANDOS ──
+document.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{const dy=e.changedTouches[0].clientY-touchY;if(dy>80){const o=document.querySelector('.modal-wrap.open');if(o){closeModal(o.id);history.back();}}},{passive:true});
+function saveUser(){try{localStorage.setItem(USER_KEY,JSON.stringify(user));}catch(e){}}
+function loadUser(){try{const s=localStorage.getItem(USER_KEY);if(s){user=JSON.parse(s);return true;}}catch(e){}return false;}
+function saveFB(){try{localStorage.setItem(FB_KEY,JSON.stringify(feedbacks));}catch(e){}}
+function loadFB(){try{const s=localStorage.getItem(FB_KEY);if(s)feedbacks=JSON.parse(s);}catch(e){}}
+function saveRandos(){try{localStorage.setItem(RANDOS_KEY,JSON.stringify(randos));}catch(e){}}
+function loadRandos(){try{const s=localStorage.getItem(RANDOS_KEY);if(s){const r=JSON.parse(s);if(r.length)randos=r;}}catch(e){}}
+ 
+// ── TUTORIAL ──────────────────────────────────────────────
+function startTuto(){document.getElementById('tuto-wrap').classList.add('open');goSlide(0);}
+function goSlide(n){
+  document.querySelectorAll('.tuto-slide').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.tuto-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+  tutoSlide=n;
+  const last=n===4;
+  document.getElementById('tuto-next').textContent=last?'C\'est parti →':'Suivant →';
+  document.getElementById('tuto-back').style.display=n>0?'inline-flex':'none';
+}
+function nextSlide(){if(tutoSlide>=4)finishTuto();else goSlide(tutoSlide+1);}
+function prevSlide(){if(tutoSlide>0)goSlide(tutoSlide-1);}
+function finishTuto(){
+  document.getElementById('tuto-wrap').classList.remove('open');
+  document.getElementById('main-app').style.cssText='display:flex;flex-direction:column';
+  localStorage.setItem(TUTO_KEY,'1');
+  if(!user)setTimeout(()=>openModal('onb-modal'),400);
+  else setTimeout(startTooltips,600);
+}
+function startTooltips(){tutoTip=0;showTooltip(0);}
+function showTooltip(idx){
+  if(idx>=TOOLTIPS.length){endTooltips();return;}
+  const tt=TOOLTIPS[idx];
+  showTab(tt.tab);
+  setTimeout(()=>{
+    const btn=document.getElementById('nav-'+tt.tab);
+    if(!btn)return;
+    const rect=btn.getBoundingClientRect();
+    const box=document.getElementById('tooltip-box');
+    const wrap=document.getElementById('tooltip-wrap');
+    document.getElementById('tt-title').textContent=tt.title;
+    document.getElementById('tt-text').textContent=tt.text;
+    document.getElementById('tt-step').textContent=`${idx+1} / ${TOOLTIPS.length}`;
+    document.getElementById('tt-btn').textContent=idx===TOOLTIPS.length-1?'Terminer ✓':'Suivant →';
+    const bW=230;
+    const btnCenterX=rect.left+rect.width/2;
+    let top=rect.bottom+10;
+    let left=Math.max(10,Math.min(btnCenterX-bW/2,window.innerWidth-bW-10));
+    const arrowLeft=Math.max(20,Math.min(btnCenterX-left,bW-20));
+    box.style.cssText=`top:${top}px;left:${left}px;width:${bW}px;--arrow-left:${arrowLeft}px;`;
+    wrap.classList.add('active');
+  },200);
+}
+function nextTooltip(){tutoTip++;if(tutoTip>=TOOLTIPS.length)endTooltips();else showTooltip(tutoTip);}
+function endTooltips(){document.getElementById('tooltip-wrap').classList.remove('active');showTab('sommets');toast('BIENVENUE SUR ALTIMATES');}
+ 
+// ── DEMO BANNER ──────────────────────────────────────────
+function renderDemoBanner(containerId){
+  if(user&&membres.length>0)return; // hide if group active
+  document.getElementById(containerId).innerHTML=`
+    <div class="demo-banner">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8C7000" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="demo-banner-text">Aperçu démo · Invite ta cordée pour remplir l'app de vraies données</div>
+    </div>`;
+}
+ 
+// ── SOMMETS / RANDOS ──────────────────────────────────────
 function renderRandos(){
+  renderDemoBanner('demo-banner-sommets');
+  renderRandoMois();
   document.getElementById('rando-list').innerHTML=randos.map(r=>`
     <div class="rcard" id="rc-${r.id}">
-      <div style="display:flex;align-items:center;gap:8px;padding:11px 13px">
-        <div class="spinner"></div>
-        <span style="font-size:10px;color:var(--ink3);font-family:var(--mono)">MÉTÉO EN COURS…</span>
-      </div>
+      <div class="spinner-wrap"><div class="spinner"></div><span style="font-size:10px;color:var(--ink4);font-family:var(--mono)">MÉTÉO EN COURS…</span></div>
     </div>`).join('');
   randos.forEach(r=>fetchWeather(r));
 }
-
-async function fetchWeather(r){
-  const el=document.getElementById('rc-'+r.id);
-  if(!el)return;
+ 
+async function renderRandoMois(){
+  const c=document.getElementById('rando-mois-container');
+  c.innerHTML=`<div class="rando-mois"><div class="rando-mois-bg"><svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,40 Q80,20 180,38 Q280,56 380,30 Q420,18 450,26"/><path d="M-20,65 Q80,45 180,63 Q280,81 380,55 Q420,43 450,51"/></g></svg></div><div class="rando-mois-content"><div class="rando-mois-badge">RANDO DU MOIS · IA</div><div class="ai-loading"><div class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:var(--gold)"></div>Analyse météo + niveau du groupe…</div></div></div>`;
   try{
-    const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&daily=temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode&forecast_days=4&timezone=Europe/Paris`);
-    const d=await res.json();
-    const days=d.daily;
-    const temp=Math.round(days.temperature_2m_max[0]);
-    const wind=Math.round(days.windspeed_10m_max[0]);
-    const rain=days.precipitation_sum[0];
-    const code=days.weathercode[0];
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:200,
+        system:'Tu es un expert en randonnée française. Réponds en JSON uniquement: {"name":"...","region":"...","why":"...","km":0,"dplus":0,"diff":"Facile|Moyen|Difficile"}. Maximum 60 caractères pour why.',
+        messages:[{role:'user',content:`Mois: mai. Niveau groupe: intermédiaire. Suggère une rando en France adaptée. JSON uniquement.`}]
+      })
+    });
+    const d=await resp.json();
+    const txt=d.content?.[0]?.text||'{}';
+    const clean=txt.replace(/```json|```/g,'').trim();
+    const r=JSON.parse(clean);
+    const dc=r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':'tr';
+    c.innerHTML=`<div class="rando-mois" onclick="toast('RANDO DU MOIS · Suggestion IA')">
+      <div class="rando-mois-bg"><svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,40 Q80,20 180,38 Q280,56 380,30 Q420,18 450,26"/><path d="M-20,65 Q80,45 180,63 Q280,81 380,55 Q420,43 450,51"/></g></svg></div>
+      <div class="rando-mois-content">
+        <div class="rando-mois-badge">RANDO DU MOIS · IA</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;letter-spacing:-.2px">${r.name||'Suggestion IA'}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--mono);margin-bottom:8px">${r.region||'France'}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:8px">${r.why||''}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--mono)">${r.km||'—'}km · +${r.dplus||'—'}m</span>
+          <span class="tag ${dc}">${r.diff||'Moyen'}</span>
+        </div>
+      </div>
+    </div>`;
+  }catch(e){
+    c.innerHTML=`<div class="rando-mois">
+      <div class="rando-mois-content">
+        <div class="rando-mois-badge">RANDO DU MOIS</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);font-family:var(--mono)">Suggestion disponible avec connexion internet</div>
+      </div>
+    </div>`;
+  }
+}
+ 
+async function fetchWeather(r){
+  const el=document.getElementById('rc-'+r.id);if(!el)return;
+  try{
+    const controller=new AbortController();
+    const tid=setTimeout(()=>controller.abort(),8000);
+    const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&daily=temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode&forecast_days=4&timezone=Europe%2FParis`,{signal:controller.signal});
+    clearTimeout(tid);
+    if(!res.ok)throw new Error('API '+res.status);
+    const d=await res.json();const days=d.daily;
+    if(!days||!days.temperature_2m_max)throw new Error('No data');
+    const temp=Math.round(days.temperature_2m_max[0]),wind=Math.round(days.windspeed_10m_max[0]);
+    const rain=days.precipitation_sum[0],code=days.weathercode[0];
     let wcls='wx-ok',wlbl='IDÉAL';
     if(rain>5||code>=61){wcls='wx-bad';wlbl='PLUIE';}
     else if(rain>1||code>=51||wind>40){wcls='wx-mid';wlbl='MITIGÉ';}
@@ -583,343 +1075,776 @@ async function fetchWeather(r){
     el.innerHTML=`
       <div class="rcard-top" onclick="openRando(${r.id})">
         <div class="rcard-main">${rcardMain(r)}</div>
-        <div class="rcard-wx ${wcls}">
-          <div class="wx-icon">${wi(code)}</div>
-          <div class="wx-temp">${temp}°</div>
-          <div class="wx-lbl">${wlbl}</div>
-          <div class="wx-wind"><i class="ti ti-wind" style="font-size:8px" aria-hidden="true"></i>${wind}km/h</div>
-        </div>
+        <div class="rcard-wx ${wcls}"><div class="wx-icon">${wi(code)}</div><div class="wx-temp">${temp}°</div><div class="wx-lbl">${wlbl}</div><div class="wx-wind">${wind}km/h</div></div>
       </div>
       <div class="forecast">${fcHTML}</div>
-      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div class="alert-text">⚠ ${r.alert.text}</div></div></div>`:''}`;
+      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}`;
   }catch(e){
     el.innerHTML=`<div class="rcard-top" onclick="openRando(${r.id})"><div class="rcard-main">${rcardMain(r)}</div><div class="rcard-wx wx-mid" style="justify-content:center"><div style="font-size:8px;color:var(--gold2);text-align:center;font-family:var(--mono)">MÉTÉO<br>N/A</div></div></div>`;
   }
 }
-
 function rcardMain(r){
   const dc=r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':r.diff==='Trek'?'tb':'tr';
-  return`<div class="rname">${r.name}${r.alert?'<span class="alert-dot" title="Alerte sécurité"></span>':''}</div>
-    <div class="rreg"><i class="ti ti-map-pin" style="font-size:9px" aria-hidden="true"></i>${r.region}</div>
-    <div class="rstats"><span class="rst"><i class="ti ti-ruler-2" aria-hidden="true"></i>${r.km}km</span><span class="rst"><i class="ti ti-trending-up" aria-hidden="true"></i>+${r.dplus}m</span><span class="rst"><i class="ti ti-clock" aria-hidden="true"></i>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
+  return`<div class="rname">${r.name}${r.alert?'<span class="alert-dot"></span>':''}</div>
+    <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
+    <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
     <div class="vrow">
-      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote(${r.id},'oui')"><i class="ti ti-thumb-up" style="font-size:10px" aria-hidden="true"></i>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
-      <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote(${r.id},'peut')"><i class="ti ti-question-mark" style="font-size:10px" aria-hidden="true"></i>PEUT-ÊTRE</button>
+      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote(${r.id},'oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
+      <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote(${r.id},'peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
     </div>`;
 }
-
 function vote(id,v){
   const r=randos.find(x=>x.id===id);
-  if(r.myVote===v){r.myVote=null;r.votes[v]--;}
-  else{if(r.myVote)r.votes[r.myVote]--;r.myVote=v;r.votes[v]++;}
+  if(r.myVote===v){r.myVote=null;r.votes[v]--;}else{if(r.myVote)r.votes[r.myVote]--;r.myVote=v;r.votes[v]++;}
   saveRandos();
-  const main=document.querySelector(`#rc-${id} .rcard-main`);
-  if(main)main.innerHTML=rcardMain(r);
+  const m=document.querySelector(`#rc-${id} .rcard-main`);if(m)m.innerHTML=rcardMain(r);
   toast(v==='oui'?'✓ PARTANT !':'VOTE ENREGISTRÉ');
 }
-
 function openRando(id){
   const r=randos.find(x=>x.id===id);
-  activeRandoId=id;
-  const mapEl=document.getElementById('rando-map');
-  mapEl.innerHTML='';
+  document.getElementById('rando-map').innerHTML='';
   document.getElementById('rando-modal-body').innerHTML=`
     <div class="modal-header">
       <span class="modal-title">${r.name}</span>
-      <button class="close-btn" onclick="closeModal('rando-modal')" aria-label="Fermer"><i class="ti ti-x" aria-hidden="true"></i></button>
+      <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
     </div>
     <div class="modal-stats">
-      ${[['ti-ruler-2',r.km+'km'],['ti-trending-up','+'+r.dplus+'m'],['ti-clock',r.dur],['ti-mountain',r.diff]].map(([ic,v])=>`<div class="modal-stat"><i class="ti ${ic}" style="font-size:14px;color:var(--gold2)" aria-hidden="true"></i><div class="modal-stat-val">${v}</div></div>`).join('')}
+      <div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>
+        <div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>
+        <div class="modal-stat"><div class="modal-stat-val">${r.dur}</div><div class="modal-stat-lbl">durée</div></div>
+        <div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>
     </div>
-    <p style="font-size:11px;color:var(--ink3);font-family:var(--mono);margin-bottom:5px"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i> ${r.region}</p>
+    <p style="font-size:10px;color:var(--ink3);font-family:var(--mono);margin-bottom:6px">${r.region}</p>
     <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:12px">${r.desc}</p>
-    ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
+    ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
     <div style="display:flex;gap:7px;flex-wrap:wrap">
-      <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"><i class="ti ti-device-watch" style="font-size:12px" aria-hidden="true"></i>GPX Garmin</button>
-      <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank"><i class="ti ti-map" style="font-size:12px" aria-hidden="true"></i>Carte IGN</a>
-      <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')"><i class="ti ti-thumb-up" style="font-size:11px" aria-hidden="true"></i>Partant</button>
+      <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"> Komoot ↗</button>
+      <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
+      <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
     </div>`;
   openModal('rando-modal');
   setTimeout(()=>{
     if(leafMap){leafMap.remove();leafMap=null;}
     leafMap=L.map('rando-map',{zoomControl:false,attributionControl:false}).setView([r.lat,r.lon],13);
-    L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',{maxZoom:17,attribution:'© IGN'}).addTo(leafMap);
+    L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',{maxZoom:17}).addTo(leafMap);
     const icon=L.divIcon({html:'<div style="background:#2D2D2A;width:10px;height:10px;border-radius:50%;border:2px solid #E8C84A"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
-    L.marker([r.lat,r.lon],{icon}).addTo(leafMap).bindPopup(`<b>${r.name}</b><br>+${r.dplus}m`);
+    L.marker([r.lat,r.lon],{icon}).addTo(leafMap);
   },200);
 }
-
 function downloadGPX(id,name){
   const r=randos.find(x=>x.id===id);
-  const gpx=`<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="Altimates" xmlns="http://www.topografix.com/GPX/1/1"><metadata><name>${name}</name></metadata><trk><name>${name}</name><trkseg><trkpt lat="${r.lat}" lon="${r.lon}"><ele>1000</ele></trkpt></trkseg></trk></gpx>`;
-  const a=document.createElement('a');
-  a.href='data:application/gpx+xml;charset=utf-8,'+encodeURIComponent(gpx);
-  a.download=name.toLowerCase().replace(/[^a-z0-9]/g,'-')+'.gpx';
-  a.click();
-  toast('📥 GPX TÉLÉCHARGÉ');
+  const q=encodeURIComponent(r.name+' '+r.region);
+  window.open('https://www.komoot.com/search/'+q,'_blank');
+  toast('OUVERTURE KOMOOT');
 }
-
+let durType_='day';
+function setDurType(t){
+  durType_=t;
+  const bd=document.getElementById('dur-day');
+  const bm=document.getElementById('dur-multi');
+  if(bd&&bm){bd.className='btn btn-sm'+(t==='day'?' btn-primary':'');bm.className='btn btn-sm'+(t==='multi'?' btn-primary':'');}
+  const fd=document.getElementById('dur-day-fields');
+  const fm=document.getElementById('dur-multi-fields');
+  if(fd)fd.style.display=t==='day'?'block':'none';
+  if(fm)fm.style.display=t==='multi'?'block':'none';
+}
 function submitRando(){
-  const name=document.getElementById('f-name').value.trim();
-  if(!name){toast('⚠ NOM REQUIS');return;}
-  const r={id:Date.now(),name,region:document.getElementById('f-reg').value||'France',
-    diff:document.getElementById('f-diff').value,
-    km:parseInt(document.getElementById('f-km').value)||15,
-    dplus:parseInt(document.getElementById('f-dp').value)||800,
-    dur:'1j',lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,
-    desc:'Proposé par '+(user?user.name:'un membre')+'.'};
-  randos.unshift(r);saveRandos();closeModal('add-modal');renderRandos();
-  toast('🏔 RANDO PROPOSÉE !');
+  const name=document.getElementById('f-name').value.trim();if(!name){toast('NOM REQUIS');return;}
+  let dateStr='',dur='1j';
+  if(durType_==='day'){
+    const dv=document.getElementById('f-date').value;
+    if(dv){const dt=new Date(dv);dateStr=dt.getDate()+' '+dt.toLocaleString('fr',{month:'short'});}
+  } else {
+    const ds=document.getElementById('f-date-start').value;
+    const de=document.getElementById('f-date-end').value;
+    if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});}
+  }
+  const r={id:Date.now(),name,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  randos.unshift(r);saveRandos();closeModal('add-modal');renderRandos();toast('RANDO PROPOSÉE !');
 }
-
-// ── KIT ──
+ 
+// ── KIT ───────────────────────────────────────────────────
+const GEAR_INFO = {
+  chaussures: {
+    tip: "L'élément le plus important de ton équipement. Prendre une demi-pointure au-dessus pour éviter de taper en descente. Semelle Vibram recommandée pour le grip. Gore-Tex utile en intersaison.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=chaussures+randonnee+gore-tex',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=chaussures+randonnee+taille',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=chaussures+randonnee',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  batons: {
+    tip: "Réduisent la fatigue de ~30% en reportant l'effort sur les bras. Indispensables pour les genoux en descente.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=batons+randonnee+telescopiques',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=batons+randonnee',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=batons+randonnee+carbone',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  sac50: {
+    tip: "Capacité 50+10L pour les treks. Priorité au système de portage et à la ceinture ventrale.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sac+a+dos+trek+50l',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=sac+dos+trekking+50l',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=sac+a+dos+trek+50l',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  sac20: {
+    tip: "Pour une journée, 20-30L suffisent. Confort des bretelles et stabilité en priorité.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sac+a+dos+randonnee+20l',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=sac+dos+randonnee+20l',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=sac+dos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  frontale: {
+    tip: "Indispensable même en journée. Privilégier rechargeable USB, 200 lumens minimum.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=lampe+frontale+randonnee+rechargeable',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=frontale+randonnee+rechargeable+usb',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  powerbank: {
+    tip: "10 000mAh couvre 2-3 charges de smartphone. Préférer un modèle léger sous 200g.",
+    links: [
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=powerbank+10000mah+leger+usb-c',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=powerbank+10000mah',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  matelas: {
+    tip: "Le matelas autogonflant offre le meilleur compromis poids/confort. R-value > 3 pour les nuits en altitude.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=matelas+autogonflant+trek',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=matelas+autogonflant+camping',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=matelas+gonflable+camping+leger',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  duvet: {
+    tip: "Choisir selon la température de confort. Duvet naturel = plus léger, synthétique = résiste à l'humidité.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sac+de+couchage+trek+duvet',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=sac+couchage+duvet+trek',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=sac+de+couchage+duvet',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  coupevent: {
+    tip: "À avoir sur soi en permanence. Un coupe-vent léger sous 200g se glisse partout.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=coupe+vent+impermeable+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=coupe+vent+randonnee+impermeable',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=veste+impermeable+randonnee',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  polaire: {
+    tip: "Couche intermédiaire essentielle. Polaire 200g/m2 pour toutes saisons.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=polaire+randonnee+montagne',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=polaire+randonnee',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  camelbak: {
+    tip: "Compter 500ml par heure d'effort. La poche à eau permet de boire sans s'arrêter.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=poche+a+eau+randonnee+camelbak',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=poche+hydratation+randonnee+2l',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  crampons: {
+    tip: "En début/fin de saison, les névés peuvent être dangereux. Microcrampons légers 200g suffisent hors haute montagne.",
+    links: [
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=microcrampons+randonnee+neige+leger',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=crampons+randonnee+neige',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'}
+    ]
+  },
+  raincover: {
+    tip: "Protège le sac de la pluie. Souvent fourni avec le sac, sinon indispensable en montagne.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=housse+pluie+sac+a+dos',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=raincover+sac+a+dos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  calecons: {
+    tip: "Évite les brûlures par frottement sur les longues distances. La laine mérinos est idéale.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sous+vetement+merinos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=sous+vetement+merinos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  chaussettes: {
+    tip: "Éviter absolument le coton. Mérinos ou synthétique à séchage rapide. Prévoir 2 paires pour les treks.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=chaussettes+randonnee+merinos',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=chaussettes+randonnee+merinos+trek',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  claquettes: {
+    tip: "Permettent aux pieds de respirer au bivouac. Légères et compressibles.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=claquettes+leger+camping',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=sandales+legeres+camping+trek',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  bonnet: {
+    tip: "Le buff polyvalent fait casquette, bonnet et tour de cou. Idéal pour la montagne.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=buff+tour+de+cou+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=buff+tour+de+cou+multifonction',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=bonnet+randonnee+buff',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  lifestraw: {
+    tip: "Permet de boire directement depuis un torrent ou lac de montagne. Élimine 99.9% des bactéries.",
+    links: [
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=lifestraw+gourde+filtrante+randonnee',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=gourde+filtrante+eau+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'}
+    ]
+  },
+  barres: {
+    tip: "Privilégier des barres riches en glucides complexes et en protéines. Compléter avec des fruits secs et oléagineux.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=barres+energie+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=barres+energie+randonnee+fruits+secs',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  lyophilise: {
+    tip: "Repas complets, légers et rapides à préparer (eau chaude). Compter 2 repas/jour en trek.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=repas+lyophilise+trek+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=repas+lyophilise+randonnee+trek',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  tshirt: {
+    tip: "La laine mérinos sèche vite et ne sent pas mauvais même après plusieurs jours. Indispensable pour les treks.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=tshirt+laine+merinos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=t-shirt+merinos+randonnee',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  serviette: {
+    tip: "Séchage rapide et ultra-compressible. Indispensable en refuges et bivouacs.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=serviette+microfibre+trek',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=serviette+microfibre+trek+compressible',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  cuillere: {
+    tip: "Cuillère pliable ou longue cuillère pour les lyophilisés. Titane pour les puristes.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=couverts+trek+pliables+camping',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=cuillere+longue+lyophilise+trek+titane',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  oreiller: {
+    tip: "Améliore considérablement la qualité du sommeil en bivouac. Gonflable = très léger.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=oreiller+gonflable+trek+camping',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=oreiller+gonflable+camping+leger',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  pantpluie: {
+    tip: "À avoir en cas de pluie prolongée. Se glisse dans la poche.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=pantalon+pluie+randonnee+impermeable',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Vinted',url:'https://www.vinted.fr/catalog?search_text=pantalon+impermeable+randonnee',favicon:'https://www.google.com/s2/favicons?domain=vinted.fr&sz=16'}
+    ]
+  },
+  solaire: {
+    tip: "En altitude, les UV sont multipliés par 2 toutes les 1000m. SPF50 minimum.",
+    links: [
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=creme+solaire+spf50+sport+montagne',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=creme+solaire+spf50+sport',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'}
+    ]
+  },
+  sacetanche: {
+    tip: "Protège les affaires sensibles (papiers, électronique). Également utilisable comme sac de bivouac.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sac+etanche+randonnee+trek',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=sac+etanche+randonnee+dry+bag',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  poncho: {
+    tip: "Couvre sac et randonneur. Solution économique contre la pluie en journée.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=poncho+pluie+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=poncho+pluie+randonnee+leger',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+    ]
+  },
+  tente: {
+    tip: "Tente légère 3 saisons. Vérifier le poids, l'espace intérieur et la facilité de montage.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=tente+randonnee+trek+legere',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'LeBonCoin',url:'https://www.leboncoin.fr/recherche?text=tente+trek+randonnee',favicon:'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}
+    ]
+  },
+  rechaud: {
+    tip: "Réchaud à gaz compact pour les bivouacs. Prévoir une cartouche de 230g pour 2-3 jours.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=rechaud+gaz+trek+compact',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=rechaud+camping+gaz+leger+trek',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  trousse: {
+    tip: "Trousse de premiers secours complète : pansements, bande, antiseptique, anti-douleur, couverture de survie.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=trousse+premiers+secours+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=trousse+secours+randonnee+complete',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
+  filtreeau: {
+    tip: "Filtre à eau portable pour les sources et torrents. Lifestraw ou Sawyer Squeeze recommandés.",
+    links: [
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=filtre+eau+randonnee+lifestraw+sawyer',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=filtre+eau+portable+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'}
+    ]
+  },
+  carte: {
+    tip: "Carte IGN 1:25000 de la zone. Indispensable en complément du GPS en cas de panne de batterie.",
+    links: [
+      {label:'IGN Boutique',url:'https://boutique.ign.fr/cartes-randonnee',favicon:'https://www.google.com/s2/favicons?domain=ign.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=carte+IGN+randonnee+25000',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  }
+ 
+};
+ 
 function renderKit(){
   const c=document.getElementById('kit-body');
-  if(!user){c.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink3)">
-    <i class="ti ti-backpack" style="font-size:38px;display:block;margin-bottom:9px;color:var(--ink)" aria-hidden="true"></i>
-    <p style="font-size:13px;font-weight:500;margin-bottom:5px">Configure ton kit</p>
-    <p style="font-size:11px;margin-bottom:15px;font-family:var(--mono);line-height:1.6">2 questions · liste personnalisée Decathlon</p>
-    <button class="btn btn-primary" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:12px" aria-hidden="true"></i>Configurer</button>
-  </div>`;return;}
+  if(!user){c.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink3)"><div style="font-size:40px;margin-bottom:10px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D2D2A" stroke-width="1.5" stroke-linecap="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="3" y="8" width="5" height="12"/><rect x="16" y="12" width="5" height="8"/></svg></div><p style="font-size:14px;font-weight:600;margin-bottom:5px">Configure ton kit</p><p style="font-size:11px;margin-bottom:16px;font-family:var(--mono);line-height:1.6">2 questions · liste personnalisée</p><button class="btn btn-primary" onclick="openModal('onb-modal')">Configurer</button></div>`;return;}
   const gear=GEAR[user.mode];
   const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
   const done=all.filter(g=>user.checked&&user.checked[g.id]).length;
+  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]));
   const pct=Math.round(done/all.length*100);
-  const secs=[
-    {k:'indispensable',l:'Indispensables',tag:'tr',items:gear.indispensable},
-    {k:'recommande',l:'Recommandés',tag:'ta',items:gear.recommande},
-    {k:'facultatif',l:'Facultatifs',tag:'tgold',items:gear.facultatif},
-  ];
+  // Budget
+  const budgetMin=missing.reduce((acc,g)=>{const p=g.price.split('–')[0].replace(/[^0-9]/g,'');return acc+(parseInt(p)||0);},0);
+  const budgetMax=missing.reduce((acc,g)=>{const p=g.price.split('–')[1]||g.price;return acc+(parseInt(p.replace(/[^0-9]/g,''))||0);},0);
+  const secs=[{k:'indispensable',l:'Indispensables',tag:'tr',items:gear.indispensable},{k:'recommande',l:'Recommandés',tag:'ta',items:gear.recommande},{k:'facultatif',l:'Facultatifs',tag:'tgold',items:gear.facultatif}];
   c.innerHTML=`
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-        <div><div style="font-size:13px;font-weight:500">${user.name}</div>
-          <div style="margin-top:3px;display:flex;gap:4px">
-            <span class="tag ${LVLS[user.level].cls}">${LVLS[user.level].l}</span>
-            <span class="tag ${user.mode==='trek'?'tb':'tg'}">${user.mode==='trek'?'Trek':'Journée'}</span>
-          </div>
+    <!-- Budget summary -->
+    <div class="budget-summary">
+      <div class="budget-topo"><svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,30 Q80,10 180,28 Q280,46 380,20 Q420,8 450,16"/><path d="M-20,55 Q80,35 180,53 Q280,71 380,45 Q420,33 450,41"/><path d="M-20,80 Q80,60 180,78 Q280,96 380,70 Q420,58 450,66"/></g></svg></div>
+      <div class="budget-content">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);font-family:var(--mono);letter-spacing:.08em;margin-bottom:4px">BUDGET ESTIMÉ · ARTICLES MANQUANTS</div>
+        <div class="budget-total">${budgetMin > 0 ? budgetMin+'€' : '—'}<span style="font-size:16px;color:rgba(232,200,74,.5)"> – ${budgetMax > 0 ? budgetMax+'€' : '—'}</span></div>
+        <div class="budget-sub">Entrée de gamme → milieu de gamme</div>
+        <div class="budget-grid">
+          <div class="budget-stat"><div class="budget-stat-val">${done}/${all.length}</div><div class="budget-stat-lbl">Coché</div></div>
+          <div class="budget-stat"><div class="budget-stat-val">${missing.length}</div><div class="budget-stat-lbl">À acheter</div></div>
+          <div class="budget-stat"><div class="budget-stat-val">${pct}%</div><div class="budget-stat-lbl">Complet</div></div>
         </div>
-        <div style="text-align:right"><div style="font-size:19px;font-weight:500;font-family:var(--mono)">${pct}%</div><div style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${done}/${all.length} ITEMS</div></div>
-      </div>
-      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
-      <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
-        <button class="btn btn-gold btn-sm" onclick="openEmailModal()"><i class="ti ti-file-type-pdf" style="font-size:12px" aria-hidden="true"></i>PDF / Email</button>
-        <button class="btn btn-sm" onclick="switchMode()"><i class="ti ti-refresh" style="font-size:12px" aria-hidden="true"></i>${user.mode==='trek'?'Mode journée':'Mode trek'}</button>
-        <button class="btn btn-sm" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:12px" aria-hidden="true"></i>Modifier</button>
       </div>
     </div>
-    ${user.level==='newbie'?`<div class="info-box"><i class="ti ti-bulb" aria-hidden="true"></i><p>Coche les articles que tu possèdes déjà. Liens Decathlon pour les achats manquants.</p></div>`:''}
+ 
+    <div class="card" style="padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:6px">
+        <span class="tag ${LVLS[user.level].cls}">${LVLS[user.level].l}</span>
+        <span class="tag ${user.mode==='trek'?'tb':'tg'}">${user.mode==='trek'?'Trek':'Journée'}</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-gold btn-sm" onclick="openEmailModal()">PDF</button>
+        <button class="btn btn-sm" onclick="switchMode()">${user.mode==='trek'?'Journée':'Trek'}</button>
+      </div>
+    </div>
+ 
+    ${user.level==='newbie'?`<div class="info-box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4A7FA8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Coche les articles que tu as déjà. Les liens te renvoient vers des produits recommandés pour chaque article manquant.</p></div>`:''}
+ 
     <div class="card" style="padding:0 14px">
       ${secs.map(s=>{
         const ds=s.items.filter(g=>user.checked&&user.checked[g.id]).length;
         const op=openSec[s.k];
         return`<div class="sec-toggle" onclick="toggleSec('${s.k}')">
           <div class="sec-toggle-title"><span class="tag ${s.tag}">${s.l}</span><span style="font-size:10px;color:var(--ink3)">${s.items.length} articles</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${ds}/${s.items.length}</span><i class="ti ${op?'ti-chevron-up':'ti-chevron-down'}" style="font-size:14px;color:var(--ink3)" aria-hidden="true"></i></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${ds}/${s.items.length}</span><span style="font-size:12px;color:var(--ink3)">${op?'▲':'▼'}</span></div>
         </div>${op?`<div>${s.items.map(g=>gearRow(g)).join('')}</div>`:''}`;
       }).join('')}
     </div>`;
 }
-
+ 
 function gearRow(g){
   const done=user&&user.checked&&user.checked[g.id];
   return`<div class="gear-item">
-    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}" aria-label="${g.name}">
-      ${done?'<i class="ti ti-check" aria-hidden="true"></i>':''}
-    </div>
+    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}"></div>
     <div style="flex:1;min-width:0">
       <div class="gear-name ${done?'done':''}">${g.name}</div>
       ${g.note?`<div class="gear-note">${g.note}</div>`:''}
-      ${g.links&&g.links.length?`<div class="gear-links">${g.links.map(l=>`<a class="gear-link" href="${l.u}" target="_blank" rel="noopener"><i class="ti ti-external-link" style="font-size:9px" aria-hidden="true"></i>${l.l}</a>`).join('')}</div>`:''}
+      ${g.links&&g.links.length?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:3px">${g.links.map(l=>`<a class="gear-chip" href="${l.u}" target="_blank" rel="noopener">${l.l} ↗</a>`).join('')}</div>`:''}
+    </div>
+    <div class="gear-right">
+      <span class="gear-price ${done?'':'missing'}">${g.price}</span>
+      ${done?'<span style="font-size:9px;color:var(--green);font-family:var(--mono)">✓ ok</span>':''}
     </div>
   </div>`;
 }
-
+ 
+function openGearInfo(id){
+  const info=GEAR_INFO[id];if(!info)return;
+  const gear=GEAR[user?user.mode:'trek'];
+  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
+  const g=all.find(x=>x.id===id);if(!g)return;
+  const linksHtml=info.links?info.links.map(l=>`<a class="platform-link" href="${l.url}" target="_blank" rel="noopener" style="margin-bottom:4px"><img src="${l.favicon}" class="favicon" onerror="this.style.display='none'">${l.label} ↗</a>`).join(''):'';
+  const panel=document.getElementById('gear-info-panel');
+  const overlay=document.getElementById('gear-info-overlay');
+  document.getElementById('gear-info-title').textContent=g.name;
+  document.getElementById('gear-info-text').textContent=info.tip;
+  document.getElementById('gear-info-links').innerHTML=linksHtml||'<span style="font-size:11px;color:var(--ink3);font-family:var(--mono)">Aucun lien disponible</span>';
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+function closeGearInfo(){
+  document.getElementById('gear-info-panel').classList.remove('open');
+  document.getElementById('gear-info-overlay').classList.remove('open');
+}
 function toggleGear(id){if(!user)return;if(!user.checked)user.checked={};user.checked[id]=!user.checked[id];saveUser();renderKit();}
 function toggleSec(k){openSec[k]=!openSec[k];renderKit();}
 function switchMode(){user.mode=user.mode==='trek'?'journee':'trek';saveUser();renderKit();}
-
-// ── PDF ──
+ 
+// ── PDF ───────────────────────────────────────────────────
 function generatePDF(){
-  if(!window.jspdf){toast('⚠ jsPDF non chargé');return;}
+  if(!window.jspdf){toast('⚠ PDF indisponible');return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
-  const gear=GEAR[user.mode];
-  const modeL=user.mode==='trek'?'Trek multi-jours':'Journée';
+  const gear=GEAR[user.mode];const modeL=user.mode==='trek'?'Trek multi-jours':'Journée';
   doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(45,45,42);
-  doc.text('ALTIMATES',15,20);
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(45,45,42);doc.text('ALTIMATES',15,20);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(107,101,96);
-  doc.text(`Kit ${modeL.toUpperCase()} — ${user.name.toUpperCase()} — ${new Date().toLocaleDateString('fr')}`,15,27);
-  doc.setDrawColor(200,168,50);doc.setLineWidth(0.5);doc.line(15,30,195,30);
-  let y=38;
-  const sections=[['indispensable','INDISPENSABLES',gear.indispensable],['recommande','RECOMMANDÉS',gear.recommande],['facultatif','FACULTATIFS',gear.facultatif]];
-  sections.forEach(([k,label,items])=>{
+  doc.text(`Kit ${modeL.toUpperCase()} · ${user.name.toUpperCase()} · ${new Date().toLocaleDateString('fr')}`,15,28);
+  doc.setDrawColor(200,168,50);doc.setLineWidth(0.8);doc.line(15,32,195,32);
+  let y=40;
+  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
+  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]));
+  const budgetMin=missing.reduce((acc,g)=>{const p=g.price.split('–')[0].replace(/[^0-9]/g,'');return acc+(parseInt(p)||0);},0);
+  const budgetMax=missing.reduce((acc,g)=>{const p=g.price.split('–')[1]||g.price;return acc+(parseInt(p.replace(/[^0-9]/g,''))||0);},0);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(45,45,42);
+  doc.text(`Budget estimé manquant : ${budgetMin}€ – ${budgetMax}€`,15,y);y+=10;
+  [['indispensable','INDISPENSABLES',gear.indispensable],['recommande','RECOMMANDÉS',gear.recommande],['facultatif','FACULTATIFS',gear.facultatif]].forEach(([k,label,items])=>{
     if(y>260){doc.addPage();doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');y=20;}
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(45,45,42);
-    doc.text(label,15,y);y+=6;
-    doc.setDrawColor(232,200,74);doc.line(15,y,195,y);y+=5;
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(45,45,42);doc.text(label,15,y);y+=5;
+    doc.setDrawColor(232,200,74);doc.setLineWidth(0.4);doc.line(15,y,195,y);y+=5;
     items.forEach(g=>{
       if(y>275){doc.addPage();doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');y=20;}
       const done=user.checked&&user.checked[g.id];
-      doc.setFillColor(done?45:255,done?45:255,done?42:255);
-      doc.setDrawColor(180,170,160);doc.setLineWidth(0.3);
-      doc.rect(15,y-3.5,4,4,done?'F':'S');
+      doc.setFillColor(done?45:255,done?45:255,done?42:255);doc.setDrawColor(180,170,160);doc.setLineWidth(0.3);doc.rect(15,y-3.5,4,4,done?'F':'S');
       if(done){doc.setDrawColor(232,200,74);doc.setLineWidth(0.6);doc.line(15.8,y-1.5,16.8,y-.3);doc.line(16.8,y-.3,18.8,y-3.8);}
-      doc.setFont('helvetica',done?'normal':'normal');doc.setFontSize(9);
-      doc.setTextColor(done?160:45,done?155:45,done?150:42);
+      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(done?160:45,done?155:45,done?150:42);
       doc.text(g.name,22,y);
-      if(g.note){doc.setFontSize(7);doc.setTextColor(107,101,96);doc.text(g.note,22,y+3.5);y+=3.5;}
-      if(g.links&&g.links.length){
-        doc.setFontSize(7);doc.setTextColor(74,127,168);
-        g.links.forEach(l=>{doc.text(`→ ${l.l}: ${l.u}`,22,y+3.5);y+=3.5;});
-      }
+      doc.setFontSize(8);doc.setTextColor(done?180:107,done?175:101,done?170:96);
+      doc.text(g.price,185,y,{align:'right'});
+      if(g.note){y+=3.5;doc.setFontSize(7);doc.setTextColor(107,101,96);doc.text(g.note,22,y);}
+      if(g.links&&g.links.length){g.links.forEach(l=>{y+=3.5;doc.setFontSize(7);doc.setTextColor(74,127,168);doc.text(`→ ${l.l}: ${l.u}`,22,y);});}
       y+=7;
-    });
-    y+=4;
+    });y+=4;
   });
   doc.setFontSize(7);doc.setTextColor(160,155,150);doc.setFont('helvetica','italic');
-  doc.text('Généré par Altimates · Plan, gear up, summit together.',15,290);
+  doc.text('ALTImates · Plan, gear up, summit together.',15,290);
   doc.save(`altimates-kit-${user.name.toLowerCase()}-${user.mode}.pdf`);
-  toast('📄 PDF TÉLÉCHARGÉ !');
+  toast('PDF TÉLÉCHARGÉ');
 }
-
 function openEmailModal(){buildEmailPreview();openModal('email-modal');}
-
 function buildEmailPreview(){
   if(!user)return'';
   const gear=GEAR[user.mode];
-  let lines=[`ALTIMATES — Kit ${user.mode==='trek'?'Trek':'Journée'} — ${user.name}`,`Généré le ${new Date().toLocaleDateString('fr')}`,''];
+  let lines=[`ALTIMATES · Kit ${user.mode==='trek'?'Trek':'Journée'} · ${user.name}`,`${new Date().toLocaleDateString('fr')}`,''];
   [['indispensable','INDISPENSABLES'],['recommande','RECOMMANDÉS'],['facultatif','FACULTATIFS']].forEach(([k,l])=>{
-    lines.push(l);
-    gear[k].forEach(g=>{
-      const ch=user.checked&&user.checked[g.id]?'[x]':'[ ]';
-      lines.push(`${ch} ${g.name}${g.note?' · '+g.note:''}`);
-      if(g.links)g.links.forEach(lk=>lines.push(`    → ${lk.l}: ${lk.u}`));
-    });
-    lines.push('');
+    lines.push(l);gear[k].forEach(g=>{const ch=user.checked&&user.checked[g.id]?'[x]':'[ ]';lines.push(`${ch} ${g.name} · ${g.price}${g.note?' · '+g.note:''}`);if(g.links)g.links.forEach(lk=>lines.push(`    → ${lk.l}: ${lk.u}`));});lines.push('');
   });
-  lines.push('---\nAltimates · Plan, gear up, summit together.');
-  document.getElementById('email-preview').innerHTML=lines.map(l=>`<div style="${l.startsWith('INDIS')||l.startsWith('RECOM')||l.startsWith('FACUL')?'font-weight:500;margin-top:6px':''}">${l||'&nbsp;'}</div>`).join('');
+  lines.push('---\nALTImates · Plan, gear up, summit together.');
+  document.getElementById('email-preview').innerHTML=lines.map(l=>`<div style="${l==='INDISPENSABLES'||l==='RECOMMANDÉS'||l==='FACULTATIFS'?'font-weight:500;margin-top:6px':''}">${l||'&nbsp;'}</div>`).join('');
   return lines.join('\n');
 }
-
 function sendEmail(){
   const addr=document.getElementById('email-addr').value.trim();
   const body=buildEmailPreview();
-  const subj=encodeURIComponent(`Mon kit Altimates — ${user?user.mode==='trek'?'Trek':'Journée':''}`);
+  const subj=encodeURIComponent(`Mon kit ALTImates · ${user?user.mode==='trek'?'Trek':'Journée':''}`);
   window.location.href=`mailto:${addr}?subject=${subj}&body=${encodeURIComponent(body)}`;
-  setTimeout(()=>{closeModal('email-modal');toast('📧 MESSAGERIE OUVERTE');},300);
+  setTimeout(()=>{closeModal('email-modal');toast('MESSAGERIE OUVERTE');},300);
 }
-
-// ── FEEDBACK ──
+ 
+// ── RADIO ─────────────────────────────────────────────────
+function renderRadio(){
+  // Pinned
+  const pinned=messages.filter(m=>m.pinned);
+  document.getElementById('pinned-msgs').innerHTML=pinned.map(m=>`
+    <div class="msg-pinned">
+      <div class="msg-pin-icon">·</div>
+      <div style="flex:1">
+        <div class="msg-pinned-text">${m.text}</div>
+        <div class="msg-pinned-meta">${MSG_TYPE_LABELS[m.type]} · ${m.author} · ${m.time}</div>
+      </div>
+    </div>`).join('');
+  // Messages
+  const fil=messages.filter(m=>!m.pinned);
+  document.getElementById('msg-list').innerHTML=fil.map(m=>{
+    const isMe=user&&m.author===user.name;
+    const receipts=membres.slice(0,4).map((mb,i)=>{
+      const read=m.reads.includes(mb.initials);
+      return`<div class="receipt ${read?'read':'unread'}" style="${avS(i)}" title="${mb.name}">${mb.initials[0]}</div>`;
+    }).join('');
+    return`<div class="msg ${isMe?'me':''}">
+      <div class="msg-header">
+        <span class="msg-type ${MSG_TYPE_CLS[m.type]}">${MSG_TYPE_LABELS[m.type]}</span>
+        <span class="msg-author">${m.author}</span>
+        <span class="msg-time">${m.time}</span>
+      </div>
+      <div class="msg-text">${m.text}</div>
+      <div class="msg-receipts">${receipts}</div>
+    </div>`;
+  }).join('');
+  // Type selector
+  document.getElementById('type-row').innerHTML=MSG_TYPES.map(t=>`
+    <button class="type-btn ${activeType===t?'active':''}" onclick="setType('${t}')">${MSG_TYPE_LABELS[t]}</button>`).join('');
+}
+function setType(t){activeType=t;document.querySelectorAll('.type-btn').forEach(b=>{b.classList.toggle('active',b.textContent===MSG_TYPE_LABELS[t]);});}
+function sendMsg(){
+  const txt=document.getElementById('msg-input').value.trim();
+  if(!txt){toast('ÉCRIS UN MESSAGE');return;}
+  const name=user?user.name:'Moi';
+  const initials=name.slice(0,2).toUpperCase();
+  messages.push({id:Date.now(),type:activeType,author:name,text:txt,time:'à l\'instant',reads:[initials],pinned:false});
+  document.getElementById('msg-input').value='';
+  renderRadio();
+  toast('MESSAGE ENVOYÉ');
+}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+ 
+// ── CORDÉE ────────────────────────────────────────────────
+function renderCordee(){
+  // Membres
+  document.getElementById('membres-list').innerHTML=membres.map((m,i)=>`
+    <div class="member-row">
+      <div class="sm-av" style="${avS(i)}">${m.initials}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.name}</div>
+        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${m.km}KM · +${m.dplus.toLocaleString()}M · ${m.sorties} sorties</div>
+      </div>
+      <span class="tag ${LVLS[m.level].cls}">${LVLS[m.level].l}</span>
+    </div>`).join('');
+  // Kit partagé — déduit du kit coché de chacun
+  const memberKits={'TH':['Tente 3 places','Réchaud + gaz','Bâtons de rando'],'SF':['Trousse premiers secours','Lifestraw gourde filtrante'],'LM':[],'CA':[]};
+  // Ajouter les items cochés du user courant
+  if(user&&user.checked){
+    const gear=GEAR[user.mode]||GEAR.trek;
+    const allG=[...gear.indispensable,...gear.recommande,...gear.facultatif];
+    const uk=user.name.slice(0,2).toUpperCase();
+    memberKits[uk]=(memberKits[uk]||[]).concat(allG.filter(g=>user.checked[g.id]&&!(memberKits[uk]||[]).includes(g.name)).map(g=>g.name));
+  }
+  const allMembres=[...membres,...(user&&!membres.find(m=>m.name===user.name)?[{name:user.name,initials:user.name.slice(0,2).toUpperCase(),level:user.level||'newbie'}]:[])]
+  const sharedHTML=allMembres.map((m,i)=>{
+    const k=m.initials||m.name.slice(0,2).toUpperCase();
+    const items=(memberKits[k]||[]);
+    if(!items.length)return'';
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border)">
+      <div class="sm-av" style="${avS(i)};width:28px;height:28px;font-size:9px">${k}</div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:500;margin-bottom:4px">${m.name}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${items.slice(0,5).map(it=>`<span style="font-size:9px;padding:2px 6px;border-radius:6px;background:var(--kraft2);color:var(--ink2);font-family:var(--mono);border:.5px solid var(--border)">${it}</span>`).join('')}${items.length>5?`<span style="font-size:9px;padding:2px 6px;border-radius:6px;background:var(--kraft2);color:var(--ink3);font-family:var(--mono)">+${items.length-5}</span>`:''}</div>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+  document.getElementById('shared-kit-list').innerHTML=sharedHTML||'<div style="padding:12px 0;font-size:11px;color:var(--ink3);font-family:var(--mono)">Aucun équipement coché. Va dans Kit pour renseigner ton matériel — il apparaîtra ici automatiquement.</div>';
+  // Checklist départ
+  document.getElementById('depart-list').innerHTML=departItems.map(item=>`
+    <div class="depart-item">
+      <div class="depart-check ${item.done?'done':''}" onclick="toggleDepart('${item.id}')"></div>
+      <div class="depart-name ${item.done?'done':''}" style="flex:1">${item.name}</div>
+      <div class="depart-assignee">
+        ${item.assignee?`<span style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${item.assignee}</span>`:`<button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="assignDepart('${item.id}')">Prendre</button>`}
+      </div>
+    </div>`).join('');
+  document.getElementById('invite-link').value=window.location.href;
+}
+function toggleDepart(id){const item=departItems.find(x=>x.id===id);if(item)item.done=!item.done;renderCordee();toast(item.done?'✓ ITEM COCHÉ':'Item décoché');}
+function assignDepart(id){
+  const item=departItems.find(x=>x.id===id);
+  if(item&&user){item.assignee=user.name;renderCordee();toast('ASSIGNÉ À TOI');}
+  else toast('⚠ Configure ton profil d\'abord');
+}
+function addDepartItem(){
+  const name=prompt('Nom de l\'article à ajouter :');
+  if(name&&name.trim()){departItems.push({id:'custom-'+Date.now(),name:name.trim(),assignee:'',done:false});renderCordee();toast('ARTICLE AJOUTÉ');}
+}
+function copyInvite(){try{navigator.clipboard.writeText(window.location.href);}catch(e){}toast('LIEN COPIÉ');}
+ 
+// ── BASE CAMP ─────────────────────────────────────────────
+function renderBaseCamp(){
+  const c=document.getElementById('basecamp-body');
+  if(!user){
+    c.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--ink3)">
+      <div style="font-size:40px;margin-bottom:10px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D2D2A" stroke-width="1.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+      <p style="font-size:14px;font-weight:600;margin-bottom:6px">Installe ton Base Camp</p>
+      <p style="font-size:11px;margin-bottom:16px;font-family:var(--mono);line-height:1.6">Ton QG perso — stats, kit, prochaine sortie</p>
+      <button class="btn btn-primary" onclick="openModal('onb-modal')">Configurer</button>
+    </div>`;return;
+  }
+  const gear=GEAR[user.mode];
+  const allItems=[...gear.indispensable,...gear.recommande,...gear.facultatif];
+  const doneItems=allItems.filter(g=>user.checked&&user.checked[g.id]).length;
+  const kitPct=Math.round(doneItems/allItems.length*100);
+  const lv=LVLS[user.level];
+  const nextRando=randos.find(r=>r.myVote==='oui')||randos[0];
+  c.innerHTML=`
+    <div class="bc-hero">
+      <div class="bc-hero-bg"><svg width="100%" height="100%" viewBox="0 0 440 160" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,50 Q60,25 140,45 Q220,65 300,35 Q380,5 460,28"/><path d="M-20,80 Q60,55 140,75 Q220,95 300,65 Q380,35 460,58"/><path d="M-20,110 Q60,85 140,105 Q220,125 300,95 Q380,65 460,88"/></g></svg></div>
+      <div class="bc-hero-content">
+        <div class="bc-name">${user.name}</div>
+        <div class="bc-meta"><span class="tag ${lv.cls}">${lv.l}</span><span style="font-size:9px;color:rgba(255,255,255,.3);font-family:var(--mono)">BASE CAMP · ALTIMATES</span></div>
+        <div class="bc-stats">
+          <div class="bc-stat"><div class="bc-stat-val">${user.km||0}</div><div class="bc-stat-lbl">km</div></div>
+          <div class="bc-stat"><div class="bc-stat-val">${user.dplus?'+'+user.dplus.toLocaleString():'0'}</div><div class="bc-stat-lbl">D+</div></div>
+          <div class="bc-stat"><div class="bc-stat-val">${user.sorties||0}</div><div class="bc-stat-lbl">Sorties</div></div>
+        </div>
+      </div>
+    </div>
+ 
+    ${nextRando?`<div class="bc-section"><div class="bc-section-title">Prochaine sortie</div>
+      <div class="bc-next">
+        <div class="bc-next-date"><div class="bc-next-day">${(nextRando.dateStr||nextRando.date||'—').split(' ')[0]}</div><div class="bc-next-month">${(nextRando.dateStr||nextRando.date||'').split(' ')[1]||''}</div></div>
+        <div class="bc-next-info"><div class="bc-next-title">${nextRando.name}</div><div class="bc-next-sub">${nextRando.region} · ${nextRando.km}km · +${nextRando.dplus}m</div></div>
+        <div class="bc-countdown">J-${Math.max(1,3+Math.floor(Math.random()*7))}</div>
+      </div>
+    </div>`:''}
+ 
+    <div class="bc-section"><div class="bc-section-title">Équipement</div>
+      <div class="bc-kit-bar">
+        <div class="bc-kit-circle">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#E4DDD0" stroke-width="4"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#2D2D2A" stroke-width="4" stroke-dasharray="${(kitPct/100*113.1).toFixed(1)} 113.1" stroke-linecap="round"/>
+          </svg>
+          <div class="bc-kit-pct">${kitPct}%</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;margin-bottom:3px">${doneItems}/${allItems.length} équipements</div>
+          <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${kitPct===100?'Kit complet !':allItems.length-doneItems+' articles manquants'}</div>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="showTab('kit')">Kit</button>
+      </div>
+    </div>
+ 
+    <div class="bc-section"><div class="bc-section-title">Personal bests</div>
+      <div class="card" style="padding:0 14px">
+        <div class="bc-record"><div class="bc-record-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C9A832" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div style="font-size:14px;font-weight:600;font-family:var(--mono)">+${user.bestDplus||0}m</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Dénivelé max</div></div></div>
+        <div class="bc-record"><div class="bc-record-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C9A832" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg></div><div><div style="font-size:14px;font-weight:600;font-family:var(--mono)">${user.bestKm||0}km</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Distance max</div></div></div>
+        <div class="bc-record"><div class="bc-record-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C9A832" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div style="font-size:14px;font-weight:600;font-family:var(--mono)">${user.sorties||0}</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Sorties cette saison</div></div></div>
+      </div>
+    </div>
+ 
+    <div class="bc-section"><div class="bc-section-title">Niveau dans la cordée</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div><div style="font-size:12px;font-weight:500;margin-bottom:3px">Niveau actuel</div>
+            <span class="tag ${lv.cls}">${lv.l}</span>
+            ${lv.next?`<span style="font-size:10px;color:var(--ink3);margin-left:6px;font-family:var(--mono)">→ ${lv.next}</span>`:'<span style="font-size:10px;color:var(--gold2);margin-left:6px">✓ MAX</span>'}
+          </div>
+          <div style="font-size:18px;font-weight:600;font-family:var(--mono)">${lv.pct}%</div>
+        </div>
+        <div class="bc-level-bar"><div class="bc-level-fill" style="width:${lv.pct}%"></div></div>
+      </div>
+    </div>
+ 
+    <a class="bc-garmin" href="https://connect.garmin.com" target="_blank" rel="noopener" style="display:flex;text-decoration:none;margin-bottom:10px">
+      <div style="width:32px;height:32px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="7"/><path d="M12 6v6l4 2"/></svg></div>
+      <div style="flex:1;margin-left:10px"><div style="font-size:13px;font-weight:500">Garmin Connect</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Importer tes traces GPX</div></div>
+      <span style="font-size:14px;color:var(--ink3)">↗</span>
+    </a>
+ 
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="openOnbWithCancel()">Modifier profil</button>
+      <button class="btn btn-sm btn-danger" onclick="resetUser()">Réinitialiser</button>
+    </div>`;
+}
+ 
+// ── FEEDBACK ──────────────────────────────────────────────
 function renderFeedback(){
   const c=document.getElementById('feedback-list');
-  if(!feedbacks.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:11px;font-family:var(--mono)">AUCUNE IDÉE · SOIS LE PREMIER</div>';return;}
+  if(!feedbacks.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:11px;font-family:var(--mono)">AUCUNE IDÉE ENCORE</div>';return;}
   const sorted=[...feedbacks].sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
   c.innerHTML=sorted.map(f=>`
     <div class="fb-item">
       <div class="fb-meta"><span class="tag ${CATCLS[f.cat]}">${CATL[f.cat]}</span><span>${f.author}</span><span>${f.ts}</span></div>
       <div class="fb-text">${f.text}</div>
       <div style="display:flex;align-items:center;gap:7px">
-        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')"><i class="ti ti-thumb-up" style="font-size:10px" aria-hidden="true"></i>${f.votes.up}</button>
-        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')"><i class="ti ti-thumb-down" style="font-size:10px" aria-hidden="true"></i>${f.votes.down}</button>
-        ${f.votes.up>=3?'<span class="tag tgold" style="margin-left:auto"><i class="ti ti-star" style="font-size:9px" aria-hidden="true"></i>POPULAIRE</span>':''}
+        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> ${f.votes.up}</button>
+        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7"/></svg> ${f.votes.down}</button>
+        ${f.votes.up>=3?'<span class="tag tgold" style="margin-left:auto">POPULAIRE</span>':''}
       </div>
     </div>`).join('');
 }
-
-function voteFb(id,v){const f=feedbacks.find(x=>x.id===id);if(f.myVote===v){f.myVote=null;f.votes[v]--;}else{if(f.myVote)f.votes[f.myVote]--;f.myVote=v;f.votes[v]++;}saveFeedbacks();renderFeedback();}
-
+function toggleComments(id){
+  const el=document.getElementById('comments-'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+function addComment(id){
+  const inp=document.getElementById('cmt-'+id);
+  if(!inp||!inp.value.trim())return;
+  const f=feedbacks.find(x=>x.id===id);
+  if(!f.comments)f.comments=[];
+  f.comments.push({author:user?user.name:'Anonyme',text:inp.value.trim(),ts:'à l\'instant'});
+  inp.value='';
+  saveFB();renderFeedback();
+  setTimeout(()=>{const el=document.getElementById('comments-'+id);if(el)el.style.display='block';},50);
+  toast('COMMENTAIRE AJOUTÉ');
+}
+function voteFb(id,v){const f=feedbacks.find(x=>x.id===id);if(f.myVote===v){f.myVote=null;f.votes[v]--;}else{if(f.myVote)f.votes[f.myVote]--;f.myVote=v;f.votes[v]++;}saveFB();renderFeedback();}
 function submitFeedback(){
-  const text=document.getElementById('fb-text').value.trim();
-  if(!text){toast('⚠ ÉCRIS TON IDÉE');return;}
+  const text=document.getElementById('fb-text').value.trim();if(!text){toast('ÉCRIS TON IDÉE');return;}
   feedbacks.unshift({id:Date.now(),text,cat:document.getElementById('fb-cat').value,author:user?user.name:'Anonyme',votes:{up:1,down:0},myVote:'up',ts:'à l\'instant'});
-  saveFeedbacks();document.getElementById('fb-text').value='';renderFeedback();
-  toast('💡 IDÉE SOUMISE !');
+  saveFB();document.getElementById('fb-text').value='';renderFeedback();toast('IDÉE SOUMISE');
 }
-
-// ── GROUPE ──
-function renderGroupe(){
-  document.getElementById('membres-list').innerHTML=membres.map((m,i)=>`
-    <div class="member-row">
-      <div class="sm-av" style="${avS(i)}">${m.initials}</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.name}</div>
-        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${m.km}KM · +${m.dplus.toLocaleString()}M D+</div>
-      </div>
-      <span class="tag ${LVLS[m.level].cls}">${LVLS[m.level].l}</span>
-    </div>`).join('');
-  document.getElementById('invite-link').value=window.location.href;
+ 
+// ── ONBOARDING ────────────────────────────────────────────
+function openOnbWithCancel(){
+  const btn=document.getElementById('onb-cancel-btn');
+  if(btn)btn.style.display=user?'flex':'none';
+  if(user){
+    document.getElementById('onb-name').value=user.name;
+    if(user.level)selLvl(user.level);
+    if(user.mode)selMode(user.mode);
+  }
+  openModal('onb-modal');
 }
-function copyInvite(){try{navigator.clipboard.writeText(window.location.href);}catch(e){}toast('🔗 LIEN COPIÉ');}
-
-// ── PROFIL ──
-function renderProfil(){
-  const c=document.getElementById('profil-body');
-  if(!user){c.innerHTML=`<div class="card" style="text-align:center;padding:22px">
-    <p style="font-size:13px;margin-bottom:11px">Aucun profil configuré</p>
-    <button class="btn btn-primary" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:12px" aria-hidden="true"></i>Créer mon profil</button>
-  </div>`;return;}
-  const gear=GEAR[user.mode];
-  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const done=all.filter(g=>user.checked&&user.checked[g.id]).length;
-  c.innerHTML=`
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">
-        <div class="sm-av" style="${avS(4)};width:48px;height:48px;font-size:15px;font-family:var(--mono)">${user.name.slice(0,2).toUpperCase()}</div>
-        <div><div style="font-size:15px;font-weight:500;letter-spacing:-.3px">${user.name}</div>
-          <div style="margin-top:3px;display:flex;gap:4px"><span class="tag ${LVLS[user.level].cls}">${LVLS[user.level].l}</span></div>
-        </div>
-      </div>
-      <div class="stat-grid">
-        <div class="sbox"><div class="sval">${done}</div><div class="slbl">Équip.</div></div>
-        <div class="sbox"><div class="sval">${all.length-done}</div><div class="slbl">À acheter</div></div>
-        <div class="sbox"><div class="sval">${Math.round(done/all.length*100)}%</div><div class="slbl">Complet</div></div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-gold btn-sm" onclick="showTab('kit')"><i class="ti ti-backpack" style="font-size:11px" aria-hidden="true"></i>Mon kit</button>
-        <button class="btn btn-sm" onclick="openModal('onb-modal')"><i class="ti ti-settings" style="font-size:11px" aria-hidden="true"></i>Modifier</button>
-        <button class="btn btn-sm btn-danger" onclick="resetUser()"><i class="ti ti-trash" style="font-size:11px" aria-hidden="true"></i>Reset</button>
-      </div>
-    </div>
-    ${user.level==='newbie'?`<div class="info-box"><i class="ti ti-sparkles" aria-hidden="true"></i><p>Ton starter pack t'attend dans l'onglet Kit — liens Decathlon pour chaque article manquant. Tu peux aussi télécharger le PDF.</p></div>`:''}`;
-}
-
-function resetUser(){user=null;saveUser();document.getElementById('hdr-av').textContent='?';document.getElementById('hdr-av').style='background:#FDF8E6;color:#2D2D2A';renderProfil();}
-
-// ── ONBOARDING ──
+function cancelOnb(){closeModal('onb-modal');}
 function selLvl(l){document.querySelectorAll('[id^=lvl-]').forEach(x=>x.classList.remove('sel'));document.getElementById('lvl-'+l).classList.add('sel');onbLvl=l;}
 function selMode(m){document.querySelectorAll('[id^=mode-]').forEach(x=>x.classList.remove('sel'));document.getElementById('mode-'+m).classList.add('sel');onbMode=m;}
 function finishOnb(){
   const name=document.getElementById('onb-name').value.trim();
-  if(!name){toast('⚠ ENTRE TON PRÉNOM');return;}
-  if(!onbLvl){toast('⚠ CHOISIS TON NIVEAU');return;}
-  if(!onbMode){toast('⚠ CHOISIS LE TYPE');return;}
+  if(!name){toast('ENTRE TON PRÉNOM');return;}
+  if(!onbLvl){toast('CHOISIS TON NIVEAU');return;}
+  if(!onbMode){toast('CHOISIS LE TYPE');return;}
   const prev=user&&user.checked?user.checked:{};
-  user={name,level:onbLvl,mode:onbMode,checked:prev};
+  user={name,level:onbLvl,mode:onbMode,checked:prev,
+    km:0,dplus:0,sorties:0,bestKm:0,bestDplus:0};
   saveUser();
   closeModal('onb-modal');
   const av=document.getElementById('hdr-av');
-  av.textContent=name.slice(0,2).toUpperCase();
-  av.style=avS(4);
-  toast('BIENVENUE '+name.toUpperCase()+' 🏔');
-  if(onbLvl==='newbie')setTimeout(()=>showTab('kit'),400);
-  else renderProfil();
-}
-
-// ── INIT ──
-function init(){
-  loadRandos();loadFeedbacks();
-  document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
-  if(loadUser()){
-    const av=document.getElementById('hdr-av');
-    av.textContent=user.name.slice(0,2).toUpperCase();
-    av.style=avS(4);
-  }else{
-    setTimeout(()=>openModal('onb-modal'),600);
+  av.textContent=name.slice(0,2).toUpperCase();av.style=avS(4);
+  toast('BASE CAMP INSTALLÉ');
+  // Fix: redirect correctly based on level
+  if(onbLvl==='newbie'){
+    setTimeout(()=>showTab('kit'),300);
+  } else {
+    setTimeout(()=>showTab('basecamp'),300);
   }
-  renderRandos();
+  if(localStorage.getItem(TUTO_KEY)&&!user._tutoSeen)setTimeout(startTooltips,900);
+}
+function resetUser(){user=null;saveUser();document.getElementById('hdr-av').textContent='?';document.getElementById('hdr-av').style='background:var(--gold-bg);color:var(--ink)';renderBaseCamp();}
+ 
+// ── INIT ──────────────────────────────────────────────────
+function init(){
+  loadRandos();loadFB();
+  document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
+  setTimeout(()=>setDurType('day'),100);
+  const tutoDone=localStorage.getItem(TUTO_KEY);
+  if(!tutoDone){
+    startTuto();
+  } else {
+    document.getElementById('main-app').style.cssText='display:flex;flex-direction:column';
+    if(loadUser()){
+      const av=document.getElementById('hdr-av');
+      av.textContent=user.name.slice(0,2).toUpperCase();av.style=avS(4);
+    } else {
+      setTimeout(()=>openModal('onb-modal'),400);
+    }
+    renderRandos();
+  }
 }
 init();
 </script>
