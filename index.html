@@ -356,6 +356,33 @@ select.form-input{appearance:none}
 .platform-link{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;background:var(--kraft2);border:.5px solid var(--border);font-size:10px;color:var(--ink);text-decoration:none;font-family:var(--mono);transition:background .15s}
 .platform-link:hover{background:var(--kraft3)}
 
+
+/* ── KANBAN ── */
+.kanban-wrap{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin}
+.kanban-wrap::-webkit-scrollbar{height:4px}
+.kanban-wrap::-webkit-scrollbar-track{background:var(--kraft2)}
+.kanban-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.kanban-col{flex:0 0 200px;background:rgba(255,255,255,.5);border:.5px solid var(--border2);border-radius:12px;padding:10px}
+.kanban-col-header{font-size:9px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;color:var(--ink2)}
+.kanban-col-count{background:var(--kraft3);border-radius:10px;padding:1px 6px;font-size:9px;color:var(--ink3)}
+.kanban-col[data-col="todo"] .kanban-col-header{color:var(--blue)}
+.kanban-col[data-col="wip"] .kanban-col-header{color:var(--gold2)}
+.kanban-col[data-col="done"] .kanban-col-header{color:var(--green)}
+.kanban-col[data-col="wontdo"] .kanban-col-header{color:var(--ink4)}
+.kanban-col.drag-over{background:rgba(232,200,74,.08);border-color:var(--gold2)}
+.kanban-cards{display:flex;flex-direction:column;gap:7px;min-height:60px}
+.postit{background:#fff;border:.5px solid var(--border2);border-radius:8px;padding:9px 10px;cursor:grab;transition:box-shadow .15s,transform .15s;user-select:none;position:relative}
+.postit:active{cursor:grabbing;box-shadow:0 6px 20px rgba(45,45,42,.15);transform:rotate(1deg) scale(1.02)}
+.postit.dragging{opacity:.4}
+.postit-cat{font-size:8px;font-family:var(--mono);margin-bottom:4px}
+.postit-text{font-size:11px;color:var(--ink);line-height:1.4;margin-bottom:7px}
+.postit-meta{font-size:9px;color:var(--ink4);font-family:var(--mono);display:flex;align-items:center;justify-content:space-between}
+.postit-votes{display:flex;align-items:center;gap:4px}
+.postit-del{background:none;border:none;cursor:pointer;padding:2px;color:var(--ink4);display:flex;align-items:center;transition:color .15s}
+.postit-del:hover{color:var(--red)}
+.view-toggle{display:flex;gap:6px;margin-bottom:12px}
+.view-btn{flex:1;padding:6px;border-radius:8px;border:.5px solid var(--border2);background:transparent;font-size:11px;cursor:pointer;font-family:var(--mono);color:var(--ink3);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
+.view-btn.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -601,6 +628,19 @@ select.form-input{appearance:none}
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4A7FA8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <p>Propose des améliorations pour ALTImates. Les idées les plus votées seront intégrées.</p>
     </div>
+    <!-- Toggle liste / kanban -->
+    <div class="view-toggle">
+      <button class="view-btn active" id="view-liste" onclick="setIdeeView('liste')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Liste
+      </button>
+      <button class="view-btn" id="view-kanban" onclick="setIdeeView('kanban')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="5" height="18"/><rect x="10" y="3" width="5" height="12"/><rect x="17" y="3" width="5" height="15"/></svg>
+        Kanban
+      </button>
+    </div>
+    <!-- Vue liste -->
+    <div id="idees-liste-view">
     <div class="sec">Nouvelle idée</div>
     <div class="card" style="margin-bottom:14px">
       <div style="margin-bottom:9px"><label class="form-lbl">Ton idée</label>
@@ -618,6 +658,28 @@ select.form-input{appearance:none}
     </div>
     <div class="sec">Idées du groupe</div>
     <div id="feedback-list"></div>
+    </div><!-- fin liste-view -->
+    <!-- Vue kanban -->
+    <div id="idees-kanban-view" style="display:none">
+      <div class="kanban-wrap" id="kanban-board">
+        <div class="kanban-col" data-col="todo" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'todo')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">Backlog <span class="kanban-col-count" id="kcount-todo">0</span></div>
+          <div class="kanban-cards" id="kcol-todo"></div>
+        </div>
+        <div class="kanban-col" data-col="wip" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'wip')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">En cours <span class="kanban-col-count" id="kcount-wip">0</span></div>
+          <div class="kanban-cards" id="kcol-wip"></div>
+        </div>
+        <div class="kanban-col" data-col="done" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'done')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">Done <span class="kanban-col-count" id="kcount-done">0</span></div>
+          <div class="kanban-cards" id="kcol-done"></div>
+        </div>
+        <div class="kanban-col" data-col="wontdo" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'wontdo')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">Won't do <span class="kanban-col-count" id="kcount-wontdo">0</span></div>
+          <div class="kanban-cards" id="kcol-wontdo"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- CORDÉE -->
@@ -1528,10 +1590,17 @@ function renderCordee(){
   // Checklist départ
   document.getElementById('depart-list').innerHTML=departItems.map(item=>`
     <div class="depart-item">
-      <div class="depart-check ${item.done?'done':''}" onclick="toggleDepart('${item.id}')"></div>
+      <div class="depart-check ${item.done?'done':''}" onclick="toggleDepart('${item.id}')">
+        ${item.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
+      </div>
       <div class="depart-name ${item.done?'done':''}" style="flex:1">${item.name}</div>
-      <div class="depart-assignee">
-        ${item.assignee?`<span style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${item.assignee}</span>`:`<button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="assignDepart('${item.id}')">Prendre</button>`}
+      <div style="display:flex;align-items:center;gap:6px">
+        ${item.assignee
+          ?`<span style="font-size:10px;color:var(--ink3);font-family:var(--mono);background:var(--kraft2);padding:2px 7px;border-radius:6px">${item.assignee}</span>`
+          :`<button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="assignDepart('${item.id}')">Prendre</button>`}
+        <button onclick="deleteDepart('${item.id}')" style="background:none;border:none;cursor:pointer;padding:3px;display:flex;align-items:center;color:var(--ink4);transition:color .15s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink4)'" title="Supprimer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
       </div>
     </div>`).join('');
   document.getElementById('invite-link').value=window.location.href;
@@ -1541,6 +1610,11 @@ function assignDepart(id){
   const item=departItems.find(x=>x.id===id);
   if(item&&user){item.assignee=user.name;renderCordee();toast('ASSIGNÉ À TOI');}
   else toast('⚠ Configure ton profil d\'abord');
+}
+function deleteDepart(id){
+  departItems=departItems.filter(x=>x.id!==id);
+  renderCordee();
+  toast('ARTICLE SUPPRIMÉ');
 }
 function addDepartItem(){
   const name=prompt('Nom de l\'article à ajouter :');
@@ -1763,6 +1837,110 @@ function finishOnb(){
 function resetUser(){user=null;saveUser();document.getElementById('hdr-av').textContent='?';document.getElementById('hdr-av').style='background:var(--gold-bg);color:var(--ink)';renderBaseCamp();}
 
 // ── INIT ──────────────────────────────────────────────────
+// ── KANBAN ──────────────────────────────────────────
+let ideeView = 'liste';
+let dragId = null;
+
+function setIdeeView(v){
+  ideeView = v;
+  document.getElementById('idees-liste-view').style.display = v==='liste'?'block':'none';
+  document.getElementById('idees-kanban-view').style.display = v==='kanban'?'block':'none';
+  document.getElementById('view-liste').classList.toggle('active', v==='liste');
+  document.getElementById('view-kanban').classList.toggle('active', v==='kanban');
+  if(v==='kanban') renderKanban();
+  else renderFeedback();
+}
+
+function renderKanban(){
+  const cols = ['todo','wip','done','wontdo'];
+  const colLabels = {'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"};
+  // Vider les colonnes
+  cols.forEach(col=>{
+    const el = document.getElementById('kcol-'+col);
+    if(el) el.innerHTML='';
+  });
+  // Trier par date décroissante (plus récent en haut = id plus grand)
+  const sorted = [...feedbacks].sort((a,b)=>b.id-a.id);
+  sorted.forEach(f=>{
+    const col = f.status||'todo';
+    const container = document.getElementById('kcol-'+col);
+    if(!container) return;
+    const card = document.createElement('div');
+    card.className = 'postit';
+    card.draggable = true;
+    card.dataset.id = f.id;
+    card.innerHTML = `
+      <div class="postit-cat"><span class="tag ${CATCLS[f.cat]}" style="font-size:8px">${CATL[f.cat]}</span></div>
+      <div class="postit-text">${f.text}</div>
+      <div class="postit-meta">
+        <div class="postit-votes">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+          ${f.votes.up}
+          <span style="color:var(--ink4);margin-left:2px">${f.author}</span>
+        </div>
+        <button class="postit-del" onclick="deleteFeedback(${f.id})" title="Supprimer">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>`;
+    card.addEventListener('dragstart', e=>{
+      dragId = f.id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+    container.appendChild(card);
+  });
+  // Compteurs
+  cols.forEach(col=>{
+    const count = feedbacks.filter(f=>(f.status||'todo')===col).length;
+    const el = document.getElementById('kcount-'+col);
+    if(el) el.textContent = count;
+  });
+}
+
+function kanbanDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('drag-over');
+}
+function kanbanDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+function kanbanDrop(e, newStatus){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!dragId) return;
+  const f = feedbacks.find(x=>x.id===dragId);
+  if(f && f.status !== newStatus){
+    f.status = newStatus;
+    saveFB();
+    renderKanban();
+    toast('STATUT MIS À JOUR');
+  }
+  dragId = null;
+}
+
+function deleteFeedback(id){
+  if(!confirm('Supprimer cette idée ?')) return;
+  feedbacks = feedbacks.filter(x=>x.id!==id);
+  saveFB();
+  if(ideeView==='kanban') renderKanban();
+  else renderFeedback();
+  toast('IDÉE SUPPRIMÉE');
+}
+
+// Override changeStatus pour aussi mettre à jour le kanban si ouvert
+const _origChangeStatus = typeof changeStatus !== 'undefined' ? changeStatus : null;
+function changeStatus(id, newStatus){
+  const f=feedbacks.find(x=>x.id===id);
+  if(!f)return;
+  f.status=newStatus;
+  saveFB();
+  if(ideeView==='kanban') renderKanban();
+  else renderFeedback();
+  toast('STATUT MIS À JOUR');
+}
+
 function init(){
   loadRandos();loadFB();
   document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
