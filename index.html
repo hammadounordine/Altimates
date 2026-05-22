@@ -1355,38 +1355,31 @@ function renderKit(){
 
 function gearRow(g){
   const done=user&&user.checked&&user.checked[g.id];
+  const info=GEAR_INFO[g.id]||null;
+  const linksHtml=info&&info.links?info.links.map(l=>
+    `<a class="platform-link" href="${l.url}" target="_blank" rel="noopener">
+      <img src="${l.favicon}" width="12" height="12" style="border-radius:2px;flex-shrink:0" onerror="this.style.display='none'">${l.label}
+    </a>`
+  ).join(''):'';
   return`<div class="gear-item">
-    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}"></div>
+    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}">
+      ${done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
+    </div>
     <div style="flex:1;min-width:0">
-      <div class="gear-name ${done?'done':''}">${g.name}</div>
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+        <span class="gear-name ${done?'done':''}" style="margin:0">${g.name}</span>
+        ${info?`<button onclick="openGearInfo('${g.id}')" style="background:none;border:none;cursor:pointer;padding:1px;display:flex;align-items:center;flex-shrink:0;opacity:.6" title="En savoir plus"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>`:''}
+      </div>
       ${g.note?`<div class="gear-note">${g.note}</div>`:''}
-      ${g.links&&g.links.length?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:3px">${g.links.map(l=>`<a class="gear-chip" href="${l.u}" target="_blank" rel="noopener">${l.l} ↗</a>`).join('')}</div>`:''}
+      ${linksHtml?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${linksHtml}</div>`:''}
     </div>
     <div class="gear-right">
-      <span class="gear-price ${done?'':'missing'}">${g.price}</span>
+      <span class="gear-price ${done?'owned':''}">${g.price}</span>
       ${done?'<span style="font-size:9px;color:var(--green);font-family:var(--mono)">✓ ok</span>':''}
     </div>
   </div>`;
 }
 
-function openGearInfo(id){
-  const info=GEAR_INFO[id];if(!info)return;
-  const gear=GEAR[user?user.mode:'trek'];
-  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const g=all.find(x=>x.id===id);if(!g)return;
-  const linksHtml=info.links?info.links.map(l=>`<a class="platform-link" href="${l.url}" target="_blank" rel="noopener" style="margin-bottom:4px"><img src="${l.favicon}" class="favicon" onerror="this.style.display='none'">${l.label} ↗</a>`).join(''):'';
-  const panel=document.getElementById('gear-info-panel');
-  const overlay=document.getElementById('gear-info-overlay');
-  document.getElementById('gear-info-title').textContent=g.name;
-  document.getElementById('gear-info-text').textContent=info.tip;
-  document.getElementById('gear-info-links').innerHTML=linksHtml||'<span style="font-size:11px;color:var(--ink3);font-family:var(--mono)">Aucun lien disponible</span>';
-  panel.classList.add('open');
-  overlay.classList.add('open');
-}
-function closeGearInfo(){
-  document.getElementById('gear-info-panel').classList.remove('open');
-  document.getElementById('gear-info-overlay').classList.remove('open');
-}
 function toggleGear(id){if(!user)return;if(!user.checked)user.checked={};user.checked[id]=!user.checked[id];saveUser();renderKit();}
 function toggleSec(k){openSec[k]=!openSec[k];renderKit();}
 function switchMode(){user.mode=user.mode==='trek'?'journee':'trek';saveUser();renderKit();}
@@ -1647,18 +1640,51 @@ function renderBaseCamp(){
 // ── FEEDBACK ──────────────────────────────────────────────
 function renderFeedback(){
   const c=document.getElementById('feedback-list');
-  if(!feedbacks.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:11px;font-family:var(--mono)">AUCUNE IDÉE ENCORE</div>';return;}
+  if(!feedbacks.length){
+    c.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:11px;font-family:var(--mono)">AUCUNE IDÉE ENCORE</div>';
+    return;
+  }
   const sorted=[...feedbacks].sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
-  c.innerHTML=sorted.map(f=>`
-    <div class="fb-item">
-      <div class="fb-meta"><span class="tag ${CATCLS[f.cat]}">${CATL[f.cat]}</span><span>${f.author}</span><span>${f.ts}</span></div>
-      <div class="fb-text">${f.text}</div>
-      <div style="display:flex;align-items:center;gap:7px">
-        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> ${f.votes.up}</button>
-        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7"/></svg> ${f.votes.down}</button>
-        ${f.votes.up>=3?'<span class="tag tgold" style="margin-left:auto">POPULAIRE</span>':''}
+  c.innerHTML=sorted.map(f=>{
+    const status=f.status||'todo';
+    const statusLabels={'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"};
+    const statusCls={'todo':'status-todo','wip':'status-wip','done':'status-done','wontdo':'status-wontdo'};
+    const commentsCount=(f.comments||[]).length;
+    return`<div class="fb-item">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px">
+        <span class="tag ${CATCLS[f.cat]}">${CATL[f.cat]}</span>
+        <span class="${statusCls[status]}" style="font-size:9px;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-weight:500">${statusLabels[status]}</span>
+        <span style="color:var(--ink4);font-size:9px;font-family:var(--mono)">${f.author} · ${f.ts}</span>
       </div>
-    </div>`).join('');
+      <div style="font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:10px">${f.text}</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${f.votes.up}
+        </button>
+        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7"/></svg>${f.votes.down}
+        </button>
+        <button class="btn btn-sm" style="font-size:9px;padding:3px 8px;margin-left:auto" onclick="toggleComments(${f.id})">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${commentsCount}
+        </button>
+        ${f.votes.up>=3?'<span class="tag tgold">POPULAIRE</span>':''}
+      </div>
+      <!-- Changer le statut -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;padding-top:8px;border-top:.5px solid var(--border)">
+        ${['todo','wip','done','wontdo'].map(s=>`<button onclick="changeStatus(${f.id},'${s}')" style="font-size:9px;padding:2px 8px;border-radius:20px;border:.5px solid rgba(45,45,42,.15);cursor:pointer;font-family:var(--mono);background:${status===s?'var(--ink)':'transparent'};color:${status===s?'var(--gold)':'var(--ink3)'};font-weight:${status===s?'600':'400'}">${{'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"}[s]}</button>`).join('')}
+      </div>
+      <!-- Commentaires -->
+      <div id="comments-${f.id}" style="display:none;margin-top:10px">
+        ${(f.comments||[]).map(c=>`<div style="padding:6px 0;border-top:.5px solid var(--border)"><span style="font-size:10px;font-weight:600;font-family:var(--mono)">${c.author}</span> <span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${c.ts}</span><div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.5">${c.text}</div></div>`).join('')}
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input class="form-input" id="cmt-${f.id}" placeholder="Ajouter un commentaire…" style="font-size:11px;padding:6px 9px">
+          <button class="btn btn-primary btn-sm" onclick="addComment(${f.id})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 function toggleStatusMenu(id){
   const menu=document.getElementById('status-menu-'+id);
