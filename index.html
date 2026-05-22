@@ -201,7 +201,7 @@ select.form-input{appearance:none}
 .msg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .msg{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:12px;padding:10px 12px}
 .msg.me{background:var(--ink);border-color:var(--ink);margin-left:20px}
-.msg-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.msg-header{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:nowrap}
 .msg-type{font-size:9px;padding:1px 6px;border-radius:20px;font-family:var(--mono);font-weight:500}
 .type-alerte{background:var(--red-bg);color:var(--red)}
 .type-position{background:var(--blue-bg);color:var(--blue)}
@@ -367,7 +367,7 @@ select.form-input{appearance:none}
 .kanban-col-header{font-size:9px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;color:var(--ink2)}
 .kanban-col-count{background:var(--kraft3);border-radius:10px;padding:1px 6px;font-size:9px;color:var(--ink3)}
 .kanban-col[data-col="todo"] .kanban-col-header{color:var(--blue)}
-.kanban-col[data-col="wip"] .kanban-col-header{color:var(--gold2)}
+.kanban-col[data-col="inprogress"] .kanban-col-header{color:var(--gold2)}
 .kanban-col[data-col="done"] .kanban-col-header{color:var(--green)}
 .kanban-col[data-col="wontdo"] .kanban-col-header{color:var(--ink4)}
 .kanban-col.drag-over{background:rgba(232,200,74,.08);border-color:var(--gold2)}
@@ -914,7 +914,7 @@ const AVCOLS=[['#F5E8C0','#5C4A00'],['#D4EDD9','#2A5C35'],['#FAC775','#633806'],
 const avS=i=>{const[b,c]=AVCOLS[i%AVCOLS.length];return`background:${b};color:${c}`};
 const LVLS={newbie:{l:'Débutant',cls:'ta',next:'Intermédiaire',pct:20},intermediate:{l:'Intermédiaire',cls:'tg',next:'Expert',pct:55},expert:{l:'Expert',cls:'tb',next:null,pct:100}};
 const CATL={feature:'Feature',ux:'UX',bug:'Bug',content:'Contenu'};
-const STATUS_LABELS={'todo':'To do','wip':'WIP','done':'Done','wontdo':'Won\'t do'};
+const STATUS_LABELS={'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"};
 const STATUS_CLS={'backlog':'status-backlog','todo':'status-todo','inprogress':'status-wip','done':'status-done','wontdo':'status-wontdo'};
 const CATCLS={feature:'tb',ux:'tg',bug:'tr',content:'tgold'};
 
@@ -1557,6 +1557,13 @@ function renderRadio(){
   document.getElementById('type-row').innerHTML=MSG_TYPES.map(t=>`
     <button class="type-btn ${activeType===t?'active':''}" onclick="setType('${t}')">${MSG_TYPE_LABELS[t]}</button>`).join('');
 }
+function togglePin(id){
+  const m=messages.find(x=>x.id===id);
+  if(!m)return;
+  m.pinned=!m.pinned;
+  renderRadio();
+  toast(m.pinned?'MESSAGE ÉPINGLÉ':'MESSAGE DÉSÉPINGLÉ');
+}
 function deleteMsg(id){
   messages=messages.filter(x=>x.id!==id);
   renderRadio();
@@ -1819,7 +1826,7 @@ function addComment(id){
 function voteFb(id,v){const f=feedbacks.find(x=>x.id===id);if(f.myVote===v){f.myVote=null;f.votes[v]--;}else{if(f.myVote)f.votes[f.myVote]--;f.myVote=v;f.votes[v]++;}saveFB();renderFeedback();}
 function submitFeedback(){
   const text=document.getElementById('fb-text').value.trim();if(!text){toast('ÉCRIS TON IDÉE');return;}
-  feedbacks.unshift({id:Date.now(),text,cat:document.getElementById('fb-cat').value,author:user?user.name:'Anonyme',votes:{up:1,down:0},myVote:'up',ts:'à l\'instant'});
+  feedbacks.unshift({id:Date.now(),text,cat:document.getElementById('fb-cat').value||'feature',author:user?user.name:'Anonyme',votes:{up:1,down:0},myVote:'up',ts:'à l\'instant'});
   saveFB();document.getElementById('fb-text').value='';renderFeedback();toast('IDÉE SOUMISE');
 }
 
