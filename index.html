@@ -342,6 +342,7 @@ select.form-input{appearance:none}
 .btn-icon{display:inline-flex;align-items:center;gap:5px}
 .btn-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 /* Statuts Idées */
+.status-backlog{background:#F0EBE0;color:#4A4840;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
 .status-todo{background:#E4EEF7;color:#0C447C;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
 .status-wip{background:#FDF8E6;color:#8C7000;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
 .status-done{background:#D4EDD9;color:#2A5C35;font-size:9px;padding:1px 7px;border-radius:20px;font-family:var(--mono);font-weight:500}
@@ -662,13 +663,17 @@ select.form-input{appearance:none}
     <!-- Vue kanban -->
     <div id="idees-kanban-view" style="display:none">
       <div class="kanban-wrap" id="kanban-board">
+        <div class="kanban-col" data-col="backlog" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'backlog')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">Backlog <span class="kanban-col-count" id="kcount-backlog">0</span></div>
+          <div class="kanban-cards" id="kcol-backlog"></div>
+        </div>
         <div class="kanban-col" data-col="todo" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'todo')" ondragleave="kanbanDragLeave(event)">
-          <div class="kanban-col-header">Backlog <span class="kanban-col-count" id="kcount-todo">0</span></div>
+          <div class="kanban-col-header">To do <span class="kanban-col-count" id="kcount-todo">0</span></div>
           <div class="kanban-cards" id="kcol-todo"></div>
         </div>
-        <div class="kanban-col" data-col="wip" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'wip')" ondragleave="kanbanDragLeave(event)">
-          <div class="kanban-col-header">En cours <span class="kanban-col-count" id="kcount-wip">0</span></div>
-          <div class="kanban-cards" id="kcol-wip"></div>
+        <div class="kanban-col" data-col="inprogress" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'inprogress')" ondragleave="kanbanDragLeave(event)">
+          <div class="kanban-col-header">In progress <span class="kanban-col-count" id="kcount-inprogress">0</span></div>
+          <div class="kanban-cards" id="kcol-inprogress"></div>
         </div>
         <div class="kanban-col" data-col="done" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'done')" ondragleave="kanbanDragLeave(event)">
           <div class="kanban-col-header">Done <span class="kanban-col-count" id="kcount-done">0</span></div>
@@ -910,7 +915,7 @@ const avS=i=>{const[b,c]=AVCOLS[i%AVCOLS.length];return`background:${b};color:${
 const LVLS={newbie:{l:'Débutant',cls:'ta',next:'Intermédiaire',pct:20},intermediate:{l:'Intermédiaire',cls:'tg',next:'Expert',pct:55},expert:{l:'Expert',cls:'tb',next:null,pct:100}};
 const CATL={feature:'Feature',ux:'UX',bug:'Bug',content:'Contenu'};
 const STATUS_LABELS={'todo':'To do','wip':'WIP','done':'Done','wontdo':'Won\'t do'};
-const STATUS_CLS={'todo':'status-todo','wip':'status-wip','done':'status-done','wontdo':'status-wontdo'};
+const STATUS_CLS={'backlog':'status-backlog','todo':'status-todo','inprogress':'status-wip','done':'status-done','wontdo':'status-wontdo'};
 const CATCLS={feature:'tb',ux:'tg',bug:'tr',content:'tgold'};
 
 let randos=[
@@ -920,7 +925,7 @@ let randos=[
 ];
 
 let feedbacks=[
-  {id:1,text:'Filtrer les randos par dénivelé max',cat:'feature',author:'Thomas',votes:{up:3,down:0},myVote:null,ts:'il y a 2j',status:'wip',comments:[{author:'Thomas',text:'En cours pour la v7',ts:'hier'}]},
+  {id:1,text:'Filtrer les randos par dénivelé max',cat:'feature',author:'Thomas',votes:{up:3,down:0},myVote:null,ts:'il y a 2j',status:'inprogress',comments:[{author:'Thomas',text:'En cours pour la v7',ts:'hier'}]},
   {id:2,text:'Section photos après rando',cat:'feature',author:'Sofia',votes:{up:5,down:0},myVote:'up',ts:'hier',status:'todo',comments:[]},
   {id:3,text:'Bouton vote trop petit sur mobile',cat:'ux',author:'Lucas',votes:{up:2,down:0},myVote:null,ts:'hier',status:'done',comments:[{author:'Thomas',text:'Corrigé en v6',ts:'aujourd\'hui'}]},
 ];
@@ -1418,7 +1423,12 @@ function renderKit(){
 function gearRow(g){
   const done=user&&user.checked&&user.checked[g.id];
   const info=GEAR_INFO[g.id]||null;
-  const linksHtml=info&&info.links?info.links.map(l=>
+  const ORDER=['Decathlon','Vinted','Amazon','LeBonCoin','IGN Boutique'];
+  const sortedLinks=info&&info.links?[...info.links].sort((a,b)=>{
+    const ia=ORDER.indexOf(a.label),ib=ORDER.indexOf(b.label);
+    return (ia===-1?99:ia)-(ib===-1?99:ib);
+  }):[];
+  const linksHtml=sortedLinks.length?sortedLinks.map(l=>
     `<a class="platform-link" href="${l.url}" target="_blank" rel="noopener">
       <img src="${l.favicon}" width="12" height="12" style="border-radius:2px;flex-shrink:0" onerror="this.style.display='none'">${l.label}
     </a>`
@@ -1518,6 +1528,9 @@ function renderRadio(){
         <div class="msg-pinned-text">${m.text}</div>
         <div class="msg-pinned-meta">${MSG_TYPE_LABELS[m.type]} · ${m.author} · ${m.time}</div>
       </div>
+      <button onclick="deleteMsg(${m.id})" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);opacity:.35;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
     </div>`).join('');
   // Messages
   const fil=messages.filter(m=>!m.pinned);
@@ -1540,6 +1553,11 @@ function renderRadio(){
   // Type selector
   document.getElementById('type-row').innerHTML=MSG_TYPES.map(t=>`
     <button class="type-btn ${activeType===t?'active':''}" onclick="setType('${t}')">${MSG_TYPE_LABELS[t]}</button>`).join('');
+}
+function deleteMsg(id){
+  messages=messages.filter(x=>x.id!==id);
+  renderRadio();
+  toast('MESSAGE SUPPRIMÉ');
 }
 function setType(t){activeType=t;document.querySelectorAll('.type-btn').forEach(b=>{b.classList.toggle('active',b.textContent===MSG_TYPE_LABELS[t]);});}
 function sendMsg(){
@@ -1720,7 +1738,7 @@ function renderFeedback(){
   }
   const sorted=[...feedbacks].sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
   c.innerHTML=sorted.map(f=>{
-    const status=f.status||'todo';
+    const status=f.status||'backlog';
     const statusLabels={'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"};
     const statusCls={'todo':'status-todo','wip':'status-wip','done':'status-done','wontdo':'status-wontdo'};
     const commentsCount=(f.comments||[]).length;
@@ -1738,14 +1756,17 @@ function renderFeedback(){
         <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7"/></svg>${f.votes.down}
         </button>
-        <button class="btn btn-sm" style="font-size:9px;padding:3px 8px;margin-left:auto" onclick="toggleComments(${f.id})">
+        <button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="toggleComments(${f.id})">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${commentsCount}
         </button>
         ${f.votes.up>=3?'<span class="tag tgold">POPULAIRE</span>':''}
+        <button onclick="deleteFeedback(${f.id})" style="margin-left:auto;background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);display:flex;align-items:center" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink4)'" title="Supprimer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
       </div>
       <!-- Changer le statut -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;padding-top:8px;border-top:.5px solid var(--border)">
-        ${['todo','wip','done','wontdo'].map(s=>`<button onclick="changeStatus(${f.id},'${s}')" style="font-size:9px;padding:2px 8px;border-radius:20px;border:.5px solid rgba(45,45,42,.15);cursor:pointer;font-family:var(--mono);background:${status===s?'var(--ink)':'transparent'};color:${status===s?'var(--gold)':'var(--ink3)'};font-weight:${status===s?'600':'400'}">${{'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"}[s]}</button>`).join('')}
+        ${['backlog','todo','inprogress','done','wontdo'].map(s=>`<button onclick="changeStatus(${f.id},'${s}')" style="font-size:9px;padding:2px 8px;border-radius:20px;border:.5px solid rgba(45,45,42,.15);cursor:pointer;font-family:var(--mono);background:${status===s?'var(--ink)':'transparent'};color:${status===s?'var(--gold)':'var(--ink3)'};font-weight:${status===s?'600':'400'}">${{'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"}[s]}</button>`).join('')}
       </div>
       <!-- Commentaires -->
       <div id="comments-${f.id}" style="display:none;margin-top:10px">
@@ -1852,8 +1873,8 @@ function setIdeeView(v){
 }
 
 function renderKanban(){
-  const cols = ['todo','wip','done','wontdo'];
-  const colLabels = {'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"};
+  const cols = ['backlog','todo','inprogress','done','wontdo'];
+  const colLabels = {'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"};
   // Vider les colonnes
   cols.forEach(col=>{
     const el = document.getElementById('kcol-'+col);
@@ -1862,7 +1883,7 @@ function renderKanban(){
   // Trier par date décroissante (plus récent en haut = id plus grand)
   const sorted = [...feedbacks].sort((a,b)=>b.id-a.id);
   sorted.forEach(f=>{
-    const col = f.status||'todo';
+    const col = f.status||'backlog';
     const container = document.getElementById('kcol-'+col);
     if(!container) return;
     const card = document.createElement('div');
@@ -1892,7 +1913,7 @@ function renderKanban(){
   });
   // Compteurs
   cols.forEach(col=>{
-    const count = feedbacks.filter(f=>(f.status||'todo')===col).length;
+    const count = feedbacks.filter(f=>(f.status||'backlog')===col).length;
     const el = document.getElementById('kcount-'+col);
     if(el) el.textContent = count;
   });
