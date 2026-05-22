@@ -1542,9 +1542,12 @@ function renderRadio(){
     }).join('');
     return`<div class="msg ${isMe?'me':''}">
       <div class="msg-header">
-        <span class="msg-type ${MSG_TYPE_CLS[m.type]}">${MSG_TYPE_LABELS[m.type]}</span>
+        <span class="msg-type ${MSG_TYPE_CLS[m.type]}" style="display:inline-flex;align-items:center;gap:3px">${MSG_TYPE_ICONS[m.type]}${MSG_TYPE_LABELS[m.type]}</span>
         <span class="msg-author">${m.author}</span>
         <span class="msg-time">${m.time}</span>
+        <button onclick="deleteMsg(${m.id})" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;opacity:.35;display:flex;align-items:center" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${isMe?'rgba(255,255,255,.7)':'currentColor'}" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
       </div>
       <div class="msg-text">${m.text}</div>
       <div class="msg-receipts">${receipts}</div>
@@ -1739,8 +1742,8 @@ function renderFeedback(){
   const sorted=[...feedbacks].sort((a,b)=>(b.votes.up-b.votes.down)-(a.votes.up-a.votes.down));
   c.innerHTML=sorted.map(f=>{
     const status=f.status||'backlog';
-    const statusLabels={'todo':'To do','wip':'WIP','done':'Done','wontdo':"Won't do"};
-    const statusCls={'todo':'status-todo','wip':'status-wip','done':'status-done','wontdo':'status-wontdo'};
+    const statusLabels={'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"};
+    const statusCls={'backlog':'status-backlog','todo':'status-todo','inprogress':'status-wip','done':'status-done','wontdo':'status-wontdo'};
     const commentsCount=(f.comments||[]).length;
     return`<div class="fb-item">
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px">
