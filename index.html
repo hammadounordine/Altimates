@@ -1222,7 +1222,10 @@ function openRando(id){
       <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"> Komoot ↗</button>
       <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
       <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
-    </div>`;
+    </div>
+    </div>
+    ${r.dur&&r.dur!=='1j'?`<div id="rtab-ravito-content" style="display:none"></div>`:''}
+    `;
   openModal('rando-modal');
   setTimeout(()=>{
     if(leafMap){leafMap.remove();leafMap=null;}
