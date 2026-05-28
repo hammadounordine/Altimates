@@ -384,6 +384,30 @@ select.form-input{appearance:none}
 .view-toggle{display:flex;gap:6px;margin-bottom:12px}
 .view-btn{flex:1;padding:6px;border-radius:8px;border:.5px solid var(--border2);background:transparent;font-size:11px;cursor:pointer;font-family:var(--mono);color:var(--ink3);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
 .view-btn.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+
+/* ── RAVITO ── */
+.ravito-wrap{padding:0}
+.ravito-section{margin-bottom:14px}
+.ravito-meal-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border)}
+.ravito-meal-row:last-child{border-bottom:none}
+.ravito-meal-icon{width:32px;height:32px;border-radius:8px;background:var(--kraft2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:.5px solid var(--border)}
+.ravito-meal-icon svg{width:16px;height:16px;stroke:var(--gold2);fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+.ravito-progress{height:6px;background:var(--kraft3);border-radius:3px;overflow:hidden;margin-top:4px}
+.ravito-progress-fill{height:100%;border-radius:3px;transition:width .4s}
+.ravito-ok{background:var(--green)}
+.ravito-mid{background:var(--gold2)}
+.ravito-low{background:var(--red)}
+.ravito-member-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border)}
+.ravito-member-row:last-child{border-bottom:none}
+.ravito-stock-input{width:44px;padding:4px 6px;border:.5px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--mono);text-align:center;background:rgba(255,255,255,.8);color:var(--ink)}
+.ravito-buy-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--red-bg);border:.5px solid #F0A090;border-radius:8px;margin-bottom:6px}
+.ravito-buy-ok{background:var(--green-bg);border-color:#A8D8B0}
+.ravito-tab-row{display:flex;gap:6px;margin-bottom:12px}
+.ravito-tab{flex:1;padding:7px;border-radius:8px;border:.5px solid var(--border2);background:transparent;font-size:10px;cursor:pointer;font-family:var(--mono);color:var(--ink3);text-align:center;transition:all .15s}
+.ravito-tab.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.time-select{display:flex;gap:6px;flex-wrap:wrap}
+.time-btn{padding:5px 10px;border-radius:20px;border:.5px solid var(--border2);background:transparent;font-size:10px;cursor:pointer;font-family:var(--mono);color:var(--ink3);transition:all .15s}
+.time-btn.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1176,6 +1200,15 @@ function openRando(id){
       <span class="modal-title">${r.name}</span>
       <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
     </div>
+    ${r.dur&&r.dur!=='1j'?`<div class="ravito-tab-row">
+      <button class="ravito-tab active" id="rtab-info" onclick="switchRandoTab('info',${r.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Infos
+      </button>
+      <button class="ravito-tab" id="rtab-ravito" onclick="switchRandoTab('ravito',${r.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:-1px;margin-right:3px"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Ravito
+      </button>
+    </div>`:''}
+    <div id="rtab-info-content">
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>
         <div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>
@@ -1972,8 +2005,215 @@ function changeStatus(id, newStatus){
   toast('STATUT MIS À JOUR');
 }
 
+// ── RAVITO ──────────────────────────────────────────
+
+// Données Ravito par rando — stockées localement
+// Structure: {[randoId]: {config: {depart, retour, objectifs}, stocks: {[memberName]: {petitdej,lunch,snack,diner}}}}
+let ravitoData = {};
+const RAVITO_KEY = 'altimates_ravito';
+
+function loadRavito(){ try{ const s=localStorage.getItem(RAVITO_KEY); if(s) ravitoData=JSON.parse(s); }catch(e){} }
+function saveRavito(){ try{ localStorage.setItem(RAVITO_KEY, JSON.stringify(ravitoData)); }catch(e){} }
+
+const MEAL_CATS = [
+  {id:'petitdej', label:'Petit déj', icon:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>'},
+  {id:'lunch',    label:'Lunch',     icon:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="2" x2="7" y2="11"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>'},
+  {id:'snack',    label:'Snack',     icon:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32 2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M18.66 5.34l2.12-2.12"/>'},
+  {id:'diner',    label:'Dîner',     icon:'<path d="M2 20h20"/><path d="M5 20V8a7 7 0 0 1 14 0v12"/><path d="M12 8v12"/>'},
+];
+
+// Repas selon heure départ
+const DEPART_MEALS = {
+  matin:    {petitdej:1, lunch:1, snack:1, diner:1},
+  midi:     {petitdej:0, lunch:1, snack:1, diner:1},
+  apresmidi:{petitdej:0, lunch:0, snack:1, diner:1},
+};
+// Repas selon heure retour
+const RETOUR_MEALS = {
+  midi:     {petitdej:1, lunch:1, snack:0, diner:0},
+  apresmidi:{petitdej:1, lunch:1, snack:1, diner:0},
+  soir:     {petitdej:1, lunch:1, snack:1, diner:1},
+};
+// Repas jour complet
+const FULL_MEALS = {petitdej:1, lunch:1, snack:2, diner:1};
+
+function getRavitoConfig(randoId){
+  if(!ravitoData[randoId]) ravitoData[randoId]={config:{depart:'matin',retour:'apresmidi'},stocks:{}};
+  return ravitoData[randoId];
+}
+
+function calcBesoins(randoId){
+  const r = randos.find(x=>x.id===randoId);
+  if(!r) return {};
+  const data = getRavitoConfig(randoId);
+  const cfg = data.config;
+  // Parser la durée
+  const jours = parseInt(r.dur)||1;
+  const nMembres = membres.length + 1; // membres + user
+  const besoins = {petitdej:0, lunch:0, snack:0, diner:0};
+  if(jours===1){
+    // Journée — juste départ
+    const dm = DEPART_MEALS[cfg.depart]||DEPART_MEALS.matin;
+    const rm = RETOUR_MEALS[cfg.retour]||RETOUR_MEALS.apresmidi;
+    MEAL_CATS.forEach(c=>{
+      besoins[c.id] = Math.min(dm[c.id]||0, rm[c.id]||0) * nMembres;
+    });
+  } else {
+    // Jour 1 (départ)
+    const dm = DEPART_MEALS[cfg.depart]||DEPART_MEALS.matin;
+    // Jours intermédiaires
+    const jInter = Math.max(0, jours-2);
+    // Dernier jour (retour)
+    const rm = RETOUR_MEALS[cfg.retour]||RETOUR_MEALS.apresmidi;
+    MEAL_CATS.forEach(c=>{
+      const j1 = (dm[c.id]||0);
+      const jm = jInter * (FULL_MEALS[c.id]||0);
+      const jn = (rm[c.id]||0);
+      besoins[c.id] = (j1 + jm + jn) * nMembres;
+    });
+  }
+  return besoins;
+}
+
+function calcStockTotal(randoId){
+  const data = getRavitoConfig(randoId);
+  const total = {petitdej:0, lunch:0, snack:0, diner:0};
+  Object.values(data.stocks).forEach(s=>{
+    MEAL_CATS.forEach(c=>{ total[c.id]+=(parseInt(s[c.id])||0); });
+  });
+  return total;
+}
+
+function renderRavitoHTML(randoId){
+  const r = randos.find(x=>x.id===randoId);
+  if(!r) return '';
+  const data = getRavitoConfig(randoId);
+  const cfg = data.config;
+  const jours = parseInt(r.dur)||1;
+  const nMembres = membres.length + 1;
+  const besoins = calcBesoins(randoId);
+  const stockTotal = calcStockTotal(randoId);
+  const allMembres = [...membres.map(m=>m.name), user?user.name:'Moi'];
+
+  // Barre progression par catégorie
+  const mealBars = MEAL_CATS.map(c=>{
+    const b = besoins[c.id]||0;
+    const s = stockTotal[c.id]||0;
+    const pct = b>0?Math.min(100,Math.round(s/b*100)):100;
+    const cls = pct>=100?'ravito-ok':pct>=50?'ravito-mid':'ravito-low';
+    const gap = Math.max(0, b-s);
+    return `<div class="ravito-meal-row">
+      <div class="ravito-meal-icon"><svg width="16" height="16" viewBox="0 0 24 24">${c.icon}</svg></div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:500">${c.label}</span>
+          <span style="font-size:10px;font-family:var(--mono);color:var(--ink3)">${s}/${b} repas</span>
+        </div>
+        <div class="ravito-progress"><div class="ravito-progress-fill ${cls}" style="width:${pct}%"></div></div>
+        ${gap>0?`<div style="font-size:10px;color:var(--red);font-family:var(--mono);margin-top:2px">${gap} manquant(s)</div>`:'<div style="font-size:10px;color:var(--green);font-family:var(--mono);margin-top:2px">Stock suffisant</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Stock par membre
+  const memberRows = allMembres.map(name=>{
+    const stock = data.stocks[name]||{petitdej:0,lunch:0,snack:0,diner:0};
+    const isMe = user&&name===user.name;
+    return `<div class="ravito-member-row">
+      <div style="font-size:12px;font-weight:500;min-width:70px">${name}${isMe?' (toi)':''}</div>
+      ${MEAL_CATS.map(c=>`<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <span style="font-size:8px;color:var(--ink3);font-family:var(--mono)">${c.label.slice(0,3)}</span>
+        <input type="number" min="0" max="99" value="${stock[c.id]||0}"
+          onchange="updateStock(${randoId},'${name}','${c.id}',this.value)"
+          class="ravito-stock-input" ${!isMe?'disabled style="opacity:.5"':''}/>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  // Suggestions d'achat
+  const besoinsTotal = MEAL_CATS.reduce((a,c)=>a+(Math.max(0,(besoins[c.id]||0)-(stockTotal[c.id]||0))),0);
+  const buySection = besoinsTotal>0 ? `
+    <div style="margin-top:4px">
+      ${MEAL_CATS.map(c=>{
+        const gap=Math.max(0,(besoins[c.id]||0)-(stockTotal[c.id]||0));
+        if(!gap) return `<div class="ravito-buy-row ravito-buy-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg><span style="font-size:11px;color:var(--green);font-family:var(--mono)">${c.label} — stock ok</span></div>`;
+        const parPers = Math.ceil(gap/nMembres);
+        return `<div class="ravito-buy-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+          <div style="flex:1"><span style="font-size:11px;color:var(--red);font-family:var(--mono);font-weight:500">${c.label} — ${gap} manquant(s)</span>
+          <div style="font-size:10px;color:var(--red);font-family:var(--mono)">~${parPers} par personne</div></div>
+          <a href="https://www.decathlon.fr/search?query=repas+lyophilise+${c.id}" target="_blank" style="font-size:9px;padding:3px 7px;border-radius:6px;background:var(--kraft2);color:var(--ink);text-decoration:none;font-family:var(--mono);white-space:nowrap">Decathlon</a>
+          <a href="https://www.amazon.fr/s?k=repas+lyophilise+randonnee+${c.id}" target="_blank" style="font-size:9px;padding:3px 7px;border-radius:6px;background:var(--kraft2);color:var(--ink);text-decoration:none;font-family:var(--mono);white-space:nowrap">Amazon</a>
+        </div>`;
+      }).join('')}
+    </div>` : `<div style="padding:12px;text-align:center;font-size:12px;color:var(--green);font-family:var(--mono)">Stock suffisant pour toute la cordée</div>`;
+
+  return `<div class="ravito-wrap">
+    <!-- Config départ/retour -->
+    <div style="background:var(--kraft2);border-radius:var(--r);padding:11px 13px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">${jours}j · ${nMembres} membres</div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:10px;font-family:var(--mono);color:var(--ink3);margin-bottom:5px">Départ</div>
+        <div class="time-select">
+          ${['matin','midi','apresmidi'].map(t=>`<button class="time-btn ${cfg.depart===t?'active':''}" onclick="setRavitoTime(${randoId},'depart','${t}')">${{matin:'Matin',midi:'Midi',apresmidi:'Après-midi'}[t]}</button>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--ink3);margin-bottom:5px">Retour</div>
+        <div class="time-select">
+          ${['midi','apresmidi','soir'].map(t=>`<button class="time-btn ${cfg.retour===t?'active':''}" onclick="setRavitoTime(${randoId},'retour','${t}')">${{midi:'Midi',apresmidi:'Après-midi',soir:'Soir'}[t]}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Besoins par catégorie -->
+    <div class="sec">Besoins vs stock</div>
+    <div class="card" style="padding:0 14px">${mealBars}</div>
+
+    <!-- Stock par membre -->
+    <div class="sec" style="margin-top:4px">Mon stock lyophilisé</div>
+    <div class="card" style="padding:0 14px;overflow-x:auto">${memberRows}</div>
+
+    <!-- Achats suggérés -->
+    <div class="sec" style="margin-top:4px">À acheter</div>
+    ${buySection}
+  </div>`;
+}
+
+function switchRandoTab(tab, randoId){
+  document.getElementById('rtab-info').classList.toggle('active', tab==='info');
+  document.getElementById('rtab-ravito').classList.toggle('active', tab==='ravito');
+  document.getElementById('rtab-info-content').style.display = tab==='info'?'block':'none';
+  document.getElementById('rtab-ravito-content').style.display = tab==='ravito'?'block':'none';
+  if(tab==='ravito'){
+    document.getElementById('rtab-ravito-content').innerHTML = renderRavitoHTML(randoId);
+  }
+}
+
+function setRavitoTime(randoId, key, val){
+  const data = getRavitoConfig(randoId);
+  data.config[key] = val;
+  saveRavito();
+  document.getElementById('rtab-ravito-content').innerHTML = renderRavitoHTML(randoId);
+}
+
+function updateStock(randoId, memberName, cat, val){
+  const data = getRavitoConfig(randoId);
+  if(!data.stocks[memberName]) data.stocks[memberName]={petitdej:0,lunch:0,snack:0,diner:0};
+  data.stocks[memberName][cat] = parseInt(val)||0;
+  saveRavito();
+  // Re-render uniquement les barres et suggestions
+  const fresh = renderRavitoHTML(randoId);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = fresh;
+  // Mettre à jour seulement les barres (pas les inputs pour ne pas perdre le focus)
+  const bars = document.querySelectorAll('.ravito-meal-row');
+  const newBars = tmp.querySelectorAll('.ravito-meal-row');
+  bars.forEach((b,i)=>{ if(newBars[i]) b.innerHTML=newBars[i].innerHTML; });
+}
+
 function init(){
-  loadRandos();loadFB();
+  loadRandos();loadFB();loadRavito();
   document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
   setTimeout(()=>setDurType('day'),100);
   const tutoDone=localStorage.getItem(TUTO_KEY);
