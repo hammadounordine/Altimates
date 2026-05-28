@@ -408,6 +408,21 @@ select.form-input{appearance:none}
 .time-select{display:flex;gap:6px;flex-wrap:wrap}
 .time-btn{padding:5px 10px;border-radius:20px;border:.5px solid var(--border2);background:transparent;font-size:10px;cursor:pointer;font-family:var(--mono);color:var(--ink3);transition:all .15s}
 .time-btn.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+
+/* ── HYDRATATION ── */
+.hydra-segment{background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.hydra-segment-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.hydra-source-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;border-radius:8px;border:.5px solid var(--border2);background:transparent;cursor:pointer;transition:all .15s;font-family:var(--mono);font-size:9px;color:var(--ink3);min-width:60px}
+.hydra-source-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+.hydra-source-btn.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.hydra-source-btn.active svg{stroke:var(--gold)}
+.hydra-alert{background:var(--red-bg);border:.5px solid #F0A090;border-radius:8px;padding:9px 12px;display:flex;align-items:flex-start;gap:8px;margin-top:8px}
+.hydra-ok{background:var(--green-bg);border-color:#A8D8B0}
+.hydra-warn{background:var(--gold-bg);border-color:#E8D070}
+.hydra-input-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:.5px solid var(--border)}
+.hydra-input-row:last-child{border-bottom:none}
+.hydra-num{width:52px;padding:4px 6px;border:.5px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--mono);text-align:center;background:rgba(255,255,255,.8);color:var(--ink)}
+.hydra-unit{font-size:10px;color:var(--ink3);font-family:var(--mono)}
 </style>
 </head>
 <body>
@@ -1169,7 +1184,8 @@ async function fetchWeather(r){
         <div class="rcard-wx ${wcls}"><div class="wx-icon">${wi(code)}</div><div class="wx-temp">${temp}°</div><div class="wx-lbl">${wlbl}</div><div class="wx-wind">${wind}km/h</div></div>
       </div>
       <div class="forecast">${fcHTML}</div>
-      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}`;
+      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}
+    `;
   }catch(e){
     el.innerHTML=`<div class="rcard-top" onclick="openRando(${r.id})"><div class="rcard-main">${rcardMain(r)}</div><div class="rcard-wx wx-mid" style="justify-content:center"><div style="font-size:8px;color:var(--gold2);text-align:center;font-family:var(--mono)">MÉTÉO<br>N/A</div></div></div>`;
   }
@@ -1200,14 +1216,17 @@ function openRando(id){
       <span class="modal-title">${r.name}</span>
       <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
     </div>
-    ${r.dur&&r.dur!=='1j'?`<div class="ravito-tab-row">
+    <div class="ravito-tab-row">
       <button class="ravito-tab active" id="rtab-info" onclick="switchRandoTab('info',${r.id})">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Infos
       </button>
       <button class="ravito-tab" id="rtab-ravito" onclick="switchRandoTab('ravito',${r.id})">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:-1px;margin-right:3px"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Ravito
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M2 12h20"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M6 20h12"/><path d="M9 20v-2a3 3 0 0 1 6 0v2"/><path d="M9 8c0-1.5.5-3 3-3s3 1.5 3 3"/></svg>Ravito
       </button>
-    </div>`:''}
+      <button class="ravito-tab" id="rtab-hydra" onclick="switchRandoTab('hydra',${r.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Hydratation
+      </button>
+    </div>
     <div id="rtab-info-content">
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>
@@ -1224,7 +1243,8 @@ function openRando(id){
       <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
     </div>
     </div>
-    ${r.dur&&r.dur!=='1j'?`<div id="rtab-ravito-content" style="display:none"></div>`:''}
+    <div id="rtab-ravito-content" style="display:none"></div>
+    <div id="rtab-hydra-content" style="display:none"></div>
     `;
   openModal('rando-modal');
   setTimeout(()=>{
@@ -2184,12 +2204,17 @@ function renderRavitoHTML(randoId){
 }
 
 function switchRandoTab(tab, randoId){
-  document.getElementById('rtab-info').classList.toggle('active', tab==='info');
-  document.getElementById('rtab-ravito').classList.toggle('active', tab==='ravito');
-  document.getElementById('rtab-info-content').style.display = tab==='info'?'block':'none';
-  document.getElementById('rtab-ravito-content').style.display = tab==='ravito'?'block':'none';
+  ['info','ravito','hydra'].forEach(t=>{
+    const btn=document.getElementById('rtab-'+t);
+    const content=document.getElementById('rtab-'+t+'-content');
+    if(btn) btn.classList.toggle('active', tab===t);
+    if(content) content.style.display = tab===t?'block':'none';
+  });
   if(tab==='ravito'){
     document.getElementById('rtab-ravito-content').innerHTML = renderRavitoHTML(randoId);
+  }
+  if(tab==='hydra'){
+    document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
   }
 }
 
@@ -2215,8 +2240,196 @@ function updateStock(randoId, memberName, cat, val){
   bars.forEach((b,i)=>{ if(newBars[i]) b.innerHTML=newBars[i].innerHTML; });
 }
 
+// ── HYDRATATION ──────────────────────────────────────
+let hydraData = {};
+const HYDRA_KEY = 'altimates_hydra';
+function loadHydra(){ try{ const s=localStorage.getItem(HYDRA_KEY); if(s) hydraData=JSON.parse(s); }catch(e){} }
+function saveHydra(){ try{ localStorage.setItem(HYDRA_KEY, JSON.stringify(hydraData)); }catch(e){} }
+
+// Sources d'eau possibles
+const WATER_SOURCES = [
+  {id:'refuge',  label:'Refuge',  desc:'Eau potable au robinet',
+   icon:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>',
+   recharge: 1.0, needsFilter: false},
+  {id:'ruisseau',label:'Ruisseau/Lac', desc:'Filtrante recommandée',
+   icon:'<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
+   recharge: 0.8, needsFilter: true},
+  {id:'aucun',   label:'Aucun',   desc:"Pas de point d'eau",
+   icon:'<line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>',
+   recharge: 0, needsFilter: false},
+];
+
+function getHydraConfig(randoId){
+  if(!hydraData[randoId]) hydraData[randoId]={
+    conso: 500,        // ml/h/personne
+    heures: 6,         // heures de marche/jour
+    cuisine: 1000,     // ml/personne/soir si bivouac
+    toilette: 500,     // ml/personne/jour optionnel
+    capacite: 2000,    // ml capacité totale contenant/personne
+    filtreDisponible: false,
+    segments: [
+      {id:1, label:'Départ → Point 1', source:'ruisseau', km:0},
+    ]
+  };
+  return hydraData[randoId];
+}
+
+function calcHydraBesoins(randoId){
+  const r = randos.find(x=>x.id===randoId);
+  if(!r) return {};
+  const cfg = getHydraConfig(randoId);
+  const jours = parseInt(r.dur)||1;
+  const nMembres = (membres.length + 1);
+  const besoinsJour = (cfg.conso * cfg.heures) + (jours>1 ? cfg.cuisine : 0) + cfg.toilette;
+  return {
+    parPersonneParJour: besoinsJour,
+    total: besoinsJour * nMembres * jours,
+    capaciteTotal: cfg.capacite * nMembres,
+  };
+}
+
+function renderHydraHTML(randoId){
+  const r = randos.find(x=>x.id===randoId);
+  if(!r) return '';
+  const cfg = getHydraConfig(randoId);
+  const jours = parseInt(r.dur)||1;
+  const nMembres = membres.length + 1;
+  const besoins = calcHydraBesoins(randoId);
+
+  // Paramètres
+  const paramsHTML = `
+    <div class="card" style="padding:0 14px;margin-bottom:12px">
+      <div class="hydra-input-row">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Consommation</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par heure</div></div>
+        <input type="number" class="hydra-num" value="${cfg.conso}" min="200" max="1500" step="100"
+          onchange="updateHydra(${randoId},'conso',this.value)">
+        <span class="hydra-unit">ml/h</span>
+      </div>
+      <div class="hydra-input-row">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Marche estimée</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par jour</div></div>
+        <input type="number" class="hydra-num" value="${cfg.heures}" min="1" max="14"
+          onchange="updateHydra(${randoId},'heures',this.value)">
+        <span class="hydra-unit">h/j</span>
+      </div>
+      ${jours>1?`<div class="hydra-input-row">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Cuisine + vaisselle</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par soir</div></div>
+        <input type="number" class="hydra-num" value="${cfg.cuisine}" min="0" max="3000" step="250"
+          onchange="updateHydra(${randoId},'cuisine',this.value)">
+        <span class="hydra-unit">ml</span>
+      </div>`:''}
+      <div class="hydra-input-row">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Toilette / hygiène</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par jour (optionnel)</div></div>
+        <input type="number" class="hydra-num" value="${cfg.toilette}" min="0" max="2000" step="100"
+          onchange="updateHydra(${randoId},'toilette',this.value)">
+        <span class="hydra-unit">ml</span>
+      </div>
+      <div class="hydra-input-row">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Capacité contenants</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">camelbak + gourdes par personne</div></div>
+        <input type="number" class="hydra-num" value="${cfg.capacite}" min="500" max="6000" step="500"
+          onchange="updateHydra(${randoId},'capacite',this.value)">
+        <span class="hydra-unit">ml</span>
+      </div>
+      <div class="hydra-input-row" style="border:none">
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">Gourde filtrante</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Lifestraw, Sawyer, etc.</div></div>
+        <button onclick="updateHydra(${randoId},'filtreDisponible',!${cfg.filtreDisponible})"
+          style="padding:4px 12px;border-radius:20px;border:.5px solid var(--border2);cursor:pointer;font-size:10px;font-family:var(--mono);background:${cfg.filtreDisponible?'var(--ink)':'transparent'};color:${cfg.filtreDisponible?'var(--gold)':'var(--ink3)'}">
+          ${cfg.filtreDisponible?'Disponible':'Non disponible'}
+        </button>
+      </div>
+    </div>`;
+
+  // Récap besoins
+  const pctCapacite = Math.min(100, Math.round(besoins.capaciteTotal / besoins.parPersonneParJour * 100));
+  const autonomieH = Math.floor(cfg.capacite / cfg.conso * 10) / 10;
+  const statusCls = pctCapacite >= 100 ? 'hydra-ok' : pctCapacite >= 70 ? 'hydra-warn' : '';
+  const recapHTML = `
+    <div class="sec">Besoin estimé</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="card" style="text-align:center;padding:10px">
+        <div style="font-size:20px;font-weight:600;color:var(--ink);font-family:var(--mono)">${(besoins.parPersonneParJour/1000).toFixed(1)}L</div>
+        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-top:2px">Par personne/jour</div>
+      </div>
+      <div class="card" style="text-align:center;padding:10px">
+        <div style="font-size:20px;font-weight:600;color:var(--ink);font-family:var(--mono)">${(besoins.total/1000).toFixed(1)}L</div>
+        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;margin-top:2px">Total cordée</div>
+      </div>
+    </div>
+    <div class="hydra-alert ${statusCls}" style="margin-bottom:12px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${pctCapacite>=100?'var(--green)':pctCapacite>=70?'var(--gold2)':'var(--red)'}" stroke-width="2" stroke-linecap="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      <div style="font-size:11px;font-family:var(--mono)">
+        <strong>Autonomie ${autonomieH}h</strong> avec ${(cfg.capacite/1000).toFixed(1)}L/personne<br>
+        ${pctCapacite>=100
+          ?'<span style="color:var(--green)">Capacité suffisante pour la journée</span>'
+          :`<span style="color:var(--red)">Capacité insuffisante — prévoir ravitaillement en eau</span>`}
+      </div>
+    </div>`;
+
+  // Points d'eau sur le tracé
+  const segmentsHTML = `
+    <div class="sec">Points d'eau sur le tracé</div>
+    <div style="font-size:10px;color:var(--ink3);font-family:var(--mono);margin-bottom:8px">Renseigne les sources d'eau disponibles sur ton tracé</div>
+    ${cfg.segments.map((seg,i)=>{
+      const src = WATER_SOURCES.find(s=>s.id===seg.source)||WATER_SOURCES[0];
+      const needsWarn = seg.source==='ruisseau' && !cfg.filtreDisponible;
+      return `<div class="hydra-segment">
+        <div class="hydra-segment-header">
+          <input class="form-input" style="flex:1;font-size:11px;padding:5px 8px" value="${seg.label}"
+            onchange="updateHydraSegment(${randoId},${i},'label',this.value)" placeholder="ex: Départ → Refuge">
+          <button onclick="removeHydraSegment(${randoId},${i})" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4)" title="Supprimer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+        <div style="display:flex;gap:6px">
+          ${WATER_SOURCES.map(s=>`<button class="hydra-source-btn ${seg.source===s.id?'active':''}"
+            onclick="updateHydraSegment(${randoId},${i},'source','${s.id}')">
+            <svg viewBox="0 0 24 24">${s.icon}</svg>${s.label}
+          </button>`).join('')}
+        </div>
+        ${needsWarn?`<div class="hydra-alert" style="margin-top:8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+          <span style="font-size:10px;color:var(--red);font-family:var(--mono)">Ruisseau détecté — gourde filtrante non disponible. Ajouter une Lifestraw au kit.</span>
+        </div>`:''}
+        ${seg.source==='refuge'?`<div class="hydra-alert hydra-ok" style="margin-top:8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span style="font-size:10px;color:var(--green);font-family:var(--mono)">Eau potable disponible — repartir avec au moins 1L par personne</span>
+        </div>`:''}
+      </div>`;
+    }).join('')}
+    <button class="btn btn-sm" onclick="addHydraSegment(${randoId})" style="width:100%;justify-content:center;margin-top:4px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter un segment
+    </button>`;
+
+  return `<div>${paramsHTML}${recapHTML}${segmentsHTML}</div>`;
+}
+
+function updateHydra(randoId, key, val){
+  const cfg = getHydraConfig(randoId);
+  cfg[key] = typeof val==='boolean' ? val : (parseFloat(val)||0);
+  saveHydra();
+  document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
+}
+function updateHydraSegment(randoId, idx, key, val){
+  const cfg = getHydraConfig(randoId);
+  cfg.segments[idx][key] = val;
+  saveHydra();
+  document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
+}
+function addHydraSegment(randoId){
+  const cfg = getHydraConfig(randoId);
+  cfg.segments.push({id:Date.now(), label:'Nouveau segment', source:'ruisseau'});
+  saveHydra();
+  document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
+}
+function removeHydraSegment(randoId, idx){
+  const cfg = getHydraConfig(randoId);
+  cfg.segments.splice(idx,1);
+  saveHydra();
+  document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
+}
+
 function init(){
-  loadRandos();loadFB();loadRavito();
+  loadRandos();loadFB();loadRavito();loadHydra();
   document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
   setTimeout(()=>setDurType('day'),100);
   const tutoDone=localStorage.getItem(TUTO_KEY);
