@@ -1520,10 +1520,10 @@ function openRando(id){
     </div>
     <div id="rtab-info-content">
     <div class="modal-stats">
-      <div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>
-        <div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>
-        <div class="modal-stat"><div class="modal-stat-val">${r.dur||'1j'}</div><div class="modal-stat-lbl">durée</div></div>
-        <div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>
+      ${r.km?`<div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>`:''}
+        ${r.dplus?`<div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>`:''}
+        ${r.dur&&r.dur!=='1j'?`<div class="modal-stat"><div class="modal-stat-val">${r.dur}</div><div class="modal-stat-lbl">durée</div></div>`:''}
+        ${r.diff?`<div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>`:''}
     </div>
     ${(r.dateStart||r.date)?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -2304,14 +2304,16 @@ function renderBaseCamp(){
   const lv=LVLS[user.level];
   // Prochaine sortie = rando où l'user est partant + date future la plus proche
   const today = new Date(); today.setHours(0,0,0,0);
+  window._nextRando = null;
   const randosPartant = randos
     .filter(r => !r._mock)
     .filter(r => r.myVote==='oui' && r.dateStart)
     .filter(r => new Date(r.dateStart) >= today)
     .sort((a,b) => new Date(a.dateStart) - new Date(b.dateStart));
-  const nextRando = randosPartant[0] || randos.find(r=>r.myVote==='oui') || randos[0];
+  const nextRando = randosPartant[0] || randos.find(r=>r.myVote==='oui'&&!r._mock) || randos.find(r=>!r._mock) || randos[0];
+  window._nextRando = nextRando;
   c.innerHTML=`
-    <div class="bc-hero" onclick="nextRando&&openRando(nextRando.id)" style="cursor:pointer">
+    <div class="bc-hero" onclick="window._nextRando&&openRando(window._nextRando.id)" style="cursor:pointer">
       <div class="bc-hero-bg"><svg width="100%" height="100%" viewBox="0 0 440 160" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,50 Q60,25 140,45 Q220,65 300,35 Q380,5 460,28"/><path d="M-20,80 Q60,55 140,75 Q220,95 300,65 Q380,35 460,58"/><path d="M-20,110 Q60,85 140,105 Q220,125 300,95 Q380,65 460,88"/></g></svg></div>
       <div class="bc-hero-content">
         <div class="bc-name">${user.name}</div>
