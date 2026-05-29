@@ -1432,7 +1432,13 @@ async function renderRandoMois(){
 
 function rcardMain(r){
   const dc=r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':r.diff==='Trek'?'tb':'tr';
-  return`<div class="rname">${r.name}${r.alert?'<span class="alert-dot"></span>':''}</div>
+  return`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:3px">
+      <div class="rname" style="margin:0;flex:1">${r.name}${r.alert?'<span class="alert-dot"></span>':''}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0">
+        ${(r.dateStart||r.date)?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3);white-space:nowrap">${formatDateDisplay(r)}</span>`:''}
+        ${getJx(r.dateStart)?`<span style="font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:10px;background:var(--ink);color:var(--gold);white-space:nowrap">${getJx(r.dateStart)}</span>`:''}
+      </div>
+    </div>
     <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
     <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
     <div class="vrow">
@@ -1440,10 +1446,6 @@ function rcardMain(r){
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
       ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="event.stopPropagation();showConfirm('Supprimer cette rando ?','Cette action est irréversible.','Supprimer',()=>deleteRando('${r.id}'))" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);margin-left:auto;display:flex;align-items:center" title="Supprimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-      ${(r.dateStart||r.date)?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">${formatDateDisplay(r)}</span>`:''}
-      ${getJx(r.dateStart)?`<span style="font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:10px;background:var(--ink);color:var(--gold)">${getJx(r.dateStart)}</span>`:''}
     </div>`;
 }
 function vote(id,v){
