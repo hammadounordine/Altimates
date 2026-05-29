@@ -441,6 +441,12 @@ select.form-input{appearance:none}
 .auth-loading{margin-top:14px;font-size:11px;color:var(--ink3);font-family:var(--mono);display:none}
 .user-badge{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--kraft2);border-radius:20px;font-size:10px;font-family:var(--mono);color:var(--ink3)}
 .user-badge img{width:20px;height:20px;border-radius:50%}
+
+/* ── TRACES ── */
+.trace-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:10px;margin-bottom:7px}
+.trace-vote-btn{padding:4px 10px;border-radius:20px;border:.5px solid var(--border2);background:transparent;font-size:10px;cursor:pointer;font-family:var(--mono);color:var(--ink3);white-space:nowrap;transition:all .15s;flex-shrink:0}
+.trace-vote-btn.voted{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.trace-add-row{display:flex;gap:6px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -1183,93 +1189,33 @@ function renderRandos(){
 }
 
 async function renderRandoMois(){
-  const c=document.getElementById('rando-mois-container');
-  c.innerHTML=`<div class="rando-mois"><div class="rando-mois-bg"><svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,40 Q80,20 180,38 Q280,56 380,30 Q420,18 450,26"/><path d="M-20,65 Q80,45 180,63 Q280,81 380,55 Q420,43 450,51"/></g></svg></div><div class="rando-mois-content"><div class="rando-mois-badge">RANDO DU MOIS · IA</div><div class="ai-loading"><div class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:var(--gold)"></div>Analyse météo + niveau du groupe…</div></div></div>`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:200,
-        system:'Tu es un expert en randonnée française. Réponds en JSON uniquement: {"name":"...","region":"...","why":"...","km":0,"dplus":0,"diff":"Facile|Moyen|Difficile"}. Maximum 60 caractères pour why.',
-        messages:[{role:'user',content:`Mois: mai. Niveau groupe: intermédiaire. Suggère une rando en France adaptée. JSON uniquement.`}]
-      })
-    });
-    const d=await resp.json();
-    const txt=d.content?.[0]?.text||'{}';
-    const clean=txt.replace(/```json|```/g,'').trim();
-    const r=JSON.parse(clean);
-    const dc=r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':'tr';
-    c.innerHTML=`<div class="rando-mois" onclick="toast('RANDO DU MOIS · Suggestion IA')">
-      <div class="rando-mois-bg"><svg width="100%" height="100%" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,40 Q80,20 180,38 Q280,56 380,30 Q420,18 450,26"/><path d="M-20,65 Q80,45 180,63 Q280,81 380,55 Q420,43 450,51"/></g></svg></div>
-      <div class="rando-mois-content">
-        <div class="rando-mois-badge">RANDO DU MOIS · IA</div>
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;letter-spacing:-.2px">${r.name||'Suggestion IA'}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--mono);margin-bottom:8px">${r.region||'France'}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:8px">${r.why||''}</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-size:10px;color:rgba(255,255,255,.5);font-family:var(--mono)">${r.km||'—'}km · +${r.dplus||'—'}m</span>
-          <span class="tag ${dc}">${r.diff||'Moyen'}</span>
-        </div>
-      </div>
-    </div>`;
-  }catch(e){
-    c.innerHTML=`<div class="rando-mois">
-      <div class="rando-mois-content">
-        <div class="rando-mois-badge">RANDO DU MOIS</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.5);font-family:var(--mono)">Suggestion disponible avec connexion internet</div>
-      </div>
-    </div>`;
-  }
+  const el = document.getElementById('rando-mois');
+  if(!el) return;
+  el.innerHTML = `<div style="background:var(--ink);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px">
+    <div style="width:36px;height:36px;border-radius:9px;background:rgba(232,200,74,.12);border:.5px solid rgba(232,200,74,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.8" stroke-linecap="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--gold);font-family:var(--mono);letter-spacing:.04em;margin-bottom:2px">RANDO DU MOIS IA</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);font-family:var(--mono)">Coming soon — en cours de développement</div>
+    </div>
+  </div>`;
 }
 
-async function fetchWeather(r){
-  const el=document.getElementById('rc-'+r.id);if(!el)return;
-  try{
-    const controller=new AbortController();
-    const tid=setTimeout(()=>controller.abort(),8000);
-    const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&daily=temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode&forecast_days=4&timezone=Europe%2FParis`,{signal:controller.signal});
-    clearTimeout(tid);
-    if(!res.ok)throw new Error('API '+res.status);
-    const d=await res.json();const days=d.daily;
-    if(!days||!days.temperature_2m_max)throw new Error('No data');
-    const temp=Math.round(days.temperature_2m_max[0]),wind=Math.round(days.windspeed_10m_max[0]);
-    const rain=days.precipitation_sum[0],code=days.weathercode[0];
-    let wcls='wx-ok',wlbl='IDÉAL';
-    if(rain>5||code>=61){wcls='wx-bad';wlbl='PLUIE';}
-    else if(rain>1||code>=51||wind>40){wcls='wx-mid';wlbl='MITIGÉ';}
-    else if(wind>25){wcls='wx-mid';wlbl='VENT';}
-    const fcHTML=days.weathercode.slice(0,4).map((c,i)=>{
-      const dt=new Date(days.time[i]);
-      const dn=['DIM','LUN','MAR','MER','JEU','VEN','SAM'][dt.getDay()];
-      const rr=days.precipitation_sum[i];
-      return`<div class="fc"><div class="fc-d">${dn}</div><div class="fc-i">${wi(c)}</div><div class="fc-t">${Math.round(days.temperature_2m_max[i])}°</div><div class="fc-r">${rr>0?rr.toFixed(1)+'mm':''}</div></div>`;
-    }).join('');
-    el.innerHTML=`
-      <div class="rcard-top" onclick="openRando(${r.id})">
-        <div class="rcard-main">${rcardMain(r)}</div>
-        <div class="rcard-wx ${wcls}"><div class="wx-icon">${wi(code)}</div><div class="wx-temp">${temp}°</div><div class="wx-lbl">${wlbl}</div><div class="wx-wind">${wind}km/h</div></div>
-      </div>
-      <div class="forecast">${fcHTML}</div>
-      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}
-    `;
-  }catch(e){
-    el.innerHTML=`<div class="rcard-top" onclick="openRando(${r.id})"><div class="rcard-main">${rcardMain(r)}</div><div class="rcard-wx wx-mid" style="justify-content:center"><div style="font-size:8px;color:var(--gold2);text-align:center;font-family:var(--mono)">MÉTÉO<br>N/A</div></div></div>`;
-  }
-}
+
 function rcardMain(r){
   const dc=r.diff==='Facile'?'tg':r.diff==='Moyen'?'ta':r.diff==='Trek'?'tb':'tr';
   return`<div class="rname">${r.name}${r.alert?'<span class="alert-dot"></span>':''}</div>
     <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
     <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
     <div class="vrow">
-      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote(${r.id},'oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
-      <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote(${r.id},'peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
+      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
+      <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
     </div>`;
 }
 function vote(id,v){
-  const r=randos.find(x=>x.id===id);
+  const r=randos.find(x=>String(x.id)===String(id));
   if(r.myVote===v){r.myVote=null;r.votes[v]--;}else{if(r.myVote)r.votes[r.myVote]--;r.myVote=v;r.votes[v]++;}
   saveRandos();
   if(currentUser) saveRandoToFirestore(r);
@@ -1277,7 +1223,7 @@ function vote(id,v){
   toast(v==='oui'?'✓ PARTANT !':'VOTE ENREGISTRÉ');
 }
 function openRando(id){
-  const r=randos.find(x=>x.id===id);
+  const r=randos.find(x=>String(x.id)===String(id));
   document.getElementById('rando-map').innerHTML='';
   document.getElementById('rando-modal-body').innerHTML=`
     <div class="modal-header">
@@ -1285,13 +1231,13 @@ function openRando(id){
       <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
     </div>
     <div class="ravito-tab-row">
-      <button class="ravito-tab active" id="rtab-info" onclick="switchRandoTab('info',${r.id})">
+      <button class="ravito-tab active" id="rtab-info" onclick="switchRandoTab('info','${r.id}')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Infos
       </button>
-      <button class="ravito-tab" id="rtab-ravito" onclick="switchRandoTab('ravito',${r.id})">
+      <button class="ravito-tab" id="rtab-ravito" onclick="switchRandoTab('ravito','${r.id}')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M2 12h20"/><path d="M6 12a6 6 0 0 1 12 0"/><path d="M6 20h12"/><path d="M9 20v-2a3 3 0 0 1 6 0v2"/><path d="M9 8c0-1.5.5-3 3-3s3 1.5 3 3"/></svg>Ravito
       </button>
-      <button class="ravito-tab" id="rtab-hydra" onclick="switchRandoTab('hydra',${r.id})">
+      <button class="ravito-tab" id="rtab-hydra" onclick="switchRandoTab('hydra','${r.id}')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Hydratation
       </button>
     </div>
@@ -1306,9 +1252,10 @@ function openRando(id){
     <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:12px">${r.desc}</p>
     ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
     <div style="display:flex;gap:7px;flex-wrap:wrap">
-      ${r.komootUrl?`<a class="gpx-btn" href="${r.komootUrl}" target="_blank" rel="noopener">Komoot ↗</a>`:`<button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')">Komoot ↗</button>`}
+      <!-- Section traces -->
+    ${renderTracesHTML(r)}
       <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
-      <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
+      <button class="btn btn-primary btn-sm" onclick="vote('${r.id}','oui');closeModal('rando-modal')">Partant</button>
     </div>
     </div>
     <div id="rtab-ravito-content" style="display:none"></div>
@@ -1324,7 +1271,7 @@ function openRando(id){
   },200);
 }
 function downloadGPX(id,name){
-  const r=randos.find(x=>x.id===id);
+  const r=randos.find(x=>String(x.id)===String(id));
   const q=encodeURIComponent(r.name+' '+r.region);
   window.open('https://www.komoot.com/search/'+q,'_blank');
   toast('OUVERTURE KOMOOT');
@@ -1341,7 +1288,7 @@ function setDurType(t){
   if(fm)fm.style.display=t==='multi'?'block':'none';
 }
 function deleteRando(id){
-  randos=randos.filter(x=>x.id!==id);
+  randos=randos.filter(x=>String(x.id)!==String(id));
   saveRandos();
   if(currentUser) deleteRandoFromFirestore(id);
   renderRandos();
@@ -1358,7 +1305,7 @@ function submitRando(){
     const de=document.getElementById('f-date-end').value;
     if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});}
   }
-  const r={id:Date.now(),name,proposedBy:user?user.name:null,komootUrl:(document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'')||null,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  const r={id:Date.now(),name,proposedBy:user?user.name:null,traces:(()=>{const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';return u?[{id:Date.now(),label:'Trace principale',url:u,votes:[]}]:[];})(),region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
   randos.unshift(r);
   try{ saveRandos(); } catch(e){ console.warn('saveRandos:', e); }
   closeModal('add-modal');
@@ -1663,7 +1610,7 @@ function renderRadio(){
         <div class="msg-pinned-text">${m.text}</div>
         <div class="msg-pinned-meta">${MSG_TYPE_LABELS[m.type]} · ${m.author} · ${m.time}</div>
       </div>
-      <button onclick="deleteMsg(${m.id})" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);opacity:.35;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
+      <button onclick="deleteMsg('${m.id}')" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);opacity:.35;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>
     </div>`).join('');
@@ -1680,7 +1627,7 @@ function renderRadio(){
         <span class="msg-type ${MSG_TYPE_CLS[m.type]}" style="display:inline-flex;align-items:center;gap:3px">${MSG_TYPE_ICONS[m.type]}${MSG_TYPE_LABELS[m.type]}</span>
         <span class="msg-author">${m.author}</span>
         <span class="msg-time">${m.time}</span>
-        <button onclick="deleteMsg(${m.id})" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;opacity:.35;display:flex;align-items:center" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
+        <button onclick="deleteMsg('${m.id}')" style="background:none;border:none;cursor:pointer;padding:2px;margin-left:4px;opacity:.35;display:flex;align-items:center" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.35'" title="Supprimer">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${isMe?'rgba(255,255,255,.7)':'currentColor'}" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         </button>
       </div>
@@ -1693,7 +1640,7 @@ function renderRadio(){
     <button class="type-btn ${activeType===t?'active':''}" onclick="setType('${t}')">${MSG_TYPE_LABELS[t]}</button>`).join('');
 }
 function togglePin(id){
-  const m=messages.find(x=>x.id===id);
+  const m=messages.find(x=>String(x.id)===String(id));
   if(!m)return;
   m.pinned=!m.pinned;
   if(currentUser) saveMsgToFirestore(m);
@@ -1701,7 +1648,7 @@ function togglePin(id){
   toast(m.pinned?'MESSAGE ÉPINGLÉ':'MESSAGE DÉSÉPINGLÉ');
 }
 function deleteMsg(id){
-  messages=messages.filter(x=>x.id!==id);
+  messages=messages.filter(x=>String(x.id)!==String(id));
   if(currentUser) deleteMsgFromFirestore(id);
   renderRadio();
   toast('MESSAGE SUPPRIMÉ');
@@ -1770,14 +1717,14 @@ function renderCordee(){
     </div>`).join('');
   document.getElementById('invite-link').value=window.location.href;
 }
-function toggleDepart(id){const item=departItems.find(x=>x.id===id);if(item)item.done=!item.done;renderCordee();toast(item.done?'✓ ITEM COCHÉ':'Item décoché');}
+function toggleDepart(id){const item=departItems.find(x=>String(x.id)===String(id));if(item)item.done=!item.done;renderCordee();toast(item.done?'✓ ITEM COCHÉ':'Item décoché');}
 function assignDepart(id){
-  const item=departItems.find(x=>x.id===id);
+  const item=departItems.find(x=>String(x.id)===String(id));
   if(item&&user){item.assignee=user.name;renderCordee();toast('ASSIGNÉ À TOI');}
   else toast('⚠ Configure ton profil d\'abord');
 }
 function deleteDepart(id){
-  departItems=departItems.filter(x=>x.id!==id);
+  departItems=departItems.filter(x=>String(x.id)!==String(id));
   if(currentUser) deleteDepartItemFromFirestore(id);
   renderCordee();
   toast('ARTICLE SUPPRIMÉ');
@@ -1898,30 +1845,30 @@ function renderFeedback(){
       </div>
       <div style="font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:10px">${f.text}</div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb(${f.id},'up')">
+        <button class="vote-chip ${f.myVote==='up'?'up-active':''}" onclick="voteFb('${f.id}','up')">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${f.votes.up}
         </button>
-        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb(${f.id},'down')">
+        <button class="vote-chip ${f.myVote==='down'?'down-active':''}" onclick="voteFb('${f.id}','down')">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7"/></svg>${f.votes.down}
         </button>
-        <button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="toggleComments(${f.id})">
+        <button class="btn btn-sm" style="font-size:9px;padding:3px 8px" onclick="toggleComments('${f.id}')">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${commentsCount}
         </button>
         ${f.votes.up>=3?'<span class="tag tgold">POPULAIRE</span>':''}
-        <button onclick="deleteFeedback(${f.id})" style="margin-left:auto;background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);display:flex;align-items:center" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink4)'" title="Supprimer">
+        <button onclick="deleteFeedback('${f.id}')" style="margin-left:auto;background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);display:flex;align-items:center" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink4)'" title="Supprimer">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         </button>
       </div>
       <!-- Changer le statut -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;padding-top:8px;border-top:.5px solid var(--border)">
-        ${['backlog','todo','inprogress','done','wontdo'].map(s=>`<button onclick="changeStatus(${f.id},'${s}')" style="font-size:9px;padding:2px 8px;border-radius:20px;border:.5px solid rgba(45,45,42,.15);cursor:pointer;font-family:var(--mono);background:${status===s?'var(--ink)':'transparent'};color:${status===s?'var(--gold)':'var(--ink3)'};font-weight:${status===s?'600':'400'}">${{'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"}[s]}</button>`).join('')}
+        ${['backlog','todo','inprogress','done','wontdo'].map(s=>`<button onclick="changeStatus('${f.id}','${s}')" style="font-size:9px;padding:2px 8px;border-radius:20px;border:.5px solid rgba(45,45,42,.15);cursor:pointer;font-family:var(--mono);background:${status===s?'var(--ink)':'transparent'};color:${status===s?'var(--gold)':'var(--ink3)'};font-weight:${status===s?'600':'400'}">${{'backlog':'Backlog','todo':'To do','inprogress':'In progress','done':'Done','wontdo':"Won't do"}[s]}</button>`).join('')}
       </div>
       <!-- Commentaires -->
       <div id="comments-${f.id}" style="display:none;margin-top:10px">
         ${(f.comments||[]).map(c=>`<div style="padding:6px 0;border-top:.5px solid var(--border)"><span style="font-size:10px;font-weight:600;font-family:var(--mono)">${c.author}</span> <span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${c.ts}</span><div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.5">${c.text}</div></div>`).join('')}
         <div style="display:flex;gap:6px;margin-top:8px">
           <input class="form-input" id="cmt-${f.id}" placeholder="Ajouter un commentaire…" style="font-size:11px;padding:6px 9px">
-          <button class="btn btn-primary btn-sm" onclick="addComment(${f.id})">
+          <button class="btn btn-primary btn-sm" onclick="addComment('${f.id}')">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor"/></svg>
           </button>
         </div>
@@ -1939,7 +1886,7 @@ function toggleStatusMenu(id){
   setTimeout(()=>document.addEventListener('click',function close(e){if(!e.target.closest('#status-menu-'+id)){menu.style.display='none';document.removeEventListener('click',close);}},false),0);
 }
 function changeStatus(id, newStatus){
-  const f=feedbacks.find(x=>x.id===id);
+  const f=feedbacks.find(x=>String(x.id)===String(id));
   if(!f)return;
   f.status=newStatus;
   saveFB();
@@ -1953,7 +1900,7 @@ function toggleComments(id){
 function addComment(id){
   const inp=document.getElementById('cmt-'+id);
   if(!inp||!inp.value.trim())return;
-  const f=feedbacks.find(x=>x.id===id);
+  const f=feedbacks.find(x=>String(x.id)===String(id));
   if(!f.comments)f.comments=[];
   f.comments.push({author:user?user.name:'Anonyme',text:inp.value.trim(),ts:'à l\'instant'});
   inp.value='';
@@ -1961,7 +1908,7 @@ function addComment(id){
   setTimeout(()=>{const el=document.getElementById('comments-'+id);if(el)el.style.display='block';},50);
   toast('COMMENTAIRE AJOUTÉ');
 }
-function voteFb(id,v){const f=feedbacks.find(x=>x.id===id);if(f.myVote===v){f.myVote=null;f.votes[v]--;}else{if(f.myVote)f.votes[f.myVote]--;f.myVote=v;f.votes[v]++;}saveFB();renderFeedback();}
+function voteFb(id,v){const f=feedbacks.find(x=>String(x.id)===String(id));if(f.myVote===v){f.myVote=null;f.votes[v]--;}else{if(f.myVote)f.votes[f.myVote]--;f.myVote=v;f.votes[v]++;}saveFB();renderFeedback();}
 function submitFeedback(){
   const text=document.getElementById('fb-text').value.trim();if(!text){toast('ÉCRIS TON IDÉE');return;}
   feedbacks.unshift({id:Date.now(),text,cat:document.getElementById('fb-cat').value||'feature',author:user?user.name:'Anonyme',votes:{up:1,down:0},myVote:'up',ts:'à l\'instant'});
@@ -2047,7 +1994,7 @@ function renderKanban(){
           ${f.votes.up}
           <span style="color:var(--ink4);margin-left:2px">${f.author}</span>
         </div>
-        <button class="postit-del" onclick="deleteFeedback(${f.id})" title="Supprimer">
+        <button class="postit-del" onclick="deleteFeedback('${f.id}')" title="Supprimer">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         </button>
       </div>`;
@@ -2091,7 +2038,7 @@ function kanbanDrop(e, newStatus){
 
 function deleteFeedback(id){
   if(!confirm('Supprimer cette idée ?')) return;
-  feedbacks = feedbacks.filter(x=>x.id!==id);
+  feedbacks = feedbacks.filter(x=>String(x.id)!==String(id));
   saveFB();
   if(currentUser) deleteFeedbackFromFirestore(id);
   if(ideeView==='kanban') renderKanban();
@@ -2102,7 +2049,7 @@ function deleteFeedback(id){
 // Override changeStatus pour aussi mettre à jour le kanban si ouvert
 const _origChangeStatus = typeof changeStatus !== 'undefined' ? changeStatus : null;
 function changeStatus(id, newStatus){
-  const f=feedbacks.find(x=>x.id===id);
+  const f=feedbacks.find(x=>String(x.id)===String(id));
   if(!f)return;
   f.status=newStatus;
   saveFB();
@@ -2152,7 +2099,7 @@ function getRavitoConfig(randoId){
 }
 
 function calcBesoins(randoId){
-  const r = randos.find(x=>x.id===randoId);
+  const r = randos.find(x=>String(x.id)===String(randoId));
   if(!r) return {};
   const data = getRavitoConfig(randoId);
   const cfg = data.config;
@@ -2194,7 +2141,7 @@ function calcStockTotal(randoId){
 }
 
 function renderRavitoHTML(randoId){
-  const r = randos.find(x=>x.id===randoId);
+  const r = randos.find(x=>String(x.id)===String(randoId));
   if(!r) return '';
   const data = getRavitoConfig(randoId);
   const cfg = data.config;
@@ -2233,7 +2180,7 @@ function renderRavitoHTML(randoId){
       ${MEAL_CATS.map(c=>`<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
         <span style="font-size:8px;color:var(--ink3);font-family:var(--mono)">${c.label.slice(0,3)}</span>
         <input type="number" min="0" max="99" value="${stock[c.id]||0}"
-          onchange="updateStock(${randoId},'${name}','${c.id}',this.value)"
+          onchange="updateStock('${randoId}','${name}','${c.id}',this.value)"
           class="ravito-stock-input" ${!isMe?'disabled style="opacity:.5"':''}/>
       </div>`).join('')}
     </div>`;
@@ -2264,13 +2211,13 @@ function renderRavitoHTML(randoId){
       <div style="margin-bottom:8px">
         <div style="font-size:10px;font-family:var(--mono);color:var(--ink3);margin-bottom:5px">Départ</div>
         <div class="time-select">
-          ${['matin','midi','apresmidi'].map(t=>`<button class="time-btn ${cfg.depart===t?'active':''}" onclick="setRavitoTime(${randoId},'depart','${t}')">${{matin:'Matin',midi:'Midi',apresmidi:'Après-midi'}[t]}</button>`).join('')}
+          ${['matin','midi','apresmidi'].map(t=>`<button class="time-btn ${cfg.depart===t?'active':''}" onclick="setRavitoTime('${randoId}','depart','${t}')">${{matin:'Matin',midi:'Midi',apresmidi:'Après-midi'}[t]}</button>`).join('')}
         </div>
       </div>
       <div>
         <div style="font-size:10px;font-family:var(--mono);color:var(--ink3);margin-bottom:5px">Retour</div>
         <div class="time-select">
-          ${['midi','apresmidi','soir'].map(t=>`<button class="time-btn ${cfg.retour===t?'active':''}" onclick="setRavitoTime(${randoId},'retour','${t}')">${{midi:'Midi',apresmidi:'Après-midi',soir:'Soir'}[t]}</button>`).join('')}
+          ${['midi','apresmidi','soir'].map(t=>`<button class="time-btn ${cfg.retour===t?'active':''}" onclick="setRavitoTime('${randoId}','retour','${t}')">${{midi:'Midi',apresmidi:'Après-midi',soir:'Soir'}[t]}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -2364,7 +2311,7 @@ function getHydraConfig(randoId){
 }
 
 function calcHydraBesoins(randoId){
-  const r = randos.find(x=>x.id===randoId);
+  const r = randos.find(x=>String(x.id)===String(randoId));
   if(!r) return {};
   const cfg = getHydraConfig(randoId);
   const jours = parseInt(r.dur)||1;
@@ -2378,7 +2325,7 @@ function calcHydraBesoins(randoId){
 }
 
 function renderHydraHTML(randoId){
-  const r = randos.find(x=>x.id===randoId);
+  const r = randos.find(x=>String(x.id)===String(randoId));
   if(!r) return '';
   const cfg = getHydraConfig(randoId);
   const jours = parseInt(r.dur)||1;
@@ -2391,36 +2338,36 @@ function renderHydraHTML(randoId){
       <div class="hydra-input-row">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Consommation</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par heure</div></div>
         <input type="number" class="hydra-num" value="${cfg.conso}" min="200" max="1500" step="100"
-          onchange="updateHydra(${randoId},'conso',this.value)">
+          onchange="updateHydra('${randoId}','conso',this.value)">
         <span class="hydra-unit">ml/h</span>
       </div>
       <div class="hydra-input-row">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Marche estimée</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par jour</div></div>
         <input type="number" class="hydra-num" value="${cfg.heures}" min="1" max="14"
-          onchange="updateHydra(${randoId},'heures',this.value)">
+          onchange="updateHydra('${randoId}','heures',this.value)">
         <span class="hydra-unit">h/j</span>
       </div>
       ${jours>1?`<div class="hydra-input-row">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Cuisine + vaisselle</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par soir</div></div>
         <input type="number" class="hydra-num" value="${cfg.cuisine}" min="0" max="3000" step="250"
-          onchange="updateHydra(${randoId},'cuisine',this.value)">
+          onchange="updateHydra('${randoId}','cuisine',this.value)">
         <span class="hydra-unit">ml</span>
       </div>`:''}
       <div class="hydra-input-row">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Toilette / hygiène</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">par personne par jour (optionnel)</div></div>
         <input type="number" class="hydra-num" value="${cfg.toilette}" min="0" max="2000" step="100"
-          onchange="updateHydra(${randoId},'toilette',this.value)">
+          onchange="updateHydra('${randoId}','toilette',this.value)">
         <span class="hydra-unit">ml</span>
       </div>
       <div class="hydra-input-row">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Capacité contenants</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">camelbak + gourdes par personne</div></div>
         <input type="number" class="hydra-num" value="${cfg.capacite}" min="500" max="6000" step="500"
-          onchange="updateHydra(${randoId},'capacite',this.value)">
+          onchange="updateHydra('${randoId}','capacite',this.value)">
         <span class="hydra-unit">ml</span>
       </div>
       <div class="hydra-input-row" style="border:none">
         <div style="flex:1"><div style="font-size:12px;font-weight:500">Gourde filtrante</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Lifestraw, Sawyer, etc.</div></div>
-        <button onclick="updateHydra(${randoId},'filtreDisponible',!${cfg.filtreDisponible})"
+        <button onclick="updateHydra('${randoId}','filtreDisponible',!${cfg.filtreDisponible})"
           style="padding:4px 12px;border-radius:20px;border:.5px solid var(--border2);cursor:pointer;font-size:10px;font-family:var(--mono);background:${cfg.filtreDisponible?'var(--ink)':'transparent'};color:${cfg.filtreDisponible?'var(--gold)':'var(--ink3)'}">
           ${cfg.filtreDisponible?'Disponible':'Non disponible'}
         </button>
@@ -2463,14 +2410,14 @@ function renderHydraHTML(randoId){
       return `<div class="hydra-segment">
         <div class="hydra-segment-header">
           <input class="form-input" style="flex:1;font-size:11px;padding:5px 8px" value="${seg.label}"
-            onchange="updateHydraSegment(${randoId},${i},'label',this.value)" placeholder="ex: Départ → Refuge">
-          <button onclick="removeHydraSegment(${randoId},${i})" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4)" title="Supprimer">
+            onchange="updateHydraSegment('${randoId}',${i},'label',this.value)" placeholder="ex: Départ → Refuge">
+          <button onclick="removeHydraSegment('${randoId}','${i}')" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4)" title="Supprimer">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           </button>
         </div>
         <div style="display:flex;gap:6px">
           ${WATER_SOURCES.map(s=>`<button class="hydra-source-btn ${seg.source===s.id?'active':''}"
-            onclick="updateHydraSegment(${randoId},${i},'source','${s.id}')">
+            onclick="updateHydraSegment('${randoId}','${i}','source','${s.id}')">
             <svg viewBox="0 0 24 24">${s.icon}</svg>${s.label}
           </button>`).join('')}
         </div>
@@ -2484,7 +2431,7 @@ function renderHydraHTML(randoId){
         </div>`:''}
       </div>`;
     }).join('')}
-    <button class="btn btn-sm" onclick="addHydraSegment(${randoId})" style="width:100%;justify-content:center;margin-top:4px">
+    <button class="btn btn-sm" onclick="addHydraSegment('${randoId}')" style="width:100%;justify-content:center;margin-top:4px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Ajouter un segment
     </button>`;
@@ -2908,6 +2855,98 @@ function devBypass(){
   if(av){ av.textContent = 'NO'; av.style = avS(4); }
   renderRandos();
   toast('MODE DEV ACTIVÉ');
+}
+
+// ── TRACES KOMOOT ────────────────────────────────────
+
+function renderTracesHTML(r){
+  const isProposer = user && r.proposedBy === user.name;
+  const traces = r.traces || [];
+  const tracesHTML = traces.map((t,i)=>{
+    const myVote = user && t.votes && t.votes.includes(user.name);
+    const voteCount = t.votes ? t.votes.length : 0;
+    return `<div class="trace-item">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px">${t.label}</div>
+        <a href="${t.url}" target="_blank" rel="noopener" style="font-size:10px;color:var(--ink3);font-family:var(--mono);text-decoration:none;display:flex;align-items:center;gap:3px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Komoot ↗
+        </a>
+      </div>
+      <button class="trace-vote-btn ${myVote?'voted':''}" onclick="voteTrace('${r.id}','${i}')">
+        ${myVote?'✓ Préféré':'Je préfère'} ${voteCount>0?`· ${voteCount}`:''}
+      </button>
+      ${isProposer?`<button onclick="removeTrace('${r.id}','${i}')" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);flex-shrink:0" title="Supprimer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
+    </div>`;
+  }).join('');
+
+  const addFormHTML = isProposer ? `
+    <div class="trace-add-row">
+      <input class="form-input" id="trace-label-${r.id}" placeholder="Nom (ex: Variante facile)" style="font-size:11px;padding:6px 9px;flex:1">
+      <input class="form-input" id="trace-url-${r.id}" placeholder="https://www.komoot.com/tour/..." style="font-size:11px;padding:6px 9px;flex:2">
+      <button class="btn btn-primary btn-sm" onclick="addTrace('${r.id}')" style="white-space:nowrap;flex-shrink:0">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>` : '';
+
+  return `<div style="margin-bottom:10px">
+    <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
+      ${traces.length>0?`${traces.length} trace${traces.length>1?'s':''}`:'Aucune trace'}
+      ${isProposer?' · ajoute tes variantes':''}
+    </div>
+    ${tracesHTML}
+    ${addFormHTML}
+  </div>`;
+}
+
+function addTrace(randoId){
+  const r = randos.find(x=>String(x.id)===String(randoId));
+  if(!r) return;
+  const labelEl = document.getElementById('trace-label-'+randoId);
+  const urlEl = document.getElementById('trace-url-'+randoId);
+  if(!labelEl||!urlEl) return;
+  const label = labelEl.value.trim() || 'Trace '+(( r.traces||[]).length+1);
+  const url = urlEl.value.trim();
+  if(!url){ toast('URL KOMOOT REQUISE'); return; }
+  if(!url.includes('komoot')){ toast('LIEN KOMOOT INVALIDE'); return; }
+  if(!r.traces) r.traces = [];
+  r.traces.push({id:Date.now(), label, url, votes:[]});
+  saveRandos();
+  if(currentUser) saveRandoToFirestore(r);
+  // Re-render la section traces dans le modal ouvert
+  const modal = document.getElementById('rando-modal-body');
+  if(modal){
+    const section = modal.querySelector('.rtab-info-traces');
+    if(section) section.outerHTML = renderTracesHTML(r);
+  }
+  // Re-ouvrir la modal pour refresh
+  openRando(randoId);
+  toast('TRACE AJOUTÉE');
+}
+
+function removeTrace(randoId, idx){
+  const r = randos.find(x=>String(x.id)===String(randoId));
+  if(!r||!r.traces) return;
+  r.traces.splice(idx,1);
+  saveRandos();
+  if(currentUser) saveRandoToFirestore(r);
+  openRando(randoId);
+  toast('TRACE SUPPRIMÉE');
+}
+
+function voteTrace(randoId, idx){
+  const r = randos.find(x=>String(x.id)===String(randoId));
+  if(!r||!r.traces||!r.traces[idx]) return;
+  if(!user){ toast('Configure ton profil d\'abord'); return; }
+  const t = r.traces[idx];
+  if(!t.votes) t.votes = [];
+  const pos = t.votes.indexOf(user.name);
+  if(pos>=0){ t.votes.splice(pos,1); } // toggle off
+  else { t.votes.push(user.name); }
+  saveRandos();
+  if(currentUser) saveRandoToFirestore(r);
+  openRando(randoId);
+  toast(pos>=0?'VOTE RETIRÉ':'TRACE PRÉFÉRÉE');
 }
 
 function init(){
