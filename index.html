@@ -1194,6 +1194,9 @@ const TOOLTIPS=[
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 function showTab(t){
   if(t==='admin' && isAdmin()) setTimeout(renderAdmin, 300);
+  // Bouton proposer visible seulement sur Sommets
+  const pw=document.getElementById('propose-wrap');
+  if(pw) pw.classList.toggle('visible', t==='sommets');
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
@@ -3306,6 +3309,7 @@ async function initApp(){
   // Lancer l'UI
   document.getElementById('grp-sub').textContent = `GROUPE · ${ALLOWED_EMAILS.length} MEMBRES`;
   showAdminNav();
+  setTimeout(()=>{const pw=document.getElementById('propose-wrap');if(pw)pw.classList.add('visible');},500);
   setTimeout(()=>setDurType('day'), 100);
 
   const tutoDone = localStorage.getItem(TUTO_KEY);
@@ -3778,5 +3782,13 @@ function init(){
 }
 init();
 </script>
+
+<!-- BOUTON PROPOSER FIXE -->
+<div class="propose-btn-wrap" id="propose-wrap">
+  <button class="propose-btn" onclick="openModal('add-modal')">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Proposer une rando
+  </button>
+</div>
 </body>
 </html>
