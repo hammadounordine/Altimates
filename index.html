@@ -936,10 +936,8 @@ select.form-input{appearance:none}
       <div style="margin-top:10px;display:flex;gap:6px">
         <input class="form-input" id="admin-new-email" placeholder="Ajouter un email…" style="font-size:11px;flex:1">
         <button class="btn btn-primary btn-sm" onclick="adminAddEmail()">Ajouter</button>
-      <button class="btn btn-sm" onclick="generateInviteConfigs()" style="background:none;border:.5px solid rgba(45,45,42,.2);border-radius:8px;padding:6px 10px;font-size:10px;font-family:var(--mono);color:var(--ink3);cursor:pointer;white-space:nowrap">Générer configs</button>
       </div>
-      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Clique "Générer configs" pour obtenir les deux blocs prêts à copier-coller.</div>
-      <div id="invite-config-panel" style="display:none"></div>
+      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Note : pense à aussi mettre à jour ALLOWED_EMAILS dans le code et les règles Firestore.</div>
     </div>
 
     <div class="admin-section">
@@ -1006,7 +1004,7 @@ select.form-input{appearance:none}
       </div>
     </div>
     <div class="form-row2" style="margin-bottom:12px">
-      <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="f-km" type="number" placeholder="ex: 12" placeholder="15"></div>
+      <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="f-km" type="number" placeholder="15"></div>
       <div><label class="form-lbl">D+ (m)</label><input class="form-input" id="f-dp" type="number" placeholder="800"></div>
     </div>
     <div style="display:flex;gap:8px">
@@ -1462,12 +1460,7 @@ function rcardMain(r){
       </div>
     </div>
     <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
-    <div class="rstats">
-      ${r.km?`<span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>${r.km}km</span>`:''}
-      ${r.dplus?`<span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+${r.dplus}m</span>`:''}
-      ${r.dur&&r.dur!=='1j'?`<span class="rst">${r.dur}</span>`:''}
-      ${r.diff?`<span class="tag ${dc}">${r.diff}</span>`:''}
-    </div>
+    <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
     <div class="vrow">
       <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
@@ -1503,8 +1496,8 @@ function openRando(id){
     <div class="modal-header">
       <span class="modal-title">${r.name}</span>
       <div style="display:flex;align-items:center;gap:6px">
-        ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="openEditRando('${r.id}')" style="background:none;border:.5px solid rgba(45,45,42,.2);border-radius:8px;padding:4px 10px;font-size:10px;font-family:var(--mono);color:var(--ink3);cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifier</button>`:''}
-        <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
+        ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="openEditRando('${r.id}')" style="background:none;border:.5px solid rgba(45,45,42,.2);border-radius:8px;padding:4px 10px;font-size:10px;font-family:var(--mono);color:var(--ink3);cursor:pointer">Modifier</button>`:''}
+        <button class="close-btn" onclick="closeModal('rando-modal')">&#x2715;</button>
       </div>
     </div>
     <div class="ravito-tab-row">
@@ -1522,8 +1515,8 @@ function openRando(id){
     <div class="modal-stats">
       ${r.km?`<div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>`:''}
         ${r.dplus?`<div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>`:''}
-        ${r.dur&&r.dur!=='1j'?`<div class="modal-stat"><div class="modal-stat-val">${r.dur}</div><div class="modal-stat-lbl">durée</div></div>`:''}
-        ${r.diff?`<div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>`:''}
+        <div class="modal-stat"><div class="modal-stat-val">${r.dur||'1j'}</div><div class="modal-stat-lbl">durée</div></div>
+        <div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>
     </div>
     ${(r.dateStart||r.date)?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1546,11 +1539,7 @@ function openRando(id){
     <div id="rtab-kit-content" style="display:none"></div>
     `;
   openModal('rando-modal');
-  setTimeout(()=>{
-    const _mapEl=document.getElementById('rando-map');
-    if(window.leafMap){try{window.leafMap.remove();}catch(e){} window.leafMap=null;}
-    if(_mapEl) _mapEl.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(240,235,224,.5);gap:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(107,101,96,.35)" stroke-width="1.5" stroke-linecap="round"><polygon points=\"1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"18\"/><line x1=\"16\" y1=\"6\" x2=\"16\" y2=\"22\"/></svg><div style=\"font-size:8px;font-family:var(--mono);color:rgba(107,101,96,.4);letter-spacing:.1em\">CARTE IGN — COMING SOON</div></div>';
-  }, 300);
+  setTimeout(()=>{ const _me=document.getElementById('rando-map'); if(window.leafMap){try{window.leafMap.remove();}catch(e){} window.leafMap=null;} if(_me) _me.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(240,235,224,.5);gap:8px"><div style="font-size:8px;font-family:var(--mono);color:rgba(107,101,96,.4);letter-spacing:.1em">CARTE IGN — COMING SOON</div></div>'; }, 300);
 }
 function downloadGPX(id,name){
   const r=randos.find(x=>String(x.id)===String(id));
@@ -1763,8 +1752,8 @@ function renderKit(){
   if(!user){c.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink3)"><div style="font-size:40px;margin-bottom:10px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D2D2A" stroke-width="1.5" stroke-linecap="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="3" y="8" width="5" height="12"/><rect x="16" y="12" width="5" height="8"/></svg></div><p style="font-size:14px;font-weight:600;margin-bottom:5px">Configure ton kit</p><p style="font-size:11px;margin-bottom:16px;font-family:var(--mono);line-height:1.6">2 questions · liste personnalisée</p><button class="btn btn-primary" onclick="openModal('onb-modal')">Configurer</button></div>`;return;}
   const gear=GEAR[user.mode];
   const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const done=all.filter(g=>(user.checked&&user.checked[g.id])||(user.kitStatus?.[g.id]==='have')).length;
-  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]) && user.kitStatus?.[g.id]!=='skip');
+  const done=all.filter(g=>user.checked&&user.checked[g.id]).length;
+  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]));
   const pct=Math.round(done/all.length*100);
   // Budget
   const budgetMin=missing.reduce((acc,g)=>{const p=g.price.split('–')[0].replace(/[^0-9]/g,'');return acc+(parseInt(p)||0);},0);
@@ -2297,14 +2286,11 @@ function renderBaseCamp(){
   }
   const gear=GEAR[user.mode];
   const allItems=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const doneItems=allItems.filter(g=>(user.checked&&user.checked[g.id])||(user.kitStatus?.[g.id]==='have')).length;
-  const skipItems=allItems.filter(g=>user.kitStatus?.[g.id]==='skip').length;
-  const effectiveTotal=allItems.length-skipItems;
-  const kitPct=Math.round(doneItems/Math.max(effectiveTotal,1)*100);
+  const doneItems=allItems.filter(g=>user.checked&&user.checked[g.id]).length;
+  const kitPct=Math.round(doneItems/allItems.length*100);
   const lv=LVLS[user.level];
   // Prochaine sortie = rando où l'user est partant + date future la plus proche
   const today = new Date(); today.setHours(0,0,0,0);
-  window._nextRando = null;
   const randosPartant = randos
     .filter(r => !r._mock)
     .filter(r => r.myVote==='oui' && r.dateStart)
@@ -3369,6 +3355,7 @@ async function initApp(){
 
   // Mettre en place les listeners temps réel
   setupFirestoreListeners();
+  loadMembresKits();
 
   // Lancer l'UI
   document.getElementById('grp-sub').textContent = `GROUPE · ${ALLOWED_EMAILS.length} MEMBRES`;
@@ -3608,6 +3595,7 @@ function renderKitRandoHTML(randoId){
   // Articles de partage (tente, réchaud, filtre, camelbak)
   const SHARE_IDS = ['tente','rechaud','filtreeau','camelbak'];
   const SHARE_LABELS = {tente:'Tente',rechaud:'Réchaud',filtreeau:'Filtre eau',camelbak:'Camelbak'};
+  const sharedItems = getSharedItems();
 
   // Kit partagé enrichi
   const kitSharedHTML = partants.length > 0
@@ -3616,16 +3604,8 @@ function renderKitRandoHTML(randoId){
       <div style="margin-bottom:10px">
         ${SHARE_IDS.map(sid=>{
           const label=SHARE_LABELS[sid];
-          const havers=partants.filter(name=>{
-            const isMe=user&&name===user.name;
-            if(isMe) return user.kitStatus&&user.kitStatus[sid]==='have';
-            return false; // Autres membres via Firestore à terme
-          });
-          const sharedHavers=partants.filter(name=>{
-            const isMe=user&&name===user.name;
-            if(isMe) return user.kitStatus&&user.kitStatus[sid]==='have'&&user.kitShare&&user.kitShare[sid]&&user.kitShare[sid].shared;
-            return false;
-          });
+          const havers = sharedItems[sid] ? sharedItems[sid].map(x=>x.name) : (user&&user.kitStatus?.[sid]==='have'?[user.name]:[]);
+          const sharedHavers = sharedItems[sid] ? sharedItems[sid].filter(x=>x.shared) : [];
           if(havers.length===0) return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.5);border:.5px solid var(--border);border-radius:8px;margin-bottom:5px;opacity:.5">
             <span style="font-size:11px;color:var(--ink3);flex:1">${label}</span>
             <span style="font-size:9px;font-family:var(--mono);color:var(--ink4)">Non couvert</span>
@@ -3836,6 +3816,23 @@ function adminClearLocal(){
   return;
 }
 
+function generateInviteConfigs(){
+  const input=document.getElementById('admin-new-email');
+  const email=input?input.value.trim().toLowerCase():'';
+  if(!email||!email.includes('@')){toast('ENTRE UN EMAIL VALIDE');return;}
+  const allEmails=[...ALLOWED_EMAILS, email];
+  window._inviteFirestore='rules_version = \'2\';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    function isAllowed() {\n      return request.auth != null && request.auth.token.email in [\n'+allEmails.map(e=>'        "'+e+'"').join(',\n')+'\n      ];\n    }\n    match /{document=**} {\n      allow read, write: if isAllowed();\n    }\n  }\n}';
+  window._inviteCode='const ALLOWED_EMAILS = [\n'+allEmails.map(e=>'  "'+e+'"').join(',\n')+'\n];';
+  const panel=document.getElementById('invite-config-panel');
+  if(!panel) return;
+  panel.style.display='block';
+  panel.innerHTML='<div style="margin-top:12px"><div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">1. Règles Firestore → Firebase Console → Firestore → Rules</div><pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px;border:.5px solid var(--border2)">'+window._inviteFirestore+'</pre><button onclick="copyInviteConfig(\'firestore\')" style="width:100%;padding:9px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer;margin-bottom:14px">Copier les règles Firestore</button><div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">2. Code → remplace ALLOWED_EMAILS dans index.html</div><pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px;border:.5px solid var(--border2)">'+window._inviteCode+'</pre><button onclick="copyInviteConfig(\'code\')" style="width:100%;padding:9px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer">Copier le code</button></div>';
+}
+function copyInviteConfig(type){
+  const text=type==='firestore'?window._inviteFirestore:window._inviteCode;
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>toast(type==='firestore'?'RÈGLES COPIÉES':'CODE COPIÉ')).catch(()=>toast('ERREUR COPIE'));
+}
 function adminAddEmail(){
   const input = document.getElementById('admin-new-email');
   if(!input||!input.value.trim()) return;
@@ -3905,9 +3902,8 @@ function updateDateDisplay(inputId, displayId){
   }
 }
 
-// ── ÉDITION RANDO ─────────────────────────────────────
-function openEditRando(randoId){
-  const r=randos.find(x=>String(x.id)===String(randoId));
+function openEditRando(rid){
+  const r=randos.find(x=>String(x.id)===String(rid));
   if(!r) return;
   const modal=document.getElementById('edit-rando-modal');
   if(!modal) return;
@@ -3915,51 +3911,36 @@ function openEditRando(randoId){
   document.getElementById('ef-region').value=r.region||'';
   document.getElementById('ef-km').value=r.km||'';
   document.getElementById('ef-dplus').value=r.dplus||'';
-  const diffSel=document.getElementById('ef-diff');
-  if(diffSel) diffSel.value=r.diff||'';
+  const ds=document.getElementById('ef-diff'); if(ds) ds.value=r.diff||'';
   document.getElementById('ef-komoot').value=r.traces&&r.traces[0]?r.traces[0].url:'';
-  if(r.dateStart){
-    document.getElementById('ef-date').value=r.dateStart;
-    updateDateDisplay('ef-date','ef-date-display');
-  } else {
-    document.getElementById('ef-date').value='';
-    const dd=document.getElementById('ef-date-display');
-    if(dd){dd.textContent='Date de la sortie';dd.style.color='var(--ink3)';}
-  }
-  modal.dataset.randoId=String(randoId);
+  if(r.dateStart){document.getElementById('ef-date').value=r.dateStart;updateDateDisplay('ef-date','ef-date-display');}
+  else{document.getElementById('ef-date').value='';const dd=document.getElementById('ef-date-display');if(dd){dd.textContent='Date de la sortie';dd.style.color='var(--ink3)';}}
+  modal.dataset.randoId=String(rid);
   openModal('edit-rando-modal');
 }
-
 function saveEditRando(){
   const modal=document.getElementById('edit-rando-modal');
   if(!modal) return;
-  const randoId=modal.dataset.randoId;
-  const r=randos.find(x=>String(x.id)===String(randoId));
+  const r=randos.find(x=>String(x.id)===String(modal.dataset.randoId));
   if(!r) return;
   const name=document.getElementById('ef-name').value.trim();
   if(!name){toast('NOM REQUIS');return;}
   r.name=name;
   r.region=document.getElementById('ef-region').value.trim()||r.region||'France';
   const km=parseInt(document.getElementById('ef-km').value);
-  const dplus=parseInt(document.getElementById('ef-dplus').value);
-  if(km>0) r.km=km;
-  if(dplus>0) r.dplus=dplus;
-  const diff=document.getElementById('ef-diff').value;
-  if(diff) r.diff=diff;
-  const dateVal=document.getElementById('ef-date').value;
-  if(dateVal){
-    r.dateStart=dateVal;
-    const d=new Date(dateVal);
-    r.date=d.getDate()+' '+d.toLocaleString('fr',{month:'short'});
-    r.dur=r.dur||'1j';
-  }
-  const komootUrl=document.getElementById('ef-komoot').value.trim();
-  if(komootUrl){
-    const m=komootUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  const dp=parseInt(document.getElementById('ef-dplus').value);
+  if(km>0) r.km=km; else r.km=null;
+  if(dp>0) r.dplus=dp; else r.dplus=null;
+  r.diff=document.getElementById('ef-diff').value||null;
+  const dv=document.getElementById('ef-date').value;
+  if(dv){r.dateStart=dv;const d=new Date(dv);r.date=d.getDate()+' '+d.toLocaleString('fr',{month:'short'});}
+  const ku=document.getElementById('ef-komoot').value.trim();
+  if(ku){
+    const m=ku.match(/@(-?[0-9.]+),(-?[0-9.]+)/);
     if(m){r.lat=parseFloat(m[1]);r.lon=parseFloat(m[2]);}
     if(!r.traces) r.traces=[];
-    if(r.traces.length>0) r.traces[0].url=komootUrl;
-    else r.traces.push({id:Date.now(),label:'Trace principale',url:komootUrl,votes:[]});
+    if(r.traces.length>0) r.traces[0].url=ku;
+    else r.traces.push({id:Date.now(),label:'Trace principale',url:ku,votes:[]});
   }
   saveRandos();
   if(currentUser) saveRandoToFirestore(r);
@@ -3968,46 +3949,52 @@ function saveEditRando(){
   toast('RANDO MISE À JOUR');
 }
 
-function generateInviteConfigs(){
-  const input=document.getElementById('admin-new-email');
-  const email=input?input.value.trim().toLowerCase():'';
-  if(!email||!email.includes('@')){toast('ENTRE UN EMAIL VALIDE');return;}
+// ── KIT COLLABORATIF ──────────────────────────────────
+let membresKits = {}; // {uid: {name, kitStatus, kitShare}}
 
-  // Générer les deux configs
-  const allEmails=[...ALLOWED_EMAILS, email];
-  const emailsStr=allEmails.map(e=>`        "${e}"`).join(',\n');
+async function loadMembresKits(){
+  if(!FIREBASE_AVAILABLE||!db) return;
+  try{
+    const snap = await db.collection('users').get();
+    snap.docs.forEach(d=>{
+      const data = d.data();
+      if(data.profile && data.profile.name){
+        membresKits[d.id] = {
+          name: data.profile.name,
+          kitStatus: data.kitStatus || data.kitChecked || {},
+          kitShare: data.kitShare || {}
+        };
+      }
+    });
+    // Re-render si cordée active
+    if(document.getElementById('tab-cordee').classList.contains('active')) renderCordee();
+  }catch(e){ console.warn('loadMembresKits:', e); }
+}
 
-  const firestoreRules=`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isAllowed() {
-      return request.auth != null && request.auth.token.email in [
-${emailsStr}
-      ];
-    }
-    match /{document=**} {
-      allow read, write: if isAllowed();
-    }
-  }
-}`;
+function getMembresWithKit(){
+  // Retourner tous les membres avec leur kit
+  return Object.values(membresKits);
+}
 
-  const codeConfig=`const ALLOWED_EMAILS = [
-${allEmails.map(e=>`  "${e}"`).join(',\n')}
-];`;
-
-  const panel=document.getElementById('invite-config-panel');
-  if(panel){
-    panel.innerHTML=`
-      <div style="margin-top:12px;padding:12px;background:var(--kraft2);border-radius:10px;border:.5px solid var(--border2)">
-        <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">1. Règles Firestore — copie dans Firebase Console → Firestore → Rules</div>
-        <pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:8px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px">${firestoreRules}</pre>
-        <button onclick="navigator.clipboard.writeText(${JSON.stringify(firestoreRules)}).then(()=>toast('RÈGLES COPIÉES'))" style="width:100%;padding:8px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer;margin-bottom:12px">Copier les règles Firestore</button>
-        <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">2. Code — remplace ALLOWED_EMAILS dans index.html</div>
-        <pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:8px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px">${codeConfig}</pre>
-        <button onclick="navigator.clipboard.writeText(${JSON.stringify(codeConfig)}).then(()=>toast('CODE COPIÉ'))" style="width:100%;padding:8px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer">Copier le code</button>
-      </div>`;
-    panel.style.display='block';
-  }
+function getSharedItems(){
+  // Retourner les articles partagés par les membres
+  const SHARE_IDS = ['tente','rechaud','filtreeau','camelbak'];
+  const result = {};
+  SHARE_IDS.forEach(id=>{
+    result[id] = [];
+    Object.values(membresKits).forEach(m=>{
+      const status = m.kitStatus?.[id];
+      const share = m.kitShare?.[id];
+      if(status==='have'){
+        result[id].push({
+          name: m.name,
+          shared: share?.shared || false,
+          capacity: share?.capacity || 1
+        });
+      }
+    });
+  });
+  return result;
 }
 
 function init(){
@@ -4040,46 +4027,47 @@ init();
 </div>
 
 <!-- EDIT RANDO MODAL -->
-<div class="modal-overlay" id="edit-rando-modal-overlay" onclick="closeModal('edit-rando-modal')"></div>
-<div class="modal" id="edit-rando-modal">
-  <div class="modal-header">
-    <span class="modal-title">Modifier la rando</span>
-    <button class="close-btn" onclick="closeModal('edit-rando-modal')">✕</button>
-  </div>
-  <div class="modal-body" style="padding:14px;overflow-y:auto;max-height:70vh">
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div><label class="form-lbl">Nom *</label><input class="form-input" id="ef-name" placeholder="Nom de la rando"></div>
-      <div><label class="form-lbl">Région</label><input class="form-input" id="ef-region" placeholder="ex: Haute-Savoie"></div>
-      <div>
-        <label class="form-lbl">Date</label>
-        <div class="date-field" onclick="document.getElementById('ef-date').showPicker&&document.getElementById('ef-date').showPicker()">
-          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span class="date-field-val" id="ef-date-display" style="color:var(--ink3)">Date de la sortie</span>
-          <input type="date" id="ef-date" onchange="updateDateDisplay('ef-date','ef-date-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+<div class="modal-wrap" id="edit-rando-modal" onclick="closeModalOuter('edit-rando-modal',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Modifier la rando</span>
+      <button class="close-btn" onclick="closeModal('edit-rando-modal')">&#x2715;</button>
+    </div>
+    <div class="modal-body" style="padding:14px;overflow-y:auto;max-height:65vh">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div><label class="form-lbl">Nom *</label><input class="form-input" id="ef-name" placeholder="Nom de la rando"></div>
+        <div><label class="form-lbl">R&eacute;gion</label><input class="form-input" id="ef-region" placeholder="ex: Haute-Savoie"></div>
+        <div>
+          <label class="form-lbl">Date</label>
+          <div class="date-field" onclick="document.getElementById('ef-date').showPicker&&document.getElementById('ef-date').showPicker()">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="date-field-val" id="ef-date-display" style="color:var(--ink3)">Date de la sortie</span>
+            <input type="date" id="ef-date" onchange="updateDateDisplay('ef-date','ef-date-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+          </div>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="ef-km" type="number" placeholder="ex: 12"></div>
+          <div><label class="form-lbl">D&eacute;nivel&eacute; D+</label><input class="form-input" id="ef-dplus" type="number" placeholder="ex: 800"></div>
+        </div>
+        <div><label class="form-lbl">Niveau</label>
+          <select class="form-input" id="ef-diff">
+            <option value="">&mdash; Non renseign&eacute; &mdash;</option>
+            <option value="Facile">Facile</option>
+            <option value="Moyen">Moyen</option>
+            <option value="Difficile">Difficile</option>
+            <option value="Expert">Expert</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl">Lien Komoot</label>
+          <input class="form-input" id="ef-komoot" placeholder="https://www.komoot.com/...@lat,lon...">
+          <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:4px">Coords GPS extraites automatiquement</div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveEditRando()" style="margin-top:4px">Sauvegarder</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="ef-km" type="number" placeholder="ex: 12"></div>
-        <div><label class="form-lbl">Dénivelé D+ (m)</label><input class="form-input" id="ef-dplus" type="number" placeholder="ex: 800"></div>
-      </div>
-      <div>
-        <label class="form-lbl">Niveau</label>
-        <select class="form-input" id="ef-diff">
-          <option value="">— Non renseigné —</option>
-          <option value="Facile">Facile</option>
-          <option value="Moyen">Moyen</option>
-          <option value="Difficile">Difficile</option>
-          <option value="Expert">Expert</option>
-        </select>
-      </div>
-      <div>
-        <label class="form-lbl">Lien Komoot</label>
-        <input class="form-input" id="ef-komoot" placeholder="https://www.komoot.com/...@lat,lon...">
-        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:4px">Les coords GPS sont extraites automatiquement du lien</div>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="saveEditRando()" style="margin-top:4px">Sauvegarder</button>
     </div>
   </div>
 </div>
+
 </body>
 </html>
