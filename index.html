@@ -963,6 +963,67 @@ select.form-input{appearance:none}
 
 <div class="toast" id="toast"></div>
 
+  <!-- ADMIN TAB -->
+  <div class="tab" id="tab-admin">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--ink);border-radius:12px;margin-bottom:14px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:.04em">PANNEAU ADMIN</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.35);font-family:var(--mono)" id="admin-version">v0.2.1 · ALTImates</div>
+      </div>
+      <span class="admin-badge" style="margin-left:auto">ADMIN</span>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Données Firestore</div>
+      <div class="admin-row">
+        <div><div class="admin-label">Randos</div><div class="admin-sub" id="admin-count-randos">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('randos')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Messages Radio</div><div class="admin-sub" id="admin-count-messages">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('messages')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Idées</div><div class="admin-sub" id="admin-count-feedbacks">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('feedbacks')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Checklist départ</div><div class="admin-sub" id="admin-count-depart">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('departItems')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Reset complet</div><div class="admin-sub">Toutes les collections</div></div>
+        <button class="admin-btn-danger" onclick="adminResetAll()">Reset tout</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Membres</div>
+      <div id="admin-members-list"><div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">Chargement…</div></div>
+      <div style="margin-top:10px;display:flex;gap:6px">
+        <input class="form-input" id="admin-new-email" placeholder="Ajouter un email…" style="font-size:11px;flex:1">
+        <button class="btn btn-primary btn-sm" onclick="adminAddEmail()">Ajouter</button>
+      </div>
+      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Note : pense à aussi mettre à jour ALLOWED_EMAILS dans le code et les règles Firestore.</div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">App</div>
+      <div class="admin-row">
+        <div><div class="admin-label">Mode</div><div class="admin-sub" id="admin-dev-status">—</div></div>
+        <span id="admin-dev-badge" style="font-size:9px;font-family:var(--mono);padding:2px 8px;border-radius:10px"></span>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Environnement</div><div class="admin-sub" id="admin-env">—</div></div>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Cache local</div><div class="admin-sub">localStorage uniquement</div></div>
+        <button class="admin-btn-warn" onclick="adminClearLocal()">Vider</button>
+      </div>
+    </div>
+  </div>
+
 <!-- GEAR INFO PANEL -->
 <div class="kit-tooltip-overlay" id="gear-info-overlay" onclick="closeGearInfo()"></div>
 <div class="kit-tooltip" id="gear-info-panel">
