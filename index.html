@@ -477,7 +477,7 @@ select.form-input{appearance:none}
 .admin-badge{font-size:8px;padding:1px 6px;border-radius:10px;font-family:var(--mono);font-weight:500;background:var(--ink);color:var(--gold)}
 
 /* ── BOUTON PROPOSER STICKY ── */
-.propose-btn-wrap{position:sticky;bottom:0;padding:10px 0 6px;background:linear-gradient(to bottom,transparent,var(--kraft) 40%);margin-top:auto;z-index:10}
+.propose-btn-wrap{display:none;position:fixed;bottom:72px;left:0;right:0;padding:0 14px 6px;z-index:90}.propose-btn-wrap.visible{display:block}
 .propose-btn{width:100%;padding:13px;background:var(--ink);color:var(--gold);border:none;border-radius:12px;font-size:13px;font-weight:700;font-family:var(--mono);cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
 .propose-btn:hover{opacity:.85}
 .propose-btn svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5}
@@ -730,7 +730,7 @@ select.form-input{appearance:none}
   <!-- SOMMETS -->
   <div class="tab active" id="tab-sommets">
     <div id="demo-banner-sommets"></div>
-    <div class="sec">Ce weekend</div>
+    <div class="sec" id="randos-section-label">Randos proposées</div>
     <div id="rando-mois-container"></div>
     <div id="rando-list"></div>
     
@@ -1340,6 +1340,25 @@ async function fetchWeather(r){
   }
 }
 function renderRandos(){
+  // Mettre à jour le label de section selon les dates
+  const labelEl = document.getElementById('randos-section-label');
+  if(labelEl){
+    const today = new Date(); today.setHours(0,0,0,0);
+    const weekend = new Date(today);
+    const day = today.getDay();
+    const daysToSat = day===6?0:day===0?6:(6-day);
+    weekend.setDate(today.getDate() + daysToSat);
+    const hasWeekend = randos.some(r=>{
+      if(!r.dateStart) return false;
+      const d = new Date(r.dateStart); d.setHours(0,0,0,0);
+      return d >= today && d <= new Date(weekend.getTime()+86400000);
+    });
+    const hasUpcoming = randos.some(r=>r.dateStart && new Date(r.dateStart) >= today);
+    if(hasWeekend) labelEl.textContent = 'Ce weekend';
+    else if(hasUpcoming) labelEl.textContent = 'Randos à venir';
+    else labelEl.textContent = 'Randos proposées';
+  }
+
   renderDemoBanner('demo-banner-sommets');
   renderRandoMois();
   document.getElementById('rando-list').innerHTML=randos.map(r=>`
@@ -3316,6 +3335,7 @@ function devBypass(){
   if(av){ av.textContent = 'NO'; av.style = avS(4); }
   showAdminNav();
   renderRandos();
+  const pw=document.getElementById('propose-wrap');if(pw)pw.classList.add('visible');
   toast('MODE DEV ACTIVÉ');
 }
 
