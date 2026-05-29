@@ -1289,6 +1289,18 @@ function renderDemoBanner(containerId){
 async function fetchWeather(r){
   const el=document.getElementById('rc-'+r.id);
   if(!el) return;
+  // Pas de coordonnées GPS → empty state avec CTA
+  if(!r.lat||!r.lon){
+    el.innerHTML=`<div class="rcard-top" onclick="openRando('${r.id}')">
+      <div class="rcard-main">${rcardMain(r)}</div>
+      <div class="rcard-wx wx-empty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 8px;min-width:60px" onclick="event.stopPropagation();openRando('${r.id}')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(107,101,96,.4)" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+        <div style="font-size:7px;font-family:var(--mono);color:rgba(107,101,96,.5);text-align:center;line-height:1.3">Ajoute<br>Komoot</div>
+      </div>
+    </div>
+    ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}`;
+    return;
+  }
   try{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&current_weather=true&daily=weathercode,temperature_2m_max,precipitation_sum&forecast_days=4&timezone=auto`;
     const res=await fetch(url);
@@ -1517,7 +1529,16 @@ function submitRando(){
     const de=document.getElementById('f-date-end').value;
     if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});dateStart=ds;dateEnd=de;}
   }
-  const r={id:Date.now(),name,proposedBy:user?user.name:null,traces:(()=>{const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';return u?[{id:Date.now(),label:'Trace principale',url:u,votes:[]}]:[];})(),dateStart,dateEnd,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  const r={id:Date.now(),name,proposedBy:user?user.name:null,traces:(()=>{
+      const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';
+      return u?[{id:Date.now(),label:'Trace principale',url:u,votes:[]}]:[];
+    })(),
+    ...(()=>{
+      const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';
+      const m=u?u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/):null;
+      return m?{lat:parseFloat(m[1]),lon:parseFloat(m[2])}:{};
+    })(),
+    dateStart,dateEnd,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
   randos.unshift(r);
   try{ saveRandos(); } catch(e){ console.warn('saveRandos:', e); }
   closeModal('add-modal');
@@ -3392,6 +3413,11 @@ function addTrace(randoId){
   if(!url){ toast('URL KOMOOT REQUISE'); return; }
   if(!url.includes('komoot')){ toast('LIEN KOMOOT INVALIDE'); return; }
   if(!r.traces) r.traces = [];
+  // Extraire coords si pas encore de lat/lon
+  if(!r.lat||!r.lon){
+    const m=url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if(m){r.lat=parseFloat(m[1]);r.lon=parseFloat(m[2]);}
+  }
   r.traces.push({id:Date.now(), label, url, votes:[]});
   saveRandos();
   if(currentUser) saveRandoToFirestore(r);
