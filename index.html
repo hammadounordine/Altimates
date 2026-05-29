@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -1023,8 +1022,8 @@ const STATUS_CLS={'backlog':'status-backlog','todo':'status-todo','inprogress':'
 const CATCLS={feature:'tb',ux:'tg',bug:'tr',content:'tgold'};
 
 let randos=[
-  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,date:'24 mai',desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
-  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier avant départ.',src:'Refuges.info'},date:'8 juin',desc:'Traversée avec bivouac. Grand Veymont 2341m.'},
+  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,date:'7 juin',dateStart:'2026-06-07',desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
+  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,dateStart:'2026-06-14',dateEnd:'2026-06-15',votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier avant départ.',src:'Refuges.info'},date:'8 juin',desc:'Traversée avec bivouac. Grand Veymont 2341m.'},
   {id:3,name:"Canyon de l'Ardèche",region:'Ardèche',diff:'Facile',km:9,dplus:280,dur:'1j',lat:44.37,lon:4.38,votes:{oui:2,peut:2},myVote:null,alert:null,date:'15 juin',desc:'Gorges spectaculaires le long du GR4.'},
 ];
 
@@ -1268,11 +1267,28 @@ function rcardMain(r){
       <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
-    </div>`;
+    
+    <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+      ${(r.dateStart||r.date)?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">${formatDateDisplay(r)}</span>`:''}
+      ${getJx(r.dateStart)?`<span style="font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:10px;background:var(--ink);color:var(--gold)">${getJx(r.dateStart)}</span>`:''}
+    </div></div>`;
 }
 function vote(id,v){
   const r=randos.find(x=>String(x.id)===String(id));
-  if(r.myVote===v){r.myVote=null;r.votes[v]--;}else{if(r.myVote)r.votes[r.myVote]--;r.myVote=v;r.votes[v]++;}
+  if(!r) return;
+  // Stocker le vote avec le nom du membre
+  const memberName = user ? user.name : 'Anonyme';
+  if(!r.memberVotes) r.memberVotes = {};
+  if(r.myVote===v){
+    r.myVote=null;
+    r.votes[v]--;
+    delete r.memberVotes[memberName];
+  } else {
+    if(r.myVote){ r.votes[r.myVote]--; delete r.memberVotes[memberName]; }
+    r.myVote=v;
+    r.votes[v]++;
+    r.memberVotes[memberName]=v;
+  }
   saveRandos();
   if(currentUser) saveRandoToFirestore(r);
   const m=document.querySelector(`#rc-${id} .rcard-main`);if(m)m.innerHTML=rcardMain(r);
@@ -1358,16 +1374,16 @@ function deleteRando(id){
 }
 function submitRando(){
   const name=document.getElementById('f-name').value.trim();if(!name){toast('NOM REQUIS');return;}
-  let dateStr='',dur='1j';
+  let dateStr='',dur='1j',dateStart=null,dateEnd=null;
   if(durType_==='day'){
     const dv=document.getElementById('f-date').value;
-    if(dv){const dt=new Date(dv);dateStr=dt.getDate()+' '+dt.toLocaleString('fr',{month:'short'});}
+    if(dv){const dt=new Date(dv);dateStr=dt.getDate()+' '+dt.toLocaleString('fr',{month:'short'});dateStart=dv;}
   } else {
     const ds=document.getElementById('f-date-start').value;
     const de=document.getElementById('f-date-end').value;
-    if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});}
+    if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});dateStart=ds;dateEnd=de;}
   }
-  const r={id:Date.now(),name,proposedBy:user?user.name:null,traces:(()=>{const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';return u?[{id:Date.now(),label:'Trace principale',url:u,votes:[]}]:[];})(),region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  const r={id:Date.now(),name,proposedBy:user?user.name:null,traces:(()=>{const u=document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'';return u?[{id:Date.now(),label:'Trace principale',url:u,votes:[]}]:[];})(),dateStart,dateEnd,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
   randos.unshift(r);
   try{ saveRandos(); } catch(e){ console.warn('saveRandos:', e); }
   closeModal('add-modal');
@@ -1813,7 +1829,13 @@ function renderBaseCamp(){
   const doneItems=allItems.filter(g=>user.checked&&user.checked[g.id]).length;
   const kitPct=Math.round(doneItems/allItems.length*100);
   const lv=LVLS[user.level];
-  const nextRando=randos.find(r=>r.myVote==='oui')||randos[0];
+  // Prochaine sortie = rando où l'user est partant + date future la plus proche
+  const today = new Date(); today.setHours(0,0,0,0);
+  const randosPartant = randos
+    .filter(r => r.myVote==='oui' && r.dateStart)
+    .filter(r => new Date(r.dateStart) >= today)
+    .sort((a,b) => new Date(a.dateStart) - new Date(b.dateStart));
+  const nextRando = randosPartant[0] || randos.find(r=>r.myVote==='oui') || randos[0];
   c.innerHTML=`
     <div class="bc-hero">
       <div class="bc-hero-bg"><svg width="100%" height="100%" viewBox="0 0 440 160" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,50 Q60,25 140,45 Q220,65 300,35 Q380,5 460,28"/><path d="M-20,80 Q60,55 140,75 Q220,95 300,65 Q380,35 460,58"/><path d="M-20,110 Q60,85 140,105 Q220,125 300,95 Q380,65 460,88"/></g></svg></div>
@@ -1927,7 +1949,7 @@ function renderFeedback(){
       </div>
       <!-- Commentaires -->
       <div id="comments-${f.id}" style="display:none;margin-top:10px">
-        ${(f.comments||[]).map(c=>`<div style="padding:6px 0;border-top:.5px solid var(--border)"><span style="font-size:10px;font-weight:600;font-family:var(--mono)">${c.author}</span> <span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${c.ts}</span><div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.5">${c.text}</div></div>`).join('')}
+        ${(f.comments||[]).map((c,ci)=>`<div style="padding:6px 0;border-top:.5px solid var(--border);display:flex;align-items:flex-start;gap:6px"><div style="flex:1"><span style="font-size:10px;font-weight:600;font-family:var(--mono)">${c.author}</span> <span style="font-size:9px;color:var(--ink3);font-family:var(--mono)">${c.ts}</span><div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.5">${c.text}</div></div>${user&&c.author===user.name?`<button onclick="deleteComment(${f.id},${ci})" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--ink4);flex-shrink:0;opacity:.4" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}</div>`).join('')}
         <div style="display:flex;gap:6px;margin-top:8px">
           <input class="form-input" id="cmt-${f.id}" placeholder="Ajouter un commentaire…" style="font-size:11px;padding:6px 9px">
           <button class="btn btn-primary btn-sm" onclick="addComment('${f.id}')">
@@ -1958,6 +1980,16 @@ function changeStatus(id, newStatus){
 function toggleComments(id){
   const el=document.getElementById('comments-'+id);
   if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+function deleteComment(feedbackId, commentIdx){
+  const f=feedbacks.find(x=>x.id===feedbackId);
+  if(!f||!f.comments) return;
+  f.comments.splice(commentIdx,1);
+  saveFB();
+  if(currentUser) saveFeedbackToFirestore(f);
+  if(ideeView==='kanban') renderKanban();
+  else renderFeedback();
+  toast('COMMENTAIRE SUPPRIMÉ');
 }
 function addComment(id){
   const inp=document.getElementById('cmt-'+id);
@@ -2707,7 +2739,20 @@ function setupFirestoreListeners(){
   db.collection('users').onSnapshot(snap=>{
     if(!snap.empty){
       const allUsers = snap.docs.map(d=>d.data()).filter(u=>u.profile);
-      // Mettre à jour les membres affichés dans Cordée
+      // Mettre à jour membres[] avec les vrais utilisateurs
+      if(allUsers.length > 0){
+        membres = allUsers
+          .filter(u=>!user || u.profile.name !== user.name) // exclure soi-même
+          .map(u=>({
+            name: u.profile.name,
+            initials: u.profile.name.slice(0,2).toUpperCase(),
+            level: u.profile.level || 'newbie',
+            km: u.profile.km || 0,
+            dplus: u.profile.dplus || 0,
+            sorties: u.profile.sorties || 0,
+            kit: Object.keys(u.kitChecked||{}).filter(k=>u.kitChecked[k]).slice(0,3)
+          }));
+      }
       if(document.getElementById('tab-cordee').classList.contains('active')){
         renderCordee();
       }
@@ -2818,42 +2863,27 @@ async function initApp(){
     // Randos
     const randosSnap = await db.collection('randos').orderBy('createdAt','desc').get();
     if(!randosSnap.empty){
+      // Données réelles — ignorer les mockées
       randos = randosSnap.docs.map(d=>({...d.data(), id:d.id, _docId:d.id}));
-    } else {
-      // Peupler avec les données par défaut si première utilisation
-      for(const r of randos){
-        await saveRandoToFirestore(r);
-      }
     }
+    // Si vide → garder les mockées comme placeholder, ne pas peupler Firestore auto
 
     // Messages
     const msgsSnap = await db.collection('messages').orderBy('createdAt','asc').get();
     if(!msgsSnap.empty){
       messages = msgsSnap.docs.map(d=>({...d.data(), id:d.id}));
-    } else {
-      for(const m of messages){
-        await saveMsgToFirestore(m);
-      }
     }
 
     // Feedbacks
     const fbSnap = await db.collection('feedbacks').orderBy('createdAt','desc').get();
     if(!fbSnap.empty){
       feedbacks = fbSnap.docs.map(d=>({...d.data(), id:d.id}));
-    } else {
-      for(const f of feedbacks){
-        await saveFeedbackToFirestore(f);
-      }
     }
 
     // Checklist départ
     const depSnap = await db.collection('departItems').orderBy('createdAt','asc').get();
     if(!depSnap.empty){
       departItems = depSnap.docs.map(d=>({...d.data(), id:d.id}));
-    } else {
-      for(const item of departItems){
-        await saveDepartItemToFirestore(item);
-      }
     }
 
     // Ravito
@@ -3112,6 +3142,33 @@ function renderKitRandoHTML(randoId){
     : `<div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">En attente de partants pour afficher le kit partagé</div>`;
 
   return `<div>${departHTML}${kitSharedHTML}</div>`;
+}
+
+// ── DATES & J-x ──────────────────────────────────────
+function getJx(dateStart){
+  if(!dateStart) return null;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const target = new Date(dateStart);
+  target.setHours(0,0,0,0);
+  const diff = Math.round((target - today) / 86400000);
+  if(diff < 0) return null; // passée
+  if(diff === 0) return "Aujourd'hui";
+  if(diff === 1) return "Demain";
+  return "J-" + diff;
+}
+
+function formatDateDisplay(r){
+  if(r.dateStart){
+    const d1 = new Date(r.dateStart);
+    const opts = {day:'numeric', month:'short'};
+    if(r.dateEnd && r.dateEnd !== r.dateStart){
+      const d2 = new Date(r.dateEnd);
+      return d1.getDate()+'–'+d2.toLocaleDateString('fr',opts);
+    }
+    return d1.toLocaleDateString('fr',opts);
+  }
+  return r.date || 'Date à confirmer';
 }
 
 function init(){
