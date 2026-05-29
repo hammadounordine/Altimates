@@ -1246,13 +1246,16 @@ function renderRandos(){
 async function renderRandoMois(){
   const el = document.getElementById('rando-mois');
   if(!el) return;
-  el.innerHTML = `<div style="background:var(--ink);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px">
-    <div style="width:36px;height:36px;border-radius:9px;background:rgba(232,200,74,.12);border:.5px solid rgba(232,200,74,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="1.8" stroke-linecap="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+  el.innerHTML = `<div style="background:var(--ink);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:default;user-select:none">
+    <div style="width:36px;height:36px;border-radius:9px;background:rgba(232,200,74,.08);border:.5px solid rgba(232,200,74,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(232,200,74,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
     </div>
-    <div>
-      <div style="font-size:11px;font-weight:600;color:var(--gold);font-family:var(--mono);letter-spacing:.04em;margin-bottom:2px">RANDO DU MOIS IA</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.5);font-family:var(--mono)">Coming soon — en cours de développement</div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
+        <div style="font-size:11px;font-weight:600;color:rgba(232,200,74,.4);font-family:var(--mono);letter-spacing:.04em">RANDO DU MOIS IA</div>
+        <span style="font-size:8px;font-family:var(--mono);background:rgba(232,200,74,.12);color:rgba(232,200,74,.5);padding:1px 6px;border-radius:6px;border:.5px solid rgba(232,200,74,.2)">COMING SOON</span>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,.25);font-family:var(--mono);line-height:1.5">Suggestions IA personnalisées<br>selon ton niveau et la saison</div>
     </div>
   </div>`;
 }
@@ -1271,7 +1274,7 @@ function rcardMain(r){
     <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
       ${(r.dateStart||r.date)?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">${formatDateDisplay(r)}</span>`:''}
       ${getJx(r.dateStart)?`<span style="font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:10px;background:var(--ink);color:var(--gold)">${getJx(r.dateStart)}</span>`:''}
-    </div></div>`;
+    </div>`;
 }
 function vote(id,v){
   const r=randos.find(x=>String(x.id)===String(id));
@@ -1326,7 +1329,7 @@ function openRando(id){
     <div style="display:flex;gap:7px;flex-wrap:wrap">
       <!-- Section traces -->
     ${renderTracesHTML(r)}
-      <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
+      <span class="ign-btn" style="opacity:.4;cursor:default;pointer-events:none;position:relative">Carte IGN <span style="font-size:8px;font-family:var(--mono);background:var(--ink);color:var(--gold);padding:1px 5px;border-radius:6px;margin-left:3px">soon</span></span>
       <button class="btn btn-primary btn-sm" onclick="vote('${r.id}','oui');closeModal('rando-modal')">Partant</button>
     </div>
     </div>
@@ -2538,7 +2541,7 @@ function renderHydraHTML(randoId){
       Ajouter un segment
     </button>`;
 
-  return `<div>${waitingMsg||''}${paramsHTML}${recapHTML}${segmentsHTML}</div>`;
+  return `<div>${paramsHTML}${recapHTML}${segmentsHTML}</div>`;
 }
 
 function updateHydra(randoId, key, val){
