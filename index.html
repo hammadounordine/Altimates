@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -491,6 +492,24 @@ select.form-input{appearance:none}
 .kit-section-chevron.open{transform:rotate(180deg)}
 .kit-section-body{display:none;margin-bottom:8px}
 .kit-section-body.open{display:block}
+
+/* ── CONFIRM MODAL ── */
+.confirm-overlay{position:fixed;inset:0;background:rgba(45,45,42,.5);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.confirm-overlay.open{display:flex}
+.confirm-sheet{background:var(--kraft);border-radius:18px 18px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.confirm-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.confirm-msg{font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:20px;font-family:var(--mono)}
+.confirm-actions{display:flex;flex-direction:column;gap:8px}
+.confirm-ok{padding:13px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--mono);cursor:pointer}
+.confirm-cancel{padding:13px;background:var(--kraft2);color:var(--ink);border:.5px solid var(--border2);border-radius:10px;font-size:13px;font-family:var(--mono);cursor:pointer}
+
+/* ── VOTES AVATARS ── */
+.vote-section{display:flex;gap:10px;margin-bottom:8px}
+.vote-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.vote-col-label{font-size:8px;font-family:var(--mono);color:var(--ink3);letter-spacing:.06em;text-transform:uppercase}
+.vote-avatars{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:18px}
+.vote-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#2D2D2A;flex-shrink:0;border:1.5px solid rgba(255,255,255,.6)}
 </style>
 </head>
 <body>
@@ -1419,7 +1438,7 @@ function rcardMain(r){
       <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
-      ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="event.stopPropagation();if(confirm('Supprimer ?'))deleteRando('${r.id}')" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);margin-left:auto;display:flex;align-items:center" title="Supprimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
+      ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="event.stopPropagation();showConfirm('Supprimer cette rando ?','Cette action est irréversible.','Supprimer',()=>deleteRando('${r.id}'))" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);margin-left:auto;display:flex;align-items:center" title="Supprimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
       ${(r.dateStart||r.date)?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">${formatDateDisplay(r)}</span>`:''}
@@ -2253,6 +2272,7 @@ function renderBaseCamp(){
   // Prochaine sortie = rando où l'user est partant + date future la plus proche
   const today = new Date(); today.setHours(0,0,0,0);
   const randosPartant = randos
+    .filter(r => !r._mock)
     .filter(r => r.myVote==='oui' && r.dateStart)
     .filter(r => new Date(r.dateStart) >= today)
     .sort((a,b) => new Date(a.dateStart) - new Date(b.dateStart));
@@ -3704,7 +3724,13 @@ async function renderAdminMembers(){
 
 async function adminFlush(collection){
   const labels = {randos:'les randos',messages:'les messages',feedbacks:'les idées',departItems:'la checklist'};
-  if(!confirm(`Vider ${labels[collection]||collection} ? Cette action est irréversible.`)) return;
+  showConfirm('Vider '+( labels[collection]||collection),'Cette action est irréversible.','Vider',async()=>{
+  await _adminFlushDo(collection);
+  });
+  return;
+}
+async function _adminFlushDo(collection){
+  const labels = {randos:'les randos',messages:'les messages',feedbacks:'les idées',departItems:'la checklist'};
 
   // Vider localement
   if(collection==='randos'){ randos=[]; saveRandos(); renderRandos(); }
@@ -3730,9 +3756,15 @@ async function adminFlush(collection){
   renderAdmin();
 }
 
+async function adminFlush_end(){}
+
 async function adminResetAll(){
-  if(!confirm('Reset COMPLET de toutes les données Firestore ?\nCette action est irréversible.')) return;
-  if(!confirm('Confirmation finale — es-tu sûr ?')) return;
+  showConfirm('Reset COMPLET','Toutes les données Firestore seront supprimées. Irréversible.','Reset tout',()=>{
+    showConfirm('Confirmation finale','Es-tu vraiment sûr ? Dernière chance.','Oui, reset',()=>_adminResetDo());
+  });
+  return;
+}
+async function _adminResetDo(){
 
   const collections = ['randos','messages','feedbacks','departItems'];
   randos=[]; messages=[]; feedbacks=[]; departItems=[];
@@ -3757,12 +3789,16 @@ async function adminResetAll(){
   renderAdmin();
 }
 
+async function adminResetAll_end(){}
+
 function adminClearLocal(){
-  if(!confirm('Vider le localStorage ? Tu devras reconfigurer ton profil.')) return;
+  showConfirm('Vider le cache local','Tu devras reconfigurer ton profil.','Vider',()=>{
   const keys = [RANDOS_KEY, FB_KEY, USER_KEY, TUTO_KEY, RAVITO_KEY, HYDRA_KEY];
   keys.forEach(k=>{ try{localStorage.removeItem(k);}catch(e){} });
   toast('CACHE LOCAL VIDÉ');
   setTimeout(()=>window.location.reload(), 1000);
+  });
+  return;
 }
 
 function adminAddEmail(){
@@ -3783,6 +3819,43 @@ function adminAddEmail(){
   }
 }
 
+// ── CONFIRM MODAL ────────────────────────────────────
+let _confirmCb = null;
+function showConfirm(title, msg, okLabel, cb){
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-ok-btn').textContent = okLabel||'Confirmer';
+  _confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function confirmOk(){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if(_confirmCb) _confirmCb();
+  _confirmCb = null;
+}
+function confirmCancel(){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  _confirmCb = null;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.getElementById('confirm-ok-btn');
+  if(btn) btn.onclick = confirmOk;
+});
+
+function voteAvatarsHTML(r){
+  const colors = ['#E8C84A','#4ADE80','#60A5FA','#F87171','#A78BFA','#FB923C'];
+  function av(name){
+    const c = colors[name.charCodeAt(0)%colors.length];
+    return `<div class="vote-avatar" style="background:${c}" title="${name}">${name.slice(0,2).toUpperCase()}</div>`;
+  }
+  const ouiVoters = r.memberVotes ? Object.entries(r.memberVotes).filter(([n,v])=>v==='oui').map(([n])=>n) : [];
+  const peutVoters = r.memberVotes ? Object.entries(r.memberVotes).filter(([n,v])=>v==='peut').map(([n])=>n) : [];
+  // Ajouter myVote si user connecté et pas déjà dans memberVotes
+  if(user && r.myVote==='oui' && !ouiVoters.includes(user.name)) ouiVoters.push(user.name);
+  if(user && r.myVote==='peut' && !peutVoters.includes(user.name)) peutVoters.push(user.name);
+  return {ouiHTML: ouiVoters.map(av).join(''), peutHTML: peutVoters.map(av).join(''), ouiCount: ouiVoters.length, peutCount: peutVoters.length};
+}
+
 function init(){
   // Firebase auth observer prend le relais — initApp() est appelé après auth réussie
   document.getElementById('main-app').style.display='none';
@@ -3798,6 +3871,18 @@ init();
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Proposer une rando
   </button>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay" onclick="confirmCancel()">
+  <div class="confirm-sheet" onclick="event.stopPropagation()">
+    <div class="confirm-title" id="confirm-title">Confirmer</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="confirm-ok" id="confirm-ok-btn">Confirmer</button>
+      <button class="confirm-cancel" onclick="confirmCancel()">Annuler</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
