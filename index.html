@@ -1178,6 +1178,61 @@ function renderDemoBanner(containerId){
 }
 
 // ── SOMMETS / RANDOS ──────────────────────────────────────
+
+// ── MÉTÉO ────────────────────────────────────────────
+async function fetchWeather(r){
+  const el=document.getElementById('rc-'+r.id);
+  if(!el) return;
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${r.lat}&longitude=${r.lon}&current_weather=true&daily=weathercode,temperature_2m_max,precipitation_sum&forecast_days=4&timezone=auto`;
+    const res=await fetch(url);
+    const d=await res.json();
+    const cw=d.current_weather;
+    const temp=Math.round(cw.temperature);
+    const wind=Math.round(cw.windspeed);
+    const code=cw.weathercode;
+    const days=d.daily;
+
+    function wi(c){
+      if(c===0)return'☀️';
+      if(c<=2)return'⛅';
+      if(c<=3)return'☁️';
+      if(c<=48)return'🌫️';
+      if(c<=57)return'🌧️';
+      if(c<=67)return'🌧️';
+      if(c<=77)return'🌨️';
+      if(c<=82)return'🌦️';
+      if(c<=99)return'⛈️';
+      return'☁️';
+    }
+
+    let wcls='wx-ok',wlbl='BON';
+    const rain=days.precipitation_sum[0]||0;
+    if(code>=80||rain>5){wcls='wx-bad';wlbl='PLUIE';}
+    else if(rain>1||code>=51||wind>40){wcls='wx-mid';wlbl='MITIGÉ';}
+    else if(wind>25){wcls='wx-mid';wlbl='VENT';}
+
+    const fcHTML=days.weathercode.slice(0,4).map((c,i)=>{
+      const dt=new Date(days.time[i]);
+      const dn=['DIM','LUN','MAR','MER','JEU','VEN','SAM'][dt.getDay()];
+      const rr=days.precipitation_sum[i];
+      return`<div class="fc"><div class="fc-d">${dn}</div><div class="fc-i">${wi(c)}</div><div class="fc-t">${Math.round(days.temperature_2m_max[i])}°</div>${rr>0?`<div class="fc-r">${Math.round(rr)}mm</div>`:''}</div>`;
+    }).join('');
+
+    el.innerHTML=`
+      <div class="rcard-top" onclick="openRando('${r.id}')">
+        <div class="rcard-main">${rcardMain(r)}</div>
+        <div class="rcard-wx ${wcls}"><div class="wx-icon">${wi(code)}</div><div class="wx-temp">${temp}°</div><div class="wx-wind"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>${wind}km/h</div><div class="wx-lbl ${wcls}">${wlbl}</div></div>
+      </div>
+      <div class="forecast">${fcHTML}</div>
+      ${r.alert?`<div style="padding:0 13px 9px"><div class="alert-band"><span style="color:var(--red);flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text">${r.alert.text}</div></div></div>`:''}
+      `;
+  }catch(e){
+    console.warn('Météo indisponible pour',r.name,e);
+    const el2=document.getElementById('rc-'+r.id);
+    if(el2) el2.innerHTML=`<div class="rcard-top" onclick="openRando('${r.id}')"><div class="rcard-main">${rcardMain(r)}</div><div class="rcard-wx wx-mid" style="justify-content:center;font-size:9px;font-family:var(--mono);color:var(--ink3)">N/A</div></div>`;
+  }
+}
 function renderRandos(){
   renderDemoBanner('demo-banner-sommets');
   renderRandoMois();
@@ -2491,7 +2546,7 @@ if(FIREBASE_AVAILABLE){
     firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
-    db.enablePersistence({synchronizeTabs:true}).catch(err=>{
+    db.enablePersistence().catch(err=>{
       console.warn("Persistance offline non disponible:", err.code);
     });
   }catch(e){
