@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -1313,8 +1314,10 @@ function openRando(id){
       <button class="btn btn-primary btn-sm" onclick="vote('${r.id}','oui');closeModal('rando-modal')">Partant</button>
     </div>
     </div>
+    <div id="rtab-partants-content" style="display:none"></div>
     <div id="rtab-ravito-content" style="display:none"></div>
     <div id="rtab-hydra-content" style="display:none"></div>
+    <div id="rtab-kit-content" style="display:none"></div>
     `;
   openModal('rando-modal');
   setTimeout(()=>{
@@ -1343,9 +1346,13 @@ function setDurType(t){
   if(fm)fm.style.display=t==='multi'?'block':'none';
 }
 function deleteRando(id){
+  const r = randos.find(x=>String(x.id)===String(id));
   randos=randos.filter(x=>String(x.id)!==String(id));
-  saveRandos();
-  if(currentUser) deleteRandoFromFirestore(id);
+  try{localStorage.setItem(RANDOS_KEY,JSON.stringify(randos));}catch(e){}
+  if(currentUser && db && r){
+    const docId = r._docId || String(id);
+    db.collection('randos').doc(docId).delete().catch(e=>console.warn('deleteRando:',e));
+  }
   renderRandos();
   toast('RANDO SUPPRIMÉE');
 }
@@ -2204,7 +2211,9 @@ function renderRavitoHTML(randoId){
   const nMembres = membres.length + 1;
   const besoins = calcBesoins(randoId);
   const stockTotal = calcStockTotal(randoId);
-  const allMembres = [...membres.map(m=>m.name), user?user.name:'Moi'];
+  const {partants:partantsR} = getPartants(r);
+  const allMembres = partantsR.length >= 2 ? partantsR : (user ? [user.name] : ['Moi']);
+  const waitingMsg = partantsR.length < 2 ? '<div style="font-size:10px;color:var(--ink3);font-family:var(--mono);padding:8px 0;margin-bottom:8px">En attente d\'un autre partant pour activer le Ravito partagé</div>' : '';
 
   // Barre progression par catégorie
   const mealBars = MEAL_CATS.map(c=>{
@@ -2292,17 +2301,23 @@ function renderRavitoHTML(randoId){
 }
 
 function switchRandoTab(tab, randoId){
-  ['info','ravito','hydra'].forEach(t=>{
+  ['info','partants','ravito','hydra','kit'].forEach(t=>{
     const btn=document.getElementById('rtab-'+t);
     const content=document.getElementById('rtab-'+t+'-content');
     if(btn) btn.classList.toggle('active', tab===t);
     if(content) content.style.display = tab===t?'block':'none';
   });
+  if(tab==='partants'){
+    document.getElementById('rtab-partants-content').innerHTML = renderPartantsHTML(randoId);
+  }
   if(tab==='ravito'){
     document.getElementById('rtab-ravito-content').innerHTML = renderRavitoHTML(randoId);
   }
   if(tab==='hydra'){
     document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
+  }
+  if(tab==='kit'){
+    document.getElementById('rtab-kit-content').innerHTML = renderKitRandoHTML(randoId);
   }
 }
 
@@ -2491,7 +2506,7 @@ function renderHydraHTML(randoId){
       Ajouter un segment
     </button>`;
 
-  return `<div>${paramsHTML}${recapHTML}${segmentsHTML}</div>`;
+  return `<div>${waitingMsg||''}${paramsHTML}${recapHTML}${segmentsHTML}</div>`;
 }
 
 function updateHydra(randoId, key, val){
@@ -3002,6 +3017,101 @@ function voteTrace(randoId, idx){
   if(currentUser) saveRandoToFirestore(r);
   openRando(randoId);
   toast(pos>=0?'VOTE RETIRÉ':'TRACE PRÉFÉRÉE');
+}
+
+// ── PARTANTS ─────────────────────────────────────────
+function getPartants(r){
+  const partants = [];
+  const peutetre = [];
+  // Chercher dans les membres connus
+  const allMembers = [...membres.map(m=>m.name)];
+  if(user) allMembers.push(user.name);
+  // Vérifier les votes
+  if(r.myVote==='oui' && user) partants.push(user.name);
+  else if(r.myVote==='peut' && user) peutetre.push(user.name);
+  // Votes des autres membres (stockés dans r.memberVotes)
+  if(r.memberVotes){
+    Object.entries(r.memberVotes).forEach(([name, vote])=>{
+      if(name === (user&&user.name)) return; // déjà compté
+      if(vote==='oui') partants.push(name);
+      else if(vote==='peut') peutetre.push(name);
+    });
+  }
+  return {partants, peutetre};
+}
+
+function renderPartantsHTML(randoId){
+  const r = randos.find(x=>String(x.id)===String(randoId));
+  if(!r) return '';
+  const {partants, peutetre} = getPartants(r);
+  const total = partants.length + peutetre.length;
+
+  function memberCard(name, status){
+    const initials = name.slice(0,2).toUpperCase();
+    const colors = ['#E8C84A','#4ADE80','#60A5FA','#F87171','#A78BFA'];
+    const color = colors[name.charCodeAt(0)%colors.length];
+    const isMe = user && name === user.name;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:10px;margin-bottom:7px">
+      <div style="width:36px;height:36px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#2D2D2A;flex-shrink:0">${initials}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--ink)">${name}${isMe?' (toi)':''}</div>
+        <div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${r.proposedBy===name?'Proposant · ':''}</div>
+      </div>
+      <span style="font-size:9px;padding:3px 9px;border-radius:20px;font-family:var(--mono);font-weight:500;${status==='oui'?'background:#D4EDD9;color:#2A5C35':'background:#FDF8E6;color:#8C7000'}">${status==='oui'?'Partant':'Peut-être'}</span>
+    </div>`;
+  }
+
+  if(total===0){
+    return `<div style="text-align:center;padding:24px;color:var(--ink3);font-size:12px;font-family:var(--mono)">
+      Aucun membre n'a encore voté pour cette rando.
+    </div>`;
+  }
+
+  return `<div style="padding:4px 0">
+    ${partants.length>0?`<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">${partants.length} partant${partants.length>1?'s':''}</div>
+    ${partants.map(n=>memberCard(n,'oui')).join('')}`:''}
+    ${peutetre.length>0?`<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 8px">${peutetre.length} peut-être</div>
+    ${peutetre.map(n=>memberCard(n,'peut')).join('')}`:''}
+  </div>`;
+}
+
+// ── KIT RANDO ────────────────────────────────────────
+function renderKitRandoHTML(randoId){
+  const r = randos.find(x=>String(x.id)===String(randoId));
+  if(!r) return '';
+  const {partants} = getPartants(r);
+
+  // Checklist départ pour cette rando
+  const departHTML = `
+    <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Checklist départ</div>
+    ${departItems.length===0
+      ?'<div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">Aucun article dans la checklist</div>'
+      :departItems.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid var(--border)">
+        <div style="width:16px;height:16px;border-radius:4px;border:.5px solid var(--border2);background:${item.done?'var(--ink)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          ${item.done?'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+        <span style="flex:1;font-size:12px;color:var(--ink);${item.done?'text-decoration:line-through;opacity:.5':''}">${item.name}</span>
+        ${item.assignee?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3);background:var(--kraft2);padding:2px 7px;border-radius:6px">${item.assignee}</span>`:''}
+      </div>`).join('')
+    }`;
+
+  // Kit partagé des partants
+  const kitSharedHTML = partants.length > 0
+    ? `<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 10px">${partants.length} partant${partants.length>1?'s':''} — équipement</div>
+      ${partants.map(name=>{
+        const isMe = user && name === user.name;
+        const checked = isMe && user.checked ? Object.keys(user.checked).filter(k=>user.checked[k]) : [];
+        return `<div style="padding:8px 10px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:8px;margin-bottom:6px">
+          <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">${name}${isMe?' (toi)':''}</div>
+          ${checked.length>0
+            ?`<div style="display:flex;flex-wrap:wrap;gap:4px">${checked.slice(0,8).map(k=>`<span style="font-size:9px;font-family:var(--mono);background:var(--kraft2);border:.5px solid var(--border);padding:2px 7px;border-radius:6px;color:var(--ink2)">${k}</span>`).join('')}${checked.length>8?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">+${checked.length-8}</span>`:''}</div>`
+            :`<div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${isMe?'Aucun article coché dans ton kit':'Données non disponibles'}</div>`
+          }
+        </div>`;
+      }).join('')}`
+    : `<div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">En attente de partants pour afficher le kit partagé</div>`;
+
+  return `<div>${departHTML}${kitSharedHTML}</div>`;
 }
 
 function init(){
