@@ -33,7 +33,7 @@ html,body{height:100%;background:var(--kraft);color:var(--ink);font-family:var(-
 .app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
 
 /* ── HEADER ── */
-.header{background:rgba(247,243,236,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.header{background:rgba(247,243,236,.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
 .logo{display:flex;align-items:center;gap:9px}
 .logo-icon{width:30px;height:30px;flex-shrink:0}
 .logo-name{line-height:1}
@@ -44,7 +44,7 @@ html,body{height:100%;background:var(--kraft);color:var(--ink);font-family:var(-
 .av-btn:active{transform:scale(.9)}
 
 /* ── NAV ── */
-.nav{display:flex;background:rgba(247,243,236,.95);backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);overflow-x:auto;scrollbar-width:none}
+.nav{display:flex;background:rgba(247,243,236,.97);position:sticky;bottom:0;z-index:100;backdrop-filter:blur(10px);border-bottom:.5px solid var(--border2);overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
 .nav-btn{flex:1;min-width:52px;padding:8px 3px 6px;border:none;background:none;font-size:8px;color:var(--ink4);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;font-family:var(--mono);letter-spacing:.03em;text-transform:uppercase;transition:color .15s;white-space:nowrap}
 .nav-btn svg{width:17px;height:17px;flex-shrink:0}
@@ -936,8 +936,10 @@ select.form-input{appearance:none}
       <div style="margin-top:10px;display:flex;gap:6px">
         <input class="form-input" id="admin-new-email" placeholder="Ajouter un email…" style="font-size:11px;flex:1">
         <button class="btn btn-primary btn-sm" onclick="adminAddEmail()">Ajouter</button>
+      <button class="btn btn-sm" onclick="generateInviteConfigs()" style="background:none;border:.5px solid rgba(45,45,42,.2);border-radius:8px;padding:6px 10px;font-size:10px;font-family:var(--mono);color:var(--ink3);cursor:pointer;white-space:nowrap">Générer configs</button>
       </div>
-      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Note : pense à aussi mettre à jour ALLOWED_EMAILS dans le code et les règles Firestore.</div>
+      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Clique "Générer configs" pour obtenir les deux blocs prêts à copier-coller.</div>
+      <div id="invite-config-panel" style="display:none"></div>
     </div>
 
     <div class="admin-section">
@@ -1004,7 +1006,7 @@ select.form-input{appearance:none}
       </div>
     </div>
     <div class="form-row2" style="margin-bottom:12px">
-      <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="f-km" type="number" placeholder="15"></div>
+      <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="f-km" type="number" placeholder="ex: 12" placeholder="15"></div>
       <div><label class="form-lbl">D+ (m)</label><input class="form-input" id="f-dp" type="number" placeholder="800"></div>
     </div>
     <div style="display:flex;gap:8px">
@@ -1460,7 +1462,12 @@ function rcardMain(r){
       </div>
     </div>
     <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
-    <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
+    <div class="rstats">
+      ${r.km?`<span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>${r.km}km</span>`:''}
+      ${r.dplus?`<span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+${r.dplus}m</span>`:''}
+      ${r.dur&&r.dur!=='1j'?`<span class="rst">${r.dur}</span>`:''}
+      ${r.diff?`<span class="tag ${dc}">${r.diff}</span>`:''}
+    </div>
     <div class="vrow">
       <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
@@ -1495,7 +1502,10 @@ function openRando(id){
   document.getElementById('rando-modal-body').innerHTML=`
     <div class="modal-header">
       <span class="modal-title">${r.name}</span>
-      <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="openEditRando('${r.id}')" style="background:none;border:.5px solid rgba(45,45,42,.2);border-radius:8px;padding:4px 10px;font-size:10px;font-family:var(--mono);color:var(--ink3);cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifier</button>`:''}
+        <button class="close-btn" onclick="closeModal('rando-modal')">✕</button>
+      </div>
     </div>
     <div class="ravito-tab-row">
       <button class="ravito-tab active" id="rtab-info" onclick="switchRandoTab('info','${r.id}')">
@@ -1537,12 +1547,10 @@ function openRando(id){
     `;
   openModal('rando-modal');
   setTimeout(()=>{
-    if(leafMap){leafMap.remove();leafMap=null;}
-    leafMap=L.map('rando-map',{zoomControl:false,attributionControl:false}).setView([r.lat,r.lon],13);
-    L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',{maxZoom:17}).addTo(leafMap);
-    const icon=L.divIcon({html:'<div style="background:#2D2D2A;width:10px;height:10px;border-radius:50%;border:2px solid #E8C84A"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
-    L.marker([r.lat,r.lon],{icon}).addTo(leafMap);
-  },200);
+    const _mapEl=document.getElementById('rando-map');
+    if(window.leafMap){try{window.leafMap.remove();}catch(e){} window.leafMap=null;}
+    if(_mapEl) _mapEl.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(240,235,224,.5);gap:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(107,101,96,.35)" stroke-width="1.5" stroke-linecap="round"><polygon points=\"1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"18\"/><line x1=\"16\" y1=\"6\" x2=\"16\" y2=\"22\"/></svg><div style=\"font-size:8px;font-family:var(--mono);color:rgba(107,101,96,.4);letter-spacing:.1em\">CARTE IGN — COMING SOON</div></div>';
+  }, 300);
 }
 function downloadGPX(id,name){
   const r=randos.find(x=>String(x.id)===String(id));
@@ -1592,7 +1600,7 @@ function submitRando(){
       const m=u?u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/):null;
       return m?{lat:parseFloat(m[1]),lon:parseFloat(m[2])}:{};
     })(),
-    dateStart,dateEnd,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+    dateStart,dateEnd,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||null,dplus:parseInt(document.getElementById('f-dp').value)||null,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
   randos.unshift(r);
   try{ saveRandos(); } catch(e){ console.warn('saveRandos:', e); }
   closeModal('add-modal');
@@ -1755,8 +1763,8 @@ function renderKit(){
   if(!user){c.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink3)"><div style="font-size:40px;margin-bottom:10px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2D2D2A" stroke-width="1.5" stroke-linecap="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="3" y="8" width="5" height="12"/><rect x="16" y="12" width="5" height="8"/></svg></div><p style="font-size:14px;font-weight:600;margin-bottom:5px">Configure ton kit</p><p style="font-size:11px;margin-bottom:16px;font-family:var(--mono);line-height:1.6">2 questions · liste personnalisée</p><button class="btn btn-primary" onclick="openModal('onb-modal')">Configurer</button></div>`;return;}
   const gear=GEAR[user.mode];
   const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const done=all.filter(g=>user.checked&&user.checked[g.id]).length;
-  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]));
+  const done=all.filter(g=>(user.checked&&user.checked[g.id])||(user.kitStatus?.[g.id]==='have')).length;
+  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]) && user.kitStatus?.[g.id]!=='skip');
   const pct=Math.round(done/all.length*100);
   // Budget
   const budgetMin=missing.reduce((acc,g)=>{const p=g.price.split('–')[0].replace(/[^0-9]/g,'');return acc+(parseInt(p)||0);},0);
@@ -2289,8 +2297,10 @@ function renderBaseCamp(){
   }
   const gear=GEAR[user.mode];
   const allItems=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const doneItems=allItems.filter(g=>user.checked&&user.checked[g.id]).length;
-  const kitPct=Math.round(doneItems/allItems.length*100);
+  const doneItems=allItems.filter(g=>(user.checked&&user.checked[g.id])||(user.kitStatus?.[g.id]==='have')).length;
+  const skipItems=allItems.filter(g=>user.kitStatus?.[g.id]==='skip').length;
+  const effectiveTotal=allItems.length-skipItems;
+  const kitPct=Math.round(doneItems/Math.max(effectiveTotal,1)*100);
   const lv=LVLS[user.level];
   // Prochaine sortie = rando où l'user est partant + date future la plus proche
   const today = new Date(); today.setHours(0,0,0,0);
@@ -2301,7 +2311,7 @@ function renderBaseCamp(){
     .sort((a,b) => new Date(a.dateStart) - new Date(b.dateStart));
   const nextRando = randosPartant[0] || randos.find(r=>r.myVote==='oui') || randos[0];
   c.innerHTML=`
-    <div class="bc-hero">
+    <div class="bc-hero" onclick="nextRando&&openRando(nextRando.id)" style="cursor:pointer">
       <div class="bc-hero-bg"><svg width="100%" height="100%" viewBox="0 0 440 160" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="0.8"><path d="M-20,50 Q60,25 140,45 Q220,65 300,35 Q380,5 460,28"/><path d="M-20,80 Q60,55 140,75 Q220,95 300,65 Q380,35 460,58"/><path d="M-20,110 Q60,85 140,105 Q220,125 300,95 Q380,65 460,88"/></g></svg></div>
       <div class="bc-hero-content">
         <div class="bc-name">${user.name}</div>
@@ -3893,6 +3903,111 @@ function updateDateDisplay(inputId, displayId){
   }
 }
 
+// ── ÉDITION RANDO ─────────────────────────────────────
+function openEditRando(randoId){
+  const r=randos.find(x=>String(x.id)===String(randoId));
+  if(!r) return;
+  const modal=document.getElementById('edit-rando-modal');
+  if(!modal) return;
+  document.getElementById('ef-name').value=r.name||'';
+  document.getElementById('ef-region').value=r.region||'';
+  document.getElementById('ef-km').value=r.km||'';
+  document.getElementById('ef-dplus').value=r.dplus||'';
+  const diffSel=document.getElementById('ef-diff');
+  if(diffSel) diffSel.value=r.diff||'';
+  document.getElementById('ef-komoot').value=r.traces&&r.traces[0]?r.traces[0].url:'';
+  if(r.dateStart){
+    document.getElementById('ef-date').value=r.dateStart;
+    updateDateDisplay('ef-date','ef-date-display');
+  } else {
+    document.getElementById('ef-date').value='';
+    const dd=document.getElementById('ef-date-display');
+    if(dd){dd.textContent='Date de la sortie';dd.style.color='var(--ink3)';}
+  }
+  modal.dataset.randoId=String(randoId);
+  openModal('edit-rando-modal');
+}
+
+function saveEditRando(){
+  const modal=document.getElementById('edit-rando-modal');
+  if(!modal) return;
+  const randoId=modal.dataset.randoId;
+  const r=randos.find(x=>String(x.id)===String(randoId));
+  if(!r) return;
+  const name=document.getElementById('ef-name').value.trim();
+  if(!name){toast('NOM REQUIS');return;}
+  r.name=name;
+  r.region=document.getElementById('ef-region').value.trim()||r.region||'France';
+  const km=parseInt(document.getElementById('ef-km').value);
+  const dplus=parseInt(document.getElementById('ef-dplus').value);
+  if(km>0) r.km=km;
+  if(dplus>0) r.dplus=dplus;
+  const diff=document.getElementById('ef-diff').value;
+  if(diff) r.diff=diff;
+  const dateVal=document.getElementById('ef-date').value;
+  if(dateVal){
+    r.dateStart=dateVal;
+    const d=new Date(dateVal);
+    r.date=d.getDate()+' '+d.toLocaleString('fr',{month:'short'});
+    r.dur=r.dur||'1j';
+  }
+  const komootUrl=document.getElementById('ef-komoot').value.trim();
+  if(komootUrl){
+    const m=komootUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if(m){r.lat=parseFloat(m[1]);r.lon=parseFloat(m[2]);}
+    if(!r.traces) r.traces=[];
+    if(r.traces.length>0) r.traces[0].url=komootUrl;
+    else r.traces.push({id:Date.now(),label:'Trace principale',url:komootUrl,votes:[]});
+  }
+  saveRandos();
+  if(currentUser) saveRandoToFirestore(r);
+  closeModal('edit-rando-modal');
+  renderRandos();
+  toast('RANDO MISE À JOUR');
+}
+
+function generateInviteConfigs(){
+  const input=document.getElementById('admin-new-email');
+  const email=input?input.value.trim().toLowerCase():'';
+  if(!email||!email.includes('@')){toast('ENTRE UN EMAIL VALIDE');return;}
+
+  // Générer les deux configs
+  const allEmails=[...ALLOWED_EMAILS, email];
+  const emailsStr=allEmails.map(e=>`        "${e}"`).join(',\n');
+
+  const firestoreRules=`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAllowed() {
+      return request.auth != null && request.auth.token.email in [
+${emailsStr}
+      ];
+    }
+    match /{document=**} {
+      allow read, write: if isAllowed();
+    }
+  }
+}`;
+
+  const codeConfig=`const ALLOWED_EMAILS = [
+${allEmails.map(e=>`  "${e}"`).join(',\n')}
+];`;
+
+  const panel=document.getElementById('invite-config-panel');
+  if(panel){
+    panel.innerHTML=`
+      <div style="margin-top:12px;padding:12px;background:var(--kraft2);border-radius:10px;border:.5px solid var(--border2)">
+        <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">1. Règles Firestore — copie dans Firebase Console → Firestore → Rules</div>
+        <pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:8px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px">${firestoreRules}</pre>
+        <button onclick="navigator.clipboard.writeText(${JSON.stringify(firestoreRules)}).then(()=>toast('RÈGLES COPIÉES'))" style="width:100%;padding:8px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer;margin-bottom:12px">Copier les règles Firestore</button>
+        <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">2. Code — remplace ALLOWED_EMAILS dans index.html</div>
+        <pre style="font-size:9px;font-family:var(--mono);color:var(--ink);background:rgba(255,255,255,.6);padding:8px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;margin-bottom:8px">${codeConfig}</pre>
+        <button onclick="navigator.clipboard.writeText(${JSON.stringify(codeConfig)}).then(()=>toast('CODE COPIÉ'))" style="width:100%;padding:8px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:10px;font-family:var(--mono);cursor:pointer">Copier le code</button>
+      </div>`;
+    panel.style.display='block';
+  }
+}
+
 function init(){
   // Firebase auth observer prend le relais — initApp() est appelé après auth réussie
   document.getElementById('main-app').style.display='none';
@@ -3918,6 +4033,49 @@ init();
     <div class="confirm-actions">
       <button class="confirm-ok" id="confirm-ok-btn">Confirmer</button>
       <button class="confirm-cancel" onclick="confirmCancel()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT RANDO MODAL -->
+<div class="modal-overlay" id="edit-rando-modal-overlay" onclick="closeModal('edit-rando-modal')"></div>
+<div class="modal" id="edit-rando-modal">
+  <div class="modal-header">
+    <span class="modal-title">Modifier la rando</span>
+    <button class="close-btn" onclick="closeModal('edit-rando-modal')">✕</button>
+  </div>
+  <div class="modal-body" style="padding:14px;overflow-y:auto;max-height:70vh">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label class="form-lbl">Nom *</label><input class="form-input" id="ef-name" placeholder="Nom de la rando"></div>
+      <div><label class="form-lbl">Région</label><input class="form-input" id="ef-region" placeholder="ex: Haute-Savoie"></div>
+      <div>
+        <label class="form-lbl">Date</label>
+        <div class="date-field" onclick="document.getElementById('ef-date').showPicker&&document.getElementById('ef-date').showPicker()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="date-field-val" id="ef-date-display" style="color:var(--ink3)">Date de la sortie</span>
+          <input type="date" id="ef-date" onchange="updateDateDisplay('ef-date','ef-date-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="form-lbl">Distance (km)</label><input class="form-input" id="ef-km" type="number" placeholder="ex: 12"></div>
+        <div><label class="form-lbl">Dénivelé D+ (m)</label><input class="form-input" id="ef-dplus" type="number" placeholder="ex: 800"></div>
+      </div>
+      <div>
+        <label class="form-lbl">Niveau</label>
+        <select class="form-input" id="ef-diff">
+          <option value="">— Non renseigné —</option>
+          <option value="Facile">Facile</option>
+          <option value="Moyen">Moyen</option>
+          <option value="Difficile">Difficile</option>
+          <option value="Expert">Expert</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-lbl">Lien Komoot</label>
+        <input class="form-input" id="ef-komoot" placeholder="https://www.komoot.com/...@lat,lon...">
+        <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:4px">Les coords GPS sont extraites automatiquement du lien</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveEditRando()" style="margin-top:4px">Sauvegarder</button>
     </div>
   </div>
 </div>
