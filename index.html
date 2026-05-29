@@ -1300,7 +1300,7 @@ function openRando(id){
     <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:12px">${r.desc}</p>
     ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
     <div style="display:flex;gap:7px;flex-wrap:wrap">
-      <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"> Komoot ↗</button>
+      ${r.komootUrl?`<a class="gpx-btn" href="${r.komootUrl}" target="_blank" rel="noopener">Komoot ↗</a>`:`<button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')">Komoot ↗</button>`}
       <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
       <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
     </div>
@@ -1352,7 +1352,7 @@ function submitRando(){
     const de=document.getElementById('f-date-end').value;
     if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});}
   }
-  const r={id:Date.now(),name,proposedBy:user?user.name:null,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  const r={id:Date.now(),name,proposedBy:user?user.name:null,komootUrl:document.getElementById('f-komoot').value.trim()||null,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
   randos.unshift(r);saveRandos();closeModal('add-modal');renderRandos();toast('RANDO PROPOSÉE !');
 }
 
