@@ -1334,9 +1334,14 @@ function openRando(id){
     <div class="modal-stats">
       <div class="modal-stat"><div class="modal-stat-val">${r.km}km</div><div class="modal-stat-lbl">distance</div></div>
         <div class="modal-stat"><div class="modal-stat-val">+${r.dplus}m</div><div class="modal-stat-lbl">D+</div></div>
-        <div class="modal-stat"><div class="modal-stat-val">${r.dur}</div><div class="modal-stat-lbl">durée</div></div>
+        <div class="modal-stat"><div class="modal-stat-val">${r.dur||'1j'}</div><div class="modal-stat-lbl">durée</div></div>
         <div class="modal-stat"><div class="modal-stat-val">${r.diff}</div><div class="modal-stat-lbl">niveau</div></div>
     </div>
+    ${(r.dateStart||r.date)?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span style="font-size:12px;color:var(--ink2);font-family:var(--mono)">${formatDateDisplay(r)}</span>
+      ${getJx(r.dateStart)?`<span style="font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:10px;background:var(--ink);color:var(--gold)">${getJx(r.dateStart)}</span>`:''}
+    </div>`:''}
     <p style="font-size:10px;color:var(--ink3);font-family:var(--mono);margin-bottom:6px">${r.region}</p>
     <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:12px">${r.desc}</p>
     ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
@@ -3210,7 +3215,11 @@ function renderPartantsHTML(randoId){
 function renderKitRandoHTML(randoId){
   const r = randos.find(x=>String(x.id)===String(randoId));
   if(!r) return '';
-  const {partants} = getPartants(r);
+  const {partants: partantsRaw} = getPartants(r);
+  // Si l'utilisateur est partant mais pas dans la liste (rando mockée), l'ajouter
+  const partants = partantsRaw.length===0 && user && r.myVote==='oui'
+    ? [user.name]
+    : partantsRaw;
 
   // Checklist départ pour cette rando
   const departHTML = `
