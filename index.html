@@ -477,8 +477,8 @@ select.form-input{appearance:none}
 .admin-badge{font-size:8px;padding:1px 6px;border-radius:10px;font-family:var(--mono);font-weight:500;background:var(--ink);color:var(--gold)}
 
 /* ── BOUTON PROPOSER STICKY ── */
-.propose-btn-wrap{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:90}.propose-btn-wrap.visible{display:flex}
-.propose-btn{padding:10px 16px;background:var(--ink);color:var(--gold);border:none;border-radius:24px;font-size:12px;font-weight:700;font-family:var(--mono);cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(45,45,42,.3);transition:opacity .15s}
+.propose-btn-wrap{display:none;position:fixed;bottom:58px;left:0;right:0;padding:10px 16px 8px;background:rgba(247,243,236,.96);border-top:.5px solid rgba(45,45,42,.1);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:90;box-shadow:0 -4px 16px rgba(45,45,42,.08)}.propose-btn-wrap.visible{display:block}
+.propose-btn{width:100%;padding:12px;background:var(--ink);color:var(--gold);border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--mono);cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
 .propose-btn:hover{opacity:.85}
 .propose-btn svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5}
 
@@ -866,6 +866,67 @@ select.form-input{appearance:none}
 
   <!-- BASE CAMP -->
   <div class="tab" id="tab-basecamp"><div id="basecamp-body"></div></div>
+
+  <!-- ADMIN TAB -->
+  <div class="tab" id="tab-admin">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--ink);border-radius:12px;margin-bottom:14px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:.04em">PANNEAU ADMIN</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.35);font-family:var(--mono)" id="admin-version">v0.2.1 · ALTImates</div>
+      </div>
+      <span class="admin-badge" style="margin-left:auto">ADMIN</span>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Données Firestore</div>
+      <div class="admin-row">
+        <div><div class="admin-label">Randos</div><div class="admin-sub" id="admin-count-randos">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('randos')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Messages Radio</div><div class="admin-sub" id="admin-count-messages">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('messages')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Idées</div><div class="admin-sub" id="admin-count-feedbacks">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('feedbacks')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Checklist départ</div><div class="admin-sub" id="admin-count-depart">—</div></div>
+        <button class="admin-btn-warn" onclick="adminFlush('departItems')">Vider</button>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Reset complet</div><div class="admin-sub">Toutes les collections</div></div>
+        <button class="admin-btn-danger" onclick="adminResetAll()">Reset tout</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Membres</div>
+      <div id="admin-members-list"><div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">Chargement…</div></div>
+      <div style="margin-top:10px;display:flex;gap:6px">
+        <input class="form-input" id="admin-new-email" placeholder="Ajouter un email…" style="font-size:11px;flex:1">
+        <button class="btn btn-primary btn-sm" onclick="adminAddEmail()">Ajouter</button>
+      </div>
+      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Note : pense à aussi mettre à jour ALLOWED_EMAILS dans le code et les règles Firestore.</div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">App</div>
+      <div class="admin-row">
+        <div><div class="admin-label">Mode</div><div class="admin-sub" id="admin-dev-status">—</div></div>
+        <span id="admin-dev-badge" style="font-size:9px;font-family:var(--mono);padding:2px 8px;border-radius:10px"></span>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Environnement</div><div class="admin-sub" id="admin-env">—</div></div>
+      </div>
+      <div class="admin-row">
+        <div><div class="admin-label">Cache local</div><div class="admin-sub">localStorage uniquement</div></div>
+        <button class="admin-btn-warn" onclick="adminClearLocal()">Vider</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- RANDO MODAL -->
@@ -975,66 +1036,7 @@ select.form-input{appearance:none}
 
 <div class="toast" id="toast"></div>
 
-  <!-- ADMIN TAB -->
-  <div class="tab" id="tab-admin">
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--ink);border-radius:12px;margin-bottom:14px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:.04em">PANNEAU ADMIN</div>
-        <div style="font-size:9px;color:rgba(255,255,255,.35);font-family:var(--mono)" id="admin-version">v0.2.1 · ALTImates</div>
-      </div>
-      <span class="admin-badge" style="margin-left:auto">ADMIN</span>
-    </div>
 
-    <div class="admin-section">
-      <div class="admin-section-title">Données Firestore</div>
-      <div class="admin-row">
-        <div><div class="admin-label">Randos</div><div class="admin-sub" id="admin-count-randos">—</div></div>
-        <button class="admin-btn-warn" onclick="adminFlush('randos')">Vider</button>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Messages Radio</div><div class="admin-sub" id="admin-count-messages">—</div></div>
-        <button class="admin-btn-warn" onclick="adminFlush('messages')">Vider</button>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Idées</div><div class="admin-sub" id="admin-count-feedbacks">—</div></div>
-        <button class="admin-btn-warn" onclick="adminFlush('feedbacks')">Vider</button>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Checklist départ</div><div class="admin-sub" id="admin-count-depart">—</div></div>
-        <button class="admin-btn-warn" onclick="adminFlush('departItems')">Vider</button>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Reset complet</div><div class="admin-sub">Toutes les collections</div></div>
-        <button class="admin-btn-danger" onclick="adminResetAll()">Reset tout</button>
-      </div>
-    </div>
-
-    <div class="admin-section">
-      <div class="admin-section-title">Membres</div>
-      <div id="admin-members-list"><div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">Chargement…</div></div>
-      <div style="margin-top:10px;display:flex;gap:6px">
-        <input class="form-input" id="admin-new-email" placeholder="Ajouter un email…" style="font-size:11px;flex:1">
-        <button class="btn btn-primary btn-sm" onclick="adminAddEmail()">Ajouter</button>
-      </div>
-      <div style="font-size:9px;color:var(--ink3);font-family:var(--mono);margin-top:6px;line-height:1.5">Note : pense à aussi mettre à jour ALLOWED_EMAILS dans le code et les règles Firestore.</div>
-    </div>
-
-    <div class="admin-section">
-      <div class="admin-section-title">App</div>
-      <div class="admin-row">
-        <div><div class="admin-label">Mode</div><div class="admin-sub" id="admin-dev-status">—</div></div>
-        <span id="admin-dev-badge" style="font-size:9px;font-family:var(--mono);padding:2px 8px;border-radius:10px"></span>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Environnement</div><div class="admin-sub" id="admin-env">—</div></div>
-      </div>
-      <div class="admin-row">
-        <div><div class="admin-label">Cache local</div><div class="admin-sub">localStorage uniquement</div></div>
-        <button class="admin-btn-warn" onclick="adminClearLocal()">Vider</button>
-      </div>
-    </div>
-  </div>
 
 <!-- GEAR INFO PANEL -->
 <div class="kit-tooltip-overlay" id="gear-info-overlay" onclick="closeGearInfo()"></div>
@@ -1127,8 +1129,8 @@ const STATUS_CLS={'backlog':'status-backlog','todo':'status-todo','inprogress':'
 const CATCLS={feature:'tb',ux:'tg',bug:'tr',content:'tgold'};
 
 let randos=[
-  {id:1,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,date:'7 juin',dateStart:'2026-06-07',desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
-  {id:2,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,dateStart:'2026-06-14',dateEnd:'2026-06-15',votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier avant départ.',src:'Refuges.info'},date:'8 juin',desc:'Traversée avec bivouac. Grand Veymont 2341m.'},
+  {id:1,_mock:true,name:'Lac Blanc — Chamonix',region:'Haute-Savoie',diff:'Moyen',km:12,dplus:850,dur:'1j',lat:45.93,lon:6.87,votes:{oui:4,peut:1},myVote:'oui',alert:null,date:'7 juin',dateStart:'2026-06-07',desc:'Vue imprenable sur le Mont Blanc. Départ Flégère. Balisage GR. Classique du massif.'},
+  {id:2,_mock:true,name:'Traversée du Vercors',region:'Drôme / Isère',diff:'Difficile',km:28,dplus:1600,dur:'2j',lat:44.85,lon:5.43,dateStart:'2026-06-14',dateEnd:'2026-06-15',votes:{oui:3,peut:1},myVote:null,alert:{text:'Éboulement signalé sentier nord — avril 2024. Vérifier avant départ.',src:'Refuges.info'},date:'8 juin',desc:'Traversée avec bivouac. Grand Veymont 2341m.'},
   {id:3,name:"Canyon de l'Ardèche",region:'Ardèche',diff:'Facile',km:9,dplus:280,dur:'1j',lat:44.37,lon:4.38,votes:{oui:2,peut:2},myVote:null,alert:null,date:'15 juin',desc:'Gorges spectaculaires le long du GR4.'},
 ];
 
@@ -1355,6 +1357,13 @@ async function fetchWeather(r){
   }
 }
 function renderRandos(){
+  // Masquer les randos mockées si des vraies existent
+  const realRandos = randos.filter(r=>!r._mock);
+  const displayRandos = realRandos.length > 0 ? realRandos : randos;
+  // Utiliser displayRandos pour le rendu
+  const _randosBak = randos;
+  if(realRandos.length > 0) randos = realRandos;
+
   // Mettre à jour le label de section selon les dates
   const labelEl = document.getElementById('randos-section-label');
   if(labelEl){
