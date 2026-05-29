@@ -562,6 +562,12 @@ select.form-input{appearance:none}
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Continuer avec Google
     </button>
+    <div id="dev-bypass-wrap" style="display:none;margin-top:10px">
+      <div style="font-size:9px;color:#9CA3AF;font-family:var(--mono);text-align:center;margin-bottom:6px;letter-spacing:.06em">MODE DEV — LOCAL UNIQUEMENT</div>
+      <button onclick="devBypass()" style="width:100%;padding:10px;border-radius:10px;border:.5px solid rgba(45,45,42,.2);background:var(--kraft2);cursor:pointer;font-size:12px;font-family:var(--mono);color:var(--ink3)">
+        Bypass auth →
+      </button>
+    </div>
     <div class="auth-error" id="auth-error">Accès réservé à la cordée ALTImates.<br>Contacte Nordine pour être ajouté.</div>
     <div class="auth-loading" id="auth-loading">Connexion en cours…</div>
   </div>
@@ -828,6 +834,7 @@ select.form-input{appearance:none}
     <div style="margin-bottom:9px"><label class="form-lbl">Nom</label><input class="form-input" id="f-name" placeholder="ex: Lac Blanc"></div>
     <div class="form-row2" style="margin-bottom:9px">
       <div><label class="form-lbl">Région</label><input class="form-input" id="f-reg" placeholder="ex: Haute-Savoie"></div>
+      <div><label class="form-lbl">Lien Komoot (optionnel)</label><input class="form-input" id="f-komoot" placeholder="https://www.komoot.com/tour/..."></div>
       <div><label class="form-lbl">Niveau</label>
         <select class="form-input" id="f-diff"><option>Facile</option><option selected>Moyen</option><option>Difficile</option><option>Trek</option></select></div>
     </div>
@@ -1104,8 +1111,7 @@ function saveFB(){
 function loadFB(){try{const s=localStorage.getItem(FB_KEY);if(s)feedbacks=JSON.parse(s);}catch(e){}}
 function saveRandos(){
   try{localStorage.setItem(RANDOS_KEY,JSON.stringify(randos));}catch(e){}
-  // Sync Firestore si connecté
-  if(currentUser) randos.forEach(r=>saveRandoToFirestore(r));
+  if(currentUser) randos.forEach(r=>saveRandoToFirestore(r).catch(e=>console.warn('saveRando:',e)));
 }
 function loadRandos(){try{const s=localStorage.getItem(RANDOS_KEY);if(s){const r=JSON.parse(s);if(r.length)randos=r;}}catch(e){}}
 
@@ -1300,7 +1306,7 @@ function openRando(id){
     <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:12px">${r.desc}</p>
     ${r.alert?`<div class="alert-band" style="margin-bottom:12px"><span style="color:var(--red);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4531A" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="alert-text"><strong>ALERTE :</strong> ${r.alert.text} (${r.alert.src})</div></div>`:''}
     <div style="display:flex;gap:7px;flex-wrap:wrap">
-      <button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')"> Komoot ↗</button>
+      ${r.komootUrl?`<a class="gpx-btn" href="${r.komootUrl}" target="_blank" rel="noopener">Komoot ↗</a>`:`<button class="gpx-btn" onclick="downloadGPX(${r.id},'${r.name}')">Komoot ↗</button>`}
       <a class="ign-btn" href="https://www.geoportail.gouv.fr/carte?c=${r.lon},${r.lat}&z=14&l0=GEOGRAPHICALGRIDSYSTEMS.MAPS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes" target="_blank" rel="noopener">Carte IGN</a>
       <button class="btn btn-primary btn-sm" onclick="vote(${r.id},'oui');closeModal('rando-modal')">Partant</button>
     </div>
@@ -1352,8 +1358,12 @@ function submitRando(){
     const de=document.getElementById('f-date-end').value;
     if(ds&&de){const d1=new Date(ds),d2=new Date(de);const days=Math.round((d2-d1)/86400000)+1;dur=days+'j';dateStr=d1.getDate()+'–'+d2.getDate()+' '+d1.toLocaleString('fr',{month:'short'});}
   }
-  const r={id:Date.now(),name,proposedBy:user?user.name:null,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
-  randos.unshift(r);saveRandos();closeModal('add-modal');renderRandos();toast('RANDO PROPOSÉE !');
+  const r={id:Date.now(),name,proposedBy:user?user.name:null,komootUrl:(document.getElementById('f-komoot')?document.getElementById('f-komoot').value.trim():'')||null,region:document.getElementById('f-reg').value||'France',diff:document.getElementById('f-diff').value,km:parseInt(document.getElementById('f-km').value)||15,dplus:parseInt(document.getElementById('f-dp').value)||800,dur,lat:45.5,lon:6.0,votes:{oui:1,peut:0},myVote:'oui',alert:null,date:dateStr||'À venir',desc:'Proposé par '+(user?user.name:'un membre')+'.'};
+  randos.unshift(r);
+  try{ saveRandos(); } catch(e){ console.warn('saveRandos:', e); }
+  closeModal('add-modal');
+  renderRandos();
+  toast('RANDO PROPOSÉE !');
 }
 
 // ── KIT ───────────────────────────────────────────────────
@@ -2526,19 +2536,29 @@ const ALLOWED_EMAILS = [
   "david.agbodjanprince@gmail.com"
 ];
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+let auth = null, db = null, currentUser = null;
+const FIREBASE_AVAILABLE = typeof firebase !== 'undefined';
 
-// Activer la persistance offline
-db.enablePersistence({synchronizeTabs:true}).catch(err=>{
-  console.warn("Persistance offline non disponible:", err.code);
-});
-
-let currentUser = null;
+if(FIREBASE_AVAILABLE){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    db.enablePersistence({synchronizeTabs:true}).catch(err=>{
+      console.warn("Persistance offline non disponible:", err.code);
+    });
+  }catch(e){
+    console.warn("Firebase init failed:", e);
+  }
+}
 
 // ── AUTH ──────────────────────────────────────────────
 function signInWithGoogle(){
+  if(!FIREBASE_AVAILABLE || !auth){
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('auth-error').textContent = "Firebase non disponible en local. Utilise le bouton Bypass.";
+    return;
+  }
   const provider = new firebase.auth.GoogleAuthProvider();
   document.getElementById('auth-loading').style.display = 'block';
   document.getElementById('auth-error').style.display = 'none';
@@ -2551,6 +2571,7 @@ function signInWithGoogle(){
 }
 
 function signOut(){
+  if(!FIREBASE_AVAILABLE || !auth){ devBypass(); return; }
   auth.signOut().then(()=>{
     currentUser = null;
     document.getElementById('auth-screen').style.display = 'flex';
@@ -2560,7 +2581,8 @@ function signOut(){
 }
 
 // Observer d'état d'authentification
-auth.onAuthStateChanged(async (firebaseUser)=>{
+if(FIREBASE_AVAILABLE && auth){
+  auth.onAuthStateChanged(async (firebaseUser)=>{
   if(!firebaseUser){
     // Non connecté — afficher écran auth
     document.getElementById('auth-screen').style.display = 'flex';
@@ -2588,7 +2610,8 @@ auth.onAuthStateChanged(async (firebaseUser)=>{
 
   // Lancer l'app
   initApp();
-});
+  });
+} // end FIREBASE_AVAILABLE
 
 async function loadOrCreateUserProfile(firebaseUser){
   const userRef = db.collection('users').doc(firebaseUser.uid);
@@ -2621,6 +2644,7 @@ async function loadOrCreateUserProfile(firebaseUser){
 
 // ── FIRESTORE — LISTENERS TEMPS RÉEL ─────────────────
 function setupFirestoreListeners(){
+  if(!FIREBASE_AVAILABLE||!db){return;}
   // Randos
   db.collection('randos').orderBy('createdAt','desc').onSnapshot(snap=>{
     if(!snap.empty){
@@ -2678,6 +2702,7 @@ function setupFirestoreListeners(){
 
 // Remplacer saveRandos — écrire dans Firestore
 async function saveRandoToFirestore(r){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     const data = {...r, createdAt: r.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
     if(r._docId){
@@ -2690,6 +2715,7 @@ async function saveRandoToFirestore(r){
 }
 
 async function deleteRandoFromFirestore(id){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     const snap = await db.collection('randos').where('id','==',id).get();
     snap.docs.forEach(d=>d.ref.delete());
@@ -2697,6 +2723,7 @@ async function deleteRandoFromFirestore(id){
 }
 
 async function saveMsgToFirestore(msg){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     const data = {...msg, createdAt: firebase.firestore.FieldValue.serverTimestamp()};
     await db.collection('messages').doc(String(msg.id)).set(data);
@@ -2704,12 +2731,14 @@ async function saveMsgToFirestore(msg){
 }
 
 async function deleteMsgFromFirestore(id){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     await db.collection('messages').doc(String(id)).delete();
   }catch(e){ console.warn("deleteMsg:", e); }
 }
 
 async function saveFeedbackToFirestore(f){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     const data = {...f, createdAt: f.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
     await db.collection('feedbacks').doc(String(f.id)).set(data);
@@ -2717,12 +2746,14 @@ async function saveFeedbackToFirestore(f){
 }
 
 async function deleteFeedbackFromFirestore(id){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     await db.collection('feedbacks').doc(String(id)).delete();
   }catch(e){ console.warn("deleteFeedback:", e); }
 }
 
 async function saveDepartItemToFirestore(item){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     const data = {...item, createdAt: item.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
     await db.collection('departItems').doc(String(item.id)).set(data);
@@ -2730,12 +2761,14 @@ async function saveDepartItemToFirestore(item){
 }
 
 async function deleteDepartItemFromFirestore(id){
+  if(!FIREBASE_AVAILABLE||!db){return Promise.resolve();}
   try{
     await db.collection('departItems').doc(String(id)).delete();
   }catch(e){ console.warn("deleteDepartItem:", e); }
 }
 
 async function saveUserProfile(){
+  if(!FIREBASE_AVAILABLE||!db||!currentUser){return;}
   if(!currentUser) return;
   try{
     await db.collection('users').doc(currentUser.uid).update({
@@ -2746,6 +2779,7 @@ async function saveUserProfile(){
 }
 
 async function saveRavitoToFirestore(){
+  if(!FIREBASE_AVAILABLE||!db||!currentUser){return;}
   if(!currentUser) return;
   try{
     await db.collection('ravito').doc('shared').set(ravitoData);
@@ -2753,6 +2787,7 @@ async function saveRavitoToFirestore(){
 }
 
 async function saveHydraToFirestore(){
+  if(!FIREBASE_AVAILABLE||!db||!currentUser){return;}
   if(!currentUser) return;
   try{
     await db.collection('hydra').doc('shared').set(hydraData);
@@ -2841,10 +2876,45 @@ async function initApp(){
   }
 }
 
+// ── MODE DEV ──────────────────────────────────────────
+const IS_DEV = window.location.hostname === 'localhost' 
+  || window.location.hostname === '127.0.0.1'
+  || window.location.protocol === 'file:';
+
+if(IS_DEV){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const wrap = document.getElementById('dev-bypass-wrap');
+    if(wrap) wrap.style.display = 'block';
+  });
+}
+
+function devBypass(){
+  if(!IS_DEV) return;
+  // Profil dev fictif
+  user = {
+    name: 'Nordine',
+    level: 'expert',
+    mode: 'trek',
+    checked: {},
+    km: 0, dplus: 0, sorties: 0, bestKm: 0, bestDplus: 0
+  };
+  document.getElementById('auth-screen').style.display = 'none';
+  // Charger depuis localStorage en mode dev
+  loadRandos(); loadFB(); loadRavito(); loadHydra();
+  document.getElementById('grp-sub').textContent = 'MODE DEV · LOCAL';
+  setTimeout(()=>setDurType('day'), 100);
+  document.getElementById('main-app').style.cssText = 'display:flex;flex-direction:column';
+  const av = document.getElementById('hdr-av');
+  if(av){ av.textContent = 'NO'; av.style = avS(4); }
+  renderRandos();
+  toast('MODE DEV ACTIVÉ');
+}
+
 function init(){
   // Firebase auth observer prend le relais — initApp() est appelé après auth réussie
   document.getElementById('main-app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
+  if(IS_DEV){ const w=document.getElementById('dev-bypass-wrap'); if(w) w.style.display='block'; }
 }
 init();
 </script>
