@@ -126,7 +126,7 @@ select.form-input{appearance:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── MAP ── */
-#rando-map{height:180px;border-radius:var(--r);overflow:hidden;margin-bottom:12px;border:.5px solid var(--border2)}
+
 .gpx-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:.5px solid var(--gold2);background:var(--gold-bg);color:var(--ink);cursor:pointer;font-family:var(--mono);transition:background .15s}
 .gpx-btn:hover{background:#F5E87A}
 .ign-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r);font-size:11px;border:.5px solid var(--blue);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-family:var(--mono);text-decoration:none;transition:background .15s}
@@ -962,7 +962,7 @@ select.form-input{appearance:none}
 
 <!-- RANDO MODAL -->
 <div class="modal-wrap" id="rando-modal" onclick="closeModalOuter('rando-modal',event)">
-  <div class="modal"><div class="modal-handle"></div><div id="rando-map"></div><div id="rando-modal-body"></div></div>
+  <div class="modal"><div class="modal-handle"></div><div id="rando-modal-body"></div></div>
 </div>
 
 <!-- ADD RANDO MODAL -->
@@ -1465,7 +1465,7 @@ function rcardMain(r){
     <div class="rreg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.region}</div>
     <div class="rstats"><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h20M2 12l4-4M2 12l4 4"/></svg>${r.km}km</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+${r.dplus}m</span><span class="rst"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${r.dur}</span><span class="tag ${dc}" style="margin-left:auto">${r.diff}</span></div>
     <div class="vrow">
-      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'VOTÉ':'PARTANT'}</button>
+      <button class="vbtn ${r.myVote==='oui'?'vyes':''}" onclick="event.stopPropagation();vote('${r.id}','oui')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>${r.myVote==='oui'?'✓ VOTÉ':'PARTANT'}</button>
       <button class="vbtn ${r.myVote==='peut'?'vmay':''}" onclick="event.stopPropagation();vote('${r.id}','peut')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>PEUT-ÊTRE</button>
       <span class="vtally">${r.votes.oui}✓ ${r.votes.peut}?</span>
       ${user&&r.proposedBy&&r.proposedBy===user.name?`<button onclick="event.stopPropagation();showConfirm('Supprimer cette rando ?','Cette action est irréversible.','Supprimer',()=>deleteRando('${r.id}'))" style="background:none;border:none;cursor:pointer;padding:3px;color:var(--ink4);margin-left:auto;display:flex;align-items:center" title="Supprimer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
@@ -2318,7 +2318,7 @@ function renderBaseCamp(){
     ${nextRando?`<div class="bc-section"><div class="bc-section-title">Prochaine sortie</div>
       <div class="bc-next">
         <div class="bc-next-date"><div class="bc-next-day">${(nextRando.dateStr||nextRando.date||'—').split(' ')[0]}</div><div class="bc-next-month">${(nextRando.dateStr||nextRando.date||'').split(' ')[1]||''}</div></div>
-        <div class="bc-next-info"><div class="bc-next-title">${nextRando.name}</div><div class="bc-next-sub">${nextRando.region} · ${nextRando.km}km · +${nextRando.dplus}m</div></div>
+        <div class="bc-next-info"><div class="bc-next-title">${nextRando.name}</div><div class="bc-next-sub">${nextRando.region}${nextRando.km&&nextRando.km!==null?" · "+nextRando.km+"km":""}${nextRando.dplus&&nextRando.dplus!==null?" · +"+nextRando.dplus+"m":""}</div></div>
         <div class="bc-countdown">J-${Math.max(1,3+Math.floor(Math.random()*7))}</div>
       </div>
     </div>`:''}
