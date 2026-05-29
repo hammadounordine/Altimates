@@ -447,6 +447,20 @@ select.form-input{appearance:none}
 .trace-vote-btn{padding:4px 10px;border-radius:20px;border:.5px solid var(--border2);background:transparent;font-size:10px;cursor:pointer;font-family:var(--mono);color:var(--ink3);white-space:nowrap;transition:all .15s;flex-shrink:0}
 .trace-vote-btn.voted{background:var(--ink);color:var(--gold);border-color:var(--ink)}
 .trace-add-row{display:flex;gap:6px;margin-top:8px}
+
+/* ── KIT 4 STATUTS ── */
+.kit-status-bar{display:flex;gap:3px;margin-top:5px}
+.ks-btn{flex:1;padding:4px 2px;border-radius:6px;border:.5px solid var(--border2);background:transparent;font-size:9px;cursor:pointer;font-family:var(--mono);color:var(--ink3);text-align:center;transition:all .15s;white-space:nowrap}
+.ks-btn.have{background:#D4EDD9;color:#2A5C35;border-color:#A8D8B0}
+.ks-btn.want{background:#E4EEF7;color:#0C447C;border-color:#90B8D8}
+.ks-btn.maybe{background:#FDF8E6;color:#8C7000;border-color:#E8D070}
+.ks-btn.skip{background:#F0EBE0;color:#9CA3AF;border-color:#D1C9BC}
+.kit-share-row{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 8px;background:var(--kraft2);border-radius:8px;border:.5px solid var(--border)}
+.kit-share-toggle{width:32px;height:18px;border-radius:9px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.kit-share-toggle.on{background:var(--ink)}
+.kit-share-toggle.off{background:var(--border2)}
+.kit-share-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.kit-share-toggle.on::after{transform:translateX(14px)}
 </style>
 </head>
 <body>
@@ -1524,6 +1538,13 @@ const GEAR_INFO = {
     tip: "Permet de boire depuis n'importe quelle source naturelle. Le Sawyer Squeeze et le Lifestraw Go sont les références. Beaucoup plus léger et économique que de transporter toute l'eau nécessaire sur un trek.",
     links: [{'label':'Amazon','url':'https://www.amazon.fr/s?k=filtre+eau+portable+randonnee+sawyer+lifestraw','favicon':'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},{'label':'Decathlon','url':'https://www.decathlon.fr/search?query=filtre+eau+portable+randonnee','favicon':'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},{'label':'LeBonCoin','url':'https://www.leboncoin.fr/recherche?text=filtre+eau+randonnee','favicon':'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}]
   },
+  sacpoubelle: {
+    tip: "Principe LNT (Leave No Trace) — chaque randonneur repart avec ses propres déchets. Un sac congélation hermétique évite les odeurs. Prévoir aussi pour les déchets organiques en zone protégée.",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=sac+poubelle+randonnee',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=sac+poubelle+congelation+hermétique',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
   carte: {
     tip: "Carte IGN 1:25000 de la zone. Indispensable en complément du GPS — en cas de panne de batterie, une carte papier peut sauver la mise. Se prépare à l'avance, les zones blanches n'existent pas sur une carte IGN.",
     links: [{'label':'IGN Boutique','url':'https://boutique.ign.fr/cartes-randonnee','favicon':'https://www.google.com/s2/favicons?domain=ign.fr&sz=16'},{'label':'Amazon','url':'https://www.amazon.fr/s?k=carte+IGN+25000+randonnee','favicon':'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},{'label':'LeBonCoin','url':'https://www.leboncoin.fr/recherche?text=carte+IGN+randonnee+topo','favicon':'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}]
@@ -1584,37 +1605,114 @@ function renderKit(){
 }
 
 function gearRow(g){
-  const done=user&&user.checked&&user.checked[g.id];
-  const info=GEAR_INFO[g.id]||null;
-  const ORDER=['Decathlon','Vinted','Amazon','LeBonCoin','IGN Boutique'];
-  const sortedLinks=info&&info.links?[...info.links].sort((a,b)=>{
-    const ia=ORDER.indexOf(a.label),ib=ORDER.indexOf(b.label);
-    return (ia===-1?99:ia)-(ib===-1?99:ib);
-  }):[];
-  const linksHtml=sortedLinks.length?sortedLinks.map(l=>
-    `<a class="platform-link" href="${l.url}" target="_blank" rel="noopener">
+  const status = user&&user.kitStatus&&user.kitStatus[g.id] || null;
+  const shareData = user&&user.kitShare&&user.kitShare[g.id] || {shared:false, capacity:1};
+  const info = GEAR_INFO[g.id]||null;
+  const isShareItem = ['tente', 'rechaud', 'filtreeau', 'camelbak'].includes(g.id);
+
+  // Liens contextuels — affichés si statut want/maybe
+  const showLinks = status==='want'||status==='maybe';
+  const linksHtml = showLinks&&info&&info.links ? (() => {
+    const ORDER=['Decathlon','Vinted','Amazon','LeBonCoin','IGN Boutique'];
+    return [...info.links].sort((a,b)=>{
+      const ia=ORDER.indexOf(a.label),ib=ORDER.indexOf(b.label);
+      return(ia===-1?99:ia)-(ib===-1?99:ib);
+    }).map(l=>`<a class="platform-link" href="${l.url}" target="_blank" rel="noopener">
       <img src="${l.favicon}" width="12" height="12" style="border-radius:2px;flex-shrink:0" onerror="this.style.display='none'">${l.label}
-    </a>`
-  ).join(''):'';
-  return`<div class="gear-item">
-    <div class="gear-check ${done?'done':''}" onclick="toggleGear('${g.id}')" role="checkbox" aria-checked="${!!done}">
-      ${done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
-    </div>
+    </a>`).join('');
+  })() : '';
+
+  // Icône statut
+  const statusIcon = {
+    have:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2A5C35" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    want:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C447C" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+    maybe:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8C7000" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    skip:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  }[status]||'';
+
+  // Partage pour articles spéciaux
+  const shareHTML = isShareItem && status==='have' ? `
+    <div class="kit-share-row">
+      <button class="kit-share-toggle ${shareData.shared?'on':'off'}" onclick="toggleKitShare('${g.id}')" title="${shareData.shared?'Partage activé':'Partage désactivé'}"></button>
+      <span style="font-size:10px;color:var(--ink3);font-family:var(--mono);flex:1">${shareData.shared?'Ouvert au partage':'Solo uniquement'}</span>
+      ${shareData.shared?`<select onchange="setKitShareCapacity('${g.id}',this.value)" style="font-size:10px;font-family:var(--mono);border:.5px solid var(--border2);border-radius:6px;padding:2px 4px;background:rgba(255,255,255,.8)">
+        <option ${shareData.capacity===1?'selected':''} value="1">1 pers.</option>
+        <option ${shareData.capacity===2?'selected':''} value="2">2 pers.</option>
+        <option ${shareData.capacity===3?'selected':''} value="3">3 pers.</option>
+      </select>`:''}
+    </div>` : '';
+
+  return `<div class="gear-item" style="${status==='skip'?'opacity:.45':''}">
     <div style="flex:1;min-width:0">
-      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
-        <span class="gear-name ${done?'done':''}" style="margin:0">${g.name}</span>
-        ${info?`<button onclick="openGearInfo('${g.id}')" style="background:none;border:none;cursor:pointer;padding:1px;display:flex;align-items:center;flex-shrink:0;opacity:.6" title="En savoir plus"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>`:''}
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+        ${statusIcon?`<span style="flex-shrink:0">${statusIcon}</span>`:'<span style="width:11px;flex-shrink:0"></span>'}
+        <span class="gear-name" style="margin:0;${status==='have'?'text-decoration:none':''}${status==='skip'?';text-decoration:line-through':''}">${g.name}</span>
+        ${info?`<button onclick="openGearInfo('${g.id}')" style="background:none;border:none;cursor:pointer;padding:1px;display:flex;align-items:center;flex-shrink:0;opacity:.5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>`:''}
       </div>
-      ${g.note?`<div class="gear-note">${g.note}</div>`:''}
-      ${linksHtml?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${linksHtml}</div>`:''}
+      ${g.note&&!status?`<div class="gear-note">${g.note}</div>`:''}
+      <!-- 4 statuts -->
+      <div class="kit-status-bar">
+        <button class="ks-btn ${status==='have'?'have':''}" onclick="setKitStatus('${g.id}','have')">✓ J'ai</button>
+        <button class="ks-btn ${status==='want'?'want':''}" onclick="setKitStatus('${g.id}','want')">🛒 Je prends</button>
+        <button class="ks-btn ${status==='maybe'?'maybe':''}" onclick="setKitStatus('${g.id}','maybe')">? Réfléchir</button>
+        <button class="ks-btn ${status==='skip'?'skip':''}" onclick="setKitStatus('${g.id}','skip')">✕ Skip</button>
+      </div>
+      ${shareHTML}
+      ${linksHtml?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${linksHtml}</div>`:''}
     </div>
     <div class="gear-right">
-      <span class="gear-price ${done?'owned':''}">${g.price}</span>
-      ${done?'<span style="font-size:9px;color:var(--green);font-family:var(--mono)">✓ ok</span>':''}
+      <span class="gear-price ${status==='have'?'owned':''}">${g.price}</span>
     </div>
   </div>`;
 }
 
+
+function setKitStatus(id, status){
+  if(!user) return;
+  if(!user.kitStatus) user.kitStatus = {};
+  // Toggle — si déjà ce statut, remettre à null
+  if(user.kitStatus[id]===status){
+    delete user.kitStatus[id];
+    // Rétrocompat : aussi mettre à jour checked
+    if(user.checked) user.checked[id]=false;
+  } else {
+    user.kitStatus[id]=status;
+    if(user.checked) user.checked[id]=(status==='have');
+  }
+  saveUser();
+  renderKit();
+}
+
+function toggleKitShare(id){
+  if(!user) return;
+  if(!user.kitShare) user.kitShare={};
+  if(!user.kitShare[id]) user.kitShare[id]={shared:false,capacity:1};
+  user.kitShare[id].shared=!user.kitShare[id].shared;
+  saveUser();
+  renderKit();
+}
+
+function setKitShareCapacity(id, cap){
+  if(!user) return;
+  if(!user.kitShare) user.kitShare={};
+  if(!user.kitShare[id]) user.kitShare[id]={shared:true,capacity:parseInt(cap)};
+  else user.kitShare[id].capacity=parseInt(cap);
+  saveUser();
+}
+
+function getKitStats(){
+  if(!user||!user.kitStatus) return {have:0,want:0,maybe:0,skip:0,total:0};
+  const stats={have:0,want:0,maybe:0,skip:0,total:0};
+  const mode=user.mode||'trek';
+  const gear=GEAR[mode];
+  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
+  stats.total=all.length;
+  all.forEach(g=>{
+    const s=user.kitStatus[g.id];
+    if(s) stats[s]=(stats[s]||0)+1;
+  });
+  return stats;
+}
 function toggleGear(id){if(!user)return;if(!user.checked)user.checked={};user.checked[id]=!user.checked[id];saveUser();renderKit();}
 function toggleSec(k){openSec[k]=!openSec[k];renderKit();}
 function switchMode(){user.mode=user.mode==='trek'?'journee':'trek';saveUser();renderKit();}
@@ -3128,20 +3226,46 @@ function renderKitRandoHTML(randoId){
       </div>`).join('')
     }`;
 
-  // Kit partagé des partants
+  // Articles de partage (tente, réchaud, filtre, camelbak)
+  const SHARE_IDS = ['tente','rechaud','filtreeau','camelbak'];
+  const SHARE_LABELS = {tente:'Tente',rechaud:'Réchaud',filtreeau:'Filtre eau',camelbak:'Camelbak'};
+
+  // Kit partagé enrichi
   const kitSharedHTML = partants.length > 0
-    ? `<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 10px">${partants.length} partant${partants.length>1?'s':''} — équipement</div>
-      ${partants.map(name=>{
-        const isMe = user && name === user.name;
-        const checked = isMe && user.checked ? Object.keys(user.checked).filter(k=>user.checked[k]) : [];
-        return `<div style="padding:8px 10px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:8px;margin-bottom:6px">
-          <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px">${name}${isMe?' (toi)':''}</div>
-          ${checked.length>0
-            ?`<div style="display:flex;flex-wrap:wrap;gap:4px">${checked.slice(0,8).map(k=>`<span style="font-size:9px;font-family:var(--mono);background:var(--kraft2);border:.5px solid var(--border);padding:2px 7px;border-radius:6px;color:var(--ink2)">${k}</span>`).join('')}${checked.length>8?`<span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">+${checked.length-8}</span>`:''}</div>`
-            :`<div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">${isMe?'Aucun article coché dans ton kit':'Données non disponibles'}</div>`
-          }
-        </div>`;
-      }).join('')}`
+    ? `<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 10px">${partants.length} partant${partants.length>1?'s':''} — logistique</div>
+      <!-- Articles de partage -->
+      <div style="margin-bottom:10px">
+        ${SHARE_IDS.map(sid=>{
+          const label=SHARE_LABELS[sid];
+          const havers=partants.filter(name=>{
+            const isMe=user&&name===user.name;
+            if(isMe) return user.kitStatus&&user.kitStatus[sid]==='have';
+            return false; // Autres membres via Firestore à terme
+          });
+          const sharedHavers=partants.filter(name=>{
+            const isMe=user&&name===user.name;
+            if(isMe) return user.kitStatus&&user.kitStatus[sid]==='have'&&user.kitShare&&user.kitShare[sid]&&user.kitShare[sid].shared;
+            return false;
+          });
+          if(havers.length===0) return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.5);border:.5px solid var(--border);border-radius:8px;margin-bottom:5px;opacity:.5">
+            <span style="font-size:11px;color:var(--ink3);flex:1">${label}</span>
+            <span style="font-size:9px;font-family:var(--mono);color:var(--ink4)">Non couvert</span>
+          </div>`;
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:8px;margin-bottom:5px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span style="font-size:11px;font-weight:500;color:var(--ink);flex:1">${label}</span>
+            <span style="font-size:9px;font-family:var(--mono);color:var(--ink3)">${havers.join(', ')}</span>
+            ${sharedHavers.length>0?`<span style="font-size:9px;font-family:var(--mono);background:#D4EDD9;color:#2A5C35;padding:1px 6px;border-radius:6px">${user.kitShare&&user.kitShare[sid]?user.kitShare[sid].capacity+'p':''}·partagé</span>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- Articles à prévoir -->
+      ${user&&user.kitStatus?`<div style="font-size:9px;color:var(--ink3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Ton kit pour cette sortie</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${Object.entries(user.kitStatus).filter(([k,v])=>v==='have').map(([k])=>`<span style="font-size:9px;font-family:var(--mono);background:#D4EDD9;border:.5px solid #A8D8B0;padding:2px 7px;border-radius:6px;color:#2A5C35">${k}</span>`).join('')}
+        ${Object.entries(user.kitStatus).filter(([k,v])=>v==='want').map(([k])=>`<span style="font-size:9px;font-family:var(--mono);background:#E4EEF7;border:.5px solid #90B8D8;padding:2px 7px;border-radius:6px;color:#0C447C">${k} 🛒</span>`).join('')}
+      </div>`:''}
+    `
     : `<div style="font-size:11px;color:var(--ink3);font-family:var(--mono);text-align:center;padding:12px">En attente de partants pour afficher le kit partagé</div>`;
 
   return `<div>${departHTML}${kitSharedHTML}</div>`;
