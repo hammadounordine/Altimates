@@ -189,8 +189,7 @@ select.form-input{appearance:none}
 .bc-record-icon{width:30px;height:30px;border-radius:8px;background:var(--kraft2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:.5px solid var(--border)}
 .bc-level-bar{height:6px;background:var(--kraft3);border-radius:3px;overflow:hidden;margin-top:5px}
 .bc-level-fill{height:100%;background:linear-gradient(90deg,var(--ink),var(--gold2));border-radius:3px;transition:width .6s}
-.bc-garmin{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.75);border:.5px solid var(--border2);border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .15s}
-.bc-garmin:hover{background:var(--kraft2)}
+--r);cursor:pointer;text-decoration:none;transition:background .15s}
 
 /* ── RADIO ── */
 .radio-header{background:var(--ink);border-radius:var(--rl);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
@@ -1181,7 +1180,7 @@ const TOOLTIPS=[
 // ── UTILS ──────────────────────────────────────────────────
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 function showTab(t){
-  if(t==='admin' && isAdmin()) renderAdmin();
+  if(t==='admin' && isAdmin()) setTimeout(renderAdmin, 50);
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
@@ -1624,6 +1623,13 @@ const GEAR_INFO = {
     tip: "Permet de boire depuis n'importe quelle source naturelle. Le Sawyer Squeeze et le Lifestraw Go sont les références. Beaucoup plus léger et économique que de transporter toute l'eau nécessaire sur un trek.",
     links: [{'label':'Amazon','url':'https://www.amazon.fr/s?k=filtre+eau+portable+randonnee+sawyer+lifestraw','favicon':'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'},{'label':'Decathlon','url':'https://www.decathlon.fr/search?query=filtre+eau+portable+randonnee','favicon':'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},{'label':'LeBonCoin','url':'https://www.leboncoin.fr/recherche?text=filtre+eau+randonnee','favicon':'https://www.google.com/s2/favicons?domain=leboncoin.fr&sz=16'}]
   },
+  gourde1l: {
+    tip: "Indispensable en complément de la poche à eau. Une gourde 1L permet d'avoir une réserve d'urgence et de remplir sans enlever le sac. Préférer inox ou Tritan (sans BPA).",
+    links: [
+      {label:'Decathlon',url:'https://www.decathlon.fr/search?query=gourde+1l+randonnee+inox',favicon:'https://www.google.com/s2/favicons?domain=decathlon.fr&sz=16'},
+      {label:'Amazon',url:'https://www.amazon.fr/s?k=gourde+1l+randonnee+inox',favicon:'https://www.google.com/s2/favicons?domain=amazon.fr&sz=16'}
+    ]
+  },
   sacpoubelle: {
     tip: "Principe LNT (Leave No Trace) — chaque randonneur repart avec ses propres déchets. Un sac congélation hermétique évite les odeurs. Prévoir aussi pour les déchets organiques en zone protégée.",
     links: [
@@ -1805,45 +1811,149 @@ function switchMode(){user.mode=user.mode==='trek'?'journee':'trek';saveUser();r
 
 // ── PDF ───────────────────────────────────────────────────
 function generatePDF(){
-  if(!window.jspdf){toast('⚠ PDF indisponible');return;}
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({unit:'mm',format:'a4'});
-  const gear=GEAR[user.mode];const modeL=user.mode==='trek'?'Trek multi-jours':'Journée';
-  doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(45,45,42);doc.text('ALTIMATES',15,20);
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(107,101,96);
-  doc.text(`Kit ${modeL.toUpperCase()} · ${user.name.toUpperCase()} · ${new Date().toLocaleDateString('fr')}`,15,28);
-  doc.setDrawColor(200,168,50);doc.setLineWidth(0.8);doc.line(15,32,195,32);
-  let y=40;
-  const all=[...gear.indispensable,...gear.recommande,...gear.facultatif];
-  const missing=all.filter(g=>!(user.checked&&user.checked[g.id]));
-  const budgetMin=missing.reduce((acc,g)=>{const p=g.price.split('–')[0].replace(/[^0-9]/g,'');return acc+(parseInt(p)||0);},0);
-  const budgetMax=missing.reduce((acc,g)=>{const p=g.price.split('–')[1]||g.price;return acc+(parseInt(p.replace(/[^0-9]/g,''))||0);},0);
-  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(45,45,42);
-  doc.text(`Budget estimé manquant : ${budgetMin}€ – ${budgetMax}€`,15,y);y+=10;
-  [['indispensable','INDISPENSABLES',gear.indispensable],['recommande','RECOMMANDÉS',gear.recommande],['facultatif','FACULTATIFS',gear.facultatif]].forEach(([k,label,items])=>{
-    if(y>260){doc.addPage();doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');y=20;}
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(45,45,42);doc.text(label,15,y);y+=5;
-    doc.setDrawColor(232,200,74);doc.setLineWidth(0.4);doc.line(15,y,195,y);y+=5;
-    items.forEach(g=>{
-      if(y>275){doc.addPage();doc.setFillColor(247,243,236);doc.rect(0,0,210,297,'F');y=20;}
-      const done=user.checked&&user.checked[g.id];
-      doc.setFillColor(done?45:255,done?45:255,done?42:255);doc.setDrawColor(180,170,160);doc.setLineWidth(0.3);doc.rect(15,y-3.5,4,4,done?'F':'S');
-      if(done){doc.setDrawColor(232,200,74);doc.setLineWidth(0.6);doc.line(15.8,y-1.5,16.8,y-.3);doc.line(16.8,y-.3,18.8,y-3.8);}
-      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(done?160:45,done?155:45,done?150:42);
-      doc.text(g.name,22,y);
-      doc.setFontSize(8);doc.setTextColor(done?180:107,done?175:101,done?170:96);
-      doc.text(g.price,185,y,{align:'right'});
-      if(g.note){y+=3.5;doc.setFontSize(7);doc.setTextColor(107,101,96);doc.text(g.note,22,y);}
-      if(g.links&&g.links.length){g.links.forEach(l=>{y+=3.5;doc.setFontSize(7);doc.setTextColor(74,127,168);doc.text(`→ ${l.l}: ${l.u}`,22,y);});}
-      y+=7;
-    });y+=4;
-  });
-  doc.setFontSize(7);doc.setTextColor(160,155,150);doc.setFont('helvetica','italic');
-  doc.text('ALTImates · Plan, gear up, summit together.',15,290);
-  doc.save(`altimates-kit-${user.name.toLowerCase()}-${user.mode}.pdf`);
+  if(typeof jspdf==='undefined'&&typeof window.jspdf==='undefined'){
+    toast('PDF non disponible');return;
+  }
+  const {jsPDF} = window.jspdf || jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const mode = user?user.mode:'trek';
+  const gear = GEAR[mode];
+  const all = [...gear.indispensable.map(g=>({...g,cat:'indispensable'})),
+               ...gear.recommande.map(g=>({...g,cat:'recommande'})),
+               ...gear.facultatif.map(g=>({...g,cat:'facultatif'}))];
+
+  const statuts = user&&user.kitStatus ? user.kitStatus : {};
+
+  // Séparer par statut
+  const toBuy = all.filter(g=>statuts[g.id]==='want' || (!statuts[g.id] && g.cat==='indispensable'));
+  const toThink = all.filter(g=>statuts[g.id]==='maybe');
+  const have = all.filter(g=>statuts[g.id]==='have');
+  const skip = all.filter(g=>statuts[g.id]==='skip');
+
+  const W=210, M=16, CW=W-M*2;
+  let y=20;
+
+  // ── En-tête ──
+  doc.setFillColor(45,45,42);
+  doc.roundedRect(M,y-6,CW,14,3,3,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(232,200,74);
+  doc.text('ALTImates — Liste Kit',W/2,y+2,{align:'center'});
+  doc.setFontSize(8);
+  doc.setTextColor(180,160,100);
+  doc.text(`${mode==='trek'?'Trek':'Journée'} · ${new Date().toLocaleDateString('fr')} · ${user?user.name:''}`,W/2,y+7,{align:'center'});
+  y+=18;
+
+  // ── Rappel important ──
+  doc.setFillColor(253,248,230);
+  doc.roundedRect(M,y,CW,10,2,2,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(140,112,0);
+  doc.text('⚠ RAPPEL : Prévoir au moins 1 gourde de 1L par personne + filtrante si ruisseau sur le tracé',M+4,y+6.5);
+  y+=15;
+
+  function sectionHeader(label, color){
+    doc.setFillColor(...color);
+    doc.roundedRect(M,y,CW,7,1.5,1.5,'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255,255,255);
+    doc.text(label,M+4,y+5);
+    y+=10;
+  }
+
+  function itemRow(g, showLinks=false){
+    if(y>270){ doc.addPage(); y=20; }
+    // Fond alterné léger
+    doc.setFillColor(247,243,236);
+    doc.roundedRect(M,y,CW,showLinks&&GEAR_INFO[g.id]?.links?.length?14:8,1,1,'F');
+
+    // Catégorie badge
+    const catLabel = g.cat==='indispensable'?'INDIS.':g.cat==='recommande'?'REC.':'FAC.';
+    const catColor = g.cat==='indispensable'?[196,83,26]:g.cat==='recommande'?[12,68,124]:[107,101,96];
+    doc.setFillColor(...catColor);
+    doc.roundedRect(M+2,y+2,10,4,1,1,'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(5.5);
+    doc.setTextColor(255,255,255);
+    doc.text(catLabel,M+7,y+4.8,{align:'center'});
+
+    // Nom
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(45,45,42);
+    doc.text(g.name,M+14,y+5.5);
+
+    // Prix
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(107,101,96);
+    doc.text(g.price,M+CW-2,y+5.5,{align:'right'});
+
+    // Liens si want/maybe
+    if(showLinks && GEAR_INFO[g.id]?.links?.length){
+      const links = GEAR_INFO[g.id].links;
+      const ORDER=['Decathlon','Vinted','Amazon','LeBonCoin'];
+      const sorted = [...links].sort((a,b)=>(ORDER.indexOf(a.label)+1||99)-(ORDER.indexOf(b.label)+1||99));
+      let lx = M+14;
+      doc.setFontSize(7);
+      sorted.slice(0,3).forEach(l=>{
+        doc.setTextColor(12,68,124);
+        doc.textWithLink(l.label+' ↗',lx,y+11,{url:l.url});
+        lx += doc.getTextWidth(l.label+' ↗')+4;
+      });
+      y+=14;
+    } else {
+      y+=9;
+    }
+  }
+
+  // ── Section 1 : À acheter ──
+  if(toBuy.length>0){
+    sectionHeader(`🔴 À ACHETER — ${toBuy.length} article${toBuy.length>1?'s':''}`, [196,83,26]);
+    toBuy.forEach(g=>itemRow(g, true));
+    y+=3;
+  }
+
+  // ── Section 2 : À réfléchir ──
+  if(toThink.length>0){
+    if(y>250){ doc.addPage(); y=20; }
+    sectionHeader(`🟡 À RÉFLÉCHIR — ${toThink.length} article${toThink.length>1?'s':''}`, [140,112,0]);
+    toThink.forEach(g=>itemRow(g, true));
+    y+=3;
+  }
+
+  // ── Section 3 : J'ai déjà ──
+  if(have.length>0){
+    if(y>250){ doc.addPage(); y=20; }
+    sectionHeader(`🟢 J'AI DÉJÀ — ${have.length} article${have.length>1?'s':''}`, [42,92,53]);
+    have.forEach(g=>{
+      if(y>270){ doc.addPage(); y=20; }
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.setTextColor(107,101,96);
+      doc.text('✓  '+g.name,M+4,y);
+      y+=5;
+    });
+    y+=3;
+  }
+
+  // ── Section 4 : Ignorés ──
+  if(skip.length>0){
+    if(y>260){ doc.addPage(); y=20; }
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(7);
+    doc.setTextColor(180,175,168);
+    doc.text('Ignorés : '+skip.map(g=>g.name).join(', '),M,y);
+    y+=6;
+  }
+
+  doc.save('altimates-kit.pdf');
   toast('PDF TÉLÉCHARGÉ');
 }
+
 function openEmailModal(){buildEmailPreview();openModal('email-modal');}
 function buildEmailPreview(){
   if(!user)return'';
@@ -2071,23 +2181,10 @@ function renderBaseCamp(){
     </div>
 
     <div class="bc-section"><div class="bc-section-title">Niveau dans la cordée</div>
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div><div style="font-size:12px;font-weight:500;margin-bottom:3px">Niveau actuel</div>
-            <span class="tag ${lv.cls}">${lv.l}</span>
-            ${lv.next?`<span style="font-size:10px;color:var(--ink3);margin-left:6px;font-family:var(--mono)">→ ${lv.next}</span>`:'<span style="font-size:10px;color:var(--gold2);margin-left:6px">✓ MAX</span>'}
-          </div>
-          <div style="font-size:18px;font-weight:600;font-family:var(--mono)">${lv.pct}%</div>
-        </div>
-        <div class="bc-level-bar"><div class="bc-level-fill" style="width:${lv.pct}%"></div></div>
-      </div>
+      
     </div>
 
-    <a class="bc-garmin" href="https://connect.garmin.com" target="_blank" rel="noopener" style="display:flex;text-decoration:none;margin-bottom:10px">
-      <div style="width:32px;height:32px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8C84A" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="7"/><path d="M12 6v6l4 2"/></svg></div>
-      <div style="flex:1;margin-left:10px"><div style="font-size:13px;font-weight:500">Garmin Connect</div><div style="font-size:10px;color:var(--ink3);font-family:var(--mono)">Importer tes traces GPX</div></div>
-      <span style="font-size:14px;color:var(--ink3)">↗</span>
-    </a>
+    
 
     <div style="display:flex;gap:7px;flex-wrap:wrap">
       <button class="btn btn-sm" onclick="openOnbWithCancel()">Modifier profil</button>
