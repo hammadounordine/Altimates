@@ -519,6 +519,9 @@ select.form-input{appearance:none}
 .date-field-label{font-size:12px;font-family:var(--mono);color:#6B6560;margin-left:8px;flex:1}
 .date-field-val{font-size:12px;font-family:var(--mono);color:#2D2D2A;margin-left:8px;flex:1}
 .date-field input[type="date"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+/* ── EDIT DUR TYPE ── */
+.edit-dur-tab{padding:6px 14px;border-radius:8px;border:.5px solid var(--border2);background:transparent;font-size:11px;font-family:var(--mono);color:var(--ink3);cursor:pointer;transition:all .15s}
+.edit-dur-tab.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -3902,6 +3905,13 @@ function updateDateDisplay(inputId, displayId){
   }
 }
 
+function setEditDurType(t){
+  document.getElementById('edt-day').classList.toggle('active', t==='day');
+  document.getElementById('edt-multi').classList.toggle('active', t==='multi');
+  document.getElementById('edt-day-wrap').style.display = t==='day'?'block':'none';
+  document.getElementById('edt-multi-wrap').style.display = t==='multi'?'block':'none';
+}
+
 function openEditRando(rid){
   const r=randos.find(x=>String(x.id)===String(rid));
   if(!r) return;
@@ -3913,8 +3923,18 @@ function openEditRando(rid){
   document.getElementById('ef-dplus').value=r.dplus||'';
   const ds=document.getElementById('ef-diff'); if(ds) ds.value=r.diff||'';
   document.getElementById('ef-komoot').value=r.traces&&r.traces[0]?r.traces[0].url:'';
-  if(r.dateStart){document.getElementById('ef-date').value=r.dateStart;updateDateDisplay('ef-date','ef-date-display');}
-  else{document.getElementById('ef-date').value='';const dd=document.getElementById('ef-date-display');if(dd){dd.textContent='Date de la sortie';dd.style.color='var(--ink3)';}}
+  // Détecter si multi-jours
+  if(r.dateEnd && r.dateEnd !== r.dateStart){
+    setEditDurType('multi');
+    document.getElementById('ef-date-start').value=r.dateStart||'';
+    document.getElementById('ef-date-end').value=r.dateEnd||'';
+    if(r.dateStart) updateDateDisplay('ef-date-start','ef-date-start-display');
+    if(r.dateEnd) updateDateDisplay('ef-date-end','ef-date-end-display');
+  } else {
+    setEditDurType('day');
+    if(r.dateStart){document.getElementById('ef-date').value=r.dateStart;updateDateDisplay('ef-date','ef-date-display');}
+    else{document.getElementById('ef-date').value='';const dd=document.getElementById('ef-date-display');if(dd){dd.textContent='Date de la sortie';dd.style.color='var(--ink3)';}}
+  }
   modal.dataset.randoId=String(rid);
   openModal('edit-rando-modal');
 }
@@ -3932,8 +3952,21 @@ function saveEditRando(){
   if(km>0) r.km=km; else r.km=null;
   if(dp>0) r.dplus=dp; else r.dplus=null;
   r.diff=document.getElementById('ef-diff').value||null;
-  const dv=document.getElementById('ef-date').value;
-  if(dv){r.dateStart=dv;const d=new Date(dv);r.date=d.getDate()+' '+d.toLocaleString('fr',{month:'short'});}
+  const isMulti = document.getElementById('edt-multi')&&document.getElementById('edt-multi').classList.contains('active');
+  if(isMulti){
+    const ds=document.getElementById('ef-date-start').value;
+    const de=document.getElementById('ef-date-end').value;
+    if(ds){
+      r.dateStart=ds; r.dateEnd=de||ds;
+      const d1=new Date(ds), d2=de?new Date(de):d1;
+      const days=Math.round((d2-d1)/86400000)+1;
+      r.dur=days+'j';
+      r.date=d1.getDate()+'–'+(de?d2.getDate()+' '+d2.toLocaleString('fr',{month:'short'}):d1.getDate()+' '+d1.toLocaleString('fr',{month:'short'}));
+    }
+  } else {
+    const dv=document.getElementById('ef-date').value;
+    if(dv){r.dateStart=dv;r.dateEnd=null;r.dur='1j';const d=new Date(dv);r.date=d.getDate()+' '+d.toLocaleString('fr',{month:'short'});}
+  }
   const ku=document.getElementById('ef-komoot').value.trim();
   if(ku){
     const m=ku.match(/@(-?[0-9.]+),(-?[0-9.]+)/);
@@ -3946,6 +3979,8 @@ function saveEditRando(){
   if(currentUser) saveRandoToFirestore(r);
   closeModal('edit-rando-modal');
   renderRandos();
+  // Recharger la modal rando si elle est ouverte
+  setTimeout(()=>openRando(String(r.id)), 100);
   toast('RANDO MISE À JOUR');
 }
 
@@ -4038,11 +4073,39 @@ init();
         <div><label class="form-lbl">Nom *</label><input class="form-input" id="ef-name" placeholder="Nom de la rando"></div>
         <div><label class="form-lbl">R&eacute;gion</label><input class="form-input" id="ef-region" placeholder="ex: Haute-Savoie"></div>
         <div>
-          <label class="form-lbl">Date</label>
-          <div class="date-field" onclick="document.getElementById('ef-date').showPicker&&document.getElementById('ef-date').showPicker()">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span class="date-field-val" id="ef-date-display" style="color:var(--ink3)">Date de la sortie</span>
-            <input type="date" id="ef-date" onchange="updateDateDisplay('ef-date','ef-date-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+          <label class="form-lbl">Type de sortie</label>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <button class="edit-dur-tab active" id="edt-day" onclick="setEditDurType('day')">Journée</button>
+            <button class="edit-dur-tab" id="edt-multi" onclick="setEditDurType('multi')">Trek multi-jours</button>
+          </div>
+          <!-- Journée -->
+          <div id="edt-day-wrap">
+            <div class="date-field" onclick="document.getElementById('ef-date').showPicker&&document.getElementById('ef-date').showPicker()">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span class="date-field-val" id="ef-date-display" style="color:var(--ink3)">Date de la sortie</span>
+              <input type="date" id="ef-date" onchange="updateDateDisplay('ef-date','ef-date-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+            </div>
+          </div>
+          <!-- Multi-jours -->
+          <div id="edt-multi-wrap" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">DÉPART</div>
+                <div class="date-field" onclick="document.getElementById('ef-date-start').showPicker&&document.getElementById('ef-date-start').showPicker()">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span class="date-field-val" id="ef-date-start-display" style="color:var(--ink3);font-size:10px">Départ</span>
+                  <input type="date" id="ef-date-start" onchange="updateDateDisplay('ef-date-start','ef-date-start-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-family:var(--mono);color:var(--ink3);margin-bottom:4px">RETOUR</div>
+                <div class="date-field" onclick="document.getElementById('ef-date-end').showPicker&&document.getElementById('ef-date-end').showPicker()">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span class="date-field-val" id="ef-date-end-display" style="color:var(--ink3);font-size:10px">Retour</span>
+                  <input type="date" id="ef-date-end" onchange="updateDateDisplay('ef-date-end','ef-date-end-display')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
