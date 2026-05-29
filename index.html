@@ -475,6 +475,22 @@ select.form-input{appearance:none}
 .admin-btn-ok{padding:5px 12px;border-radius:8px;border:none;background:#D4EDD9;color:#2A5C35;font-size:10px;font-family:var(--mono);cursor:pointer;font-weight:500;transition:background .15s;white-space:nowrap}
 .member-card{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.6);border:.5px solid var(--border);border-radius:10px;margin-bottom:7px}
 .admin-badge{font-size:8px;padding:1px 6px;border-radius:10px;font-family:var(--mono);font-weight:500;background:var(--ink);color:var(--gold)}
+
+/* ── BOUTON PROPOSER STICKY ── */
+.propose-btn-wrap{position:sticky;bottom:0;padding:10px 0 6px;background:linear-gradient(to bottom,transparent,var(--kraft) 40%);margin-top:auto;z-index:10}
+.propose-btn{width:100%;padding:13px;background:var(--ink);color:var(--gold);border:none;border-radius:12px;font-size:13px;font-weight:700;font-family:var(--mono);cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.propose-btn:hover{opacity:.85}
+.propose-btn svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5}
+
+/* ── KIT COLLAPSE ── */
+.kit-section-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.6);border-radius:10px;cursor:pointer;margin-bottom:6px;border:.5px solid var(--border2);user-select:none;transition:background .15s}
+.kit-section-header:hover{background:rgba(255,255,255,.9)}
+.kit-section-title{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--ink);display:flex;align-items:center;gap:7px}
+.kit-section-count{font-size:9px;font-family:var(--mono);padding:1px 7px;border-radius:10px;font-weight:500}
+.kit-section-chevron{transition:transform .2s;flex-shrink:0}
+.kit-section-chevron.open{transform:rotate(180deg)}
+.kit-section-body{display:none;margin-bottom:8px}
+.kit-section-body.open{display:block}
 </style>
 </head>
 <body>
@@ -717,10 +733,7 @@ select.form-input{appearance:none}
     <div class="sec">Ce weekend</div>
     <div id="rando-mois-container"></div>
     <div id="rando-list"></div>
-    <button class="btn btn-primary btn-full" onclick="openModal('add-modal')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Proposer une rando
-    </button>
+    
   </div>
 
   <!-- KIT -->
@@ -1036,10 +1049,10 @@ select.form-input{appearance:none}
 </div>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -1180,7 +1193,7 @@ const TOOLTIPS=[
 // ── UTILS ──────────────────────────────────────────────────
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 function showTab(t){
-  if(t==='admin' && isAdmin()) setTimeout(renderAdmin, 50);
+  if(t==='admin' && isAdmin()) setTimeout(renderAdmin, 300);
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
@@ -1759,6 +1772,15 @@ function gearRow(g){
 }
 
 
+function toggleKitSection(key){
+  const body = document.getElementById('kit-sec-'+key);
+  const chev = document.getElementById('chev-'+key);
+  if(!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if(chev) chev.classList.toggle('open', !isOpen);
+  localStorage.setItem('kit-open-'+key, isOpen?'0':'1');
+}
 function setKitStatus(id, status){
   if(!user) return;
   if(!user.kitStatus) user.kitStatus = {};
@@ -1804,6 +1826,56 @@ function getKitStats(){
     if(s) stats[s]=(stats[s]||0)+1;
   });
   return stats;
+}
+
+function openGearInfo(id){
+  const info = GEAR_INFO[id];
+  if(!info){ toast('Aucune info disponible'); return; }
+  // Trouver l'article dans GEAR pour son nom et sa catégorie
+  const mode = user ? user.mode : 'trek';
+  const gear = GEAR[mode];
+  const all = [...gear.indispensable.map(g=>({...g,cat:'indispensable'})),
+               ...gear.recommande.map(g=>({...g,cat:'recommande'})),
+               ...gear.facultatif.map(g=>({...g,cat:'facultatif'}))];
+  const g = all.find(x=>x.id===id);
+  if(!g) return;
+
+  const catLabel = g.cat==='indispensable'?'Indispensable':g.cat==='recommande'?'Recommandé':'Facultatif';
+  const catColor = g.cat==='indispensable'?'var(--red)':g.cat==='recommande'?'#0C447C':'var(--ink3)';
+
+  const panel = document.getElementById('gear-info-panel');
+  const overlay = document.getElementById('gear-info-overlay');
+  if(!panel||!overlay) return;
+
+  const titleEl = document.getElementById('gear-info-title');
+  const textEl = document.getElementById('gear-info-text');
+  const linksEl = document.getElementById('gear-info-links');
+
+  if(titleEl) titleEl.innerHTML = `${g.name} <span style="font-size:9px;font-family:var(--mono);padding:1px 7px;border-radius:10px;background:${catColor};color:#fff;margin-left:4px">${catLabel}</span>`;
+  if(textEl) textEl.textContent = info.tip || 'Aucune description disponible.';
+
+  if(linksEl){
+    if(info.links && info.links.length){
+      const ORDER = ['Decathlon','Vinted','Amazon','LeBonCoin','IGN Boutique'];
+      const sorted = [...info.links].sort((a,b)=>(ORDER.indexOf(a.label)+1||99)-(ORDER.indexOf(b.label)+1||99));
+      linksEl.innerHTML = sorted.map(l=>`
+        <a class="platform-link" href="${l.url}" target="_blank" rel="noopener" style="margin-bottom:4px;display:inline-flex">
+          <img src="${l.favicon}" width="12" height="12" style="border-radius:2px;flex-shrink:0;margin-right:4px" onerror="this.style.display='none'">${l.label} ↗
+        </a>`).join('');
+    } else {
+      linksEl.innerHTML = '<span style="font-size:11px;color:var(--ink3);font-family:var(--mono)">Aucun lien disponible</span>';
+    }
+  }
+
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+
+function closeGearInfo(){
+  const panel = document.getElementById('gear-info-panel');
+  const overlay = document.getElementById('gear-info-overlay');
+  if(panel) panel.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
 }
 function toggleGear(id){if(!user)return;if(!user.checked)user.checked={};user.checked[id]=!user.checked[id];saveUser();renderKit();}
 function toggleSec(k){openSec[k]=!openSec[k];renderKit();}
@@ -2180,7 +2252,7 @@ function renderBaseCamp(){
       </div>
     </div>
 
-    <div class="bc-section"><div class="bc-section-title">Niveau dans la cordée</div>
+    <div class="bc-section">
       
     </div>
 
@@ -2986,6 +3058,10 @@ function setupFirestoreListeners(){
     if(document.getElementById('tab-sommets').classList.contains('active')){
       renderRandos();
     }
+  // Refresh admin si onglet ouvert
+  if(document.getElementById('tab-admin')&&document.getElementById('tab-admin').classList.contains('active')){
+    setTimeout(renderAdmin, 100);
+  }
   }, err=>console.warn("Randos listener:", err));
 
   // Messages Radio
@@ -3503,12 +3579,15 @@ function showAdminNav(){
 
 function renderAdmin(){
   if(!isAdmin()) return;
+  // Attendre que le DOM soit visible
+  const el = document.getElementById('admin-count-randos');
+  if(!el){ setTimeout(renderAdmin, 150); return; }
 
   // Compteurs
-  document.getElementById('admin-count-randos').textContent = randos.length + ' entrées';
-  document.getElementById('admin-count-messages').textContent = messages.length + ' entrées';
-  document.getElementById('admin-count-feedbacks').textContent = feedbacks.length + ' entrées';
-  document.getElementById('admin-count-depart').textContent = departItems.length + ' entrées';
+  el.textContent = randos.length + ' entrées';
+  const m=document.getElementById('admin-count-messages');if(m)m.textContent=messages.length+' entrées';
+  const f=document.getElementById('admin-count-feedbacks');if(f)f.textContent=feedbacks.length+' entrées';
+  const d=document.getElementById('admin-count-depart');if(d)d.textContent=departItems.length+' entrées';
 
   // Mode dev
   const devEl = document.getElementById('admin-dev-status');
