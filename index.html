@@ -3,6 +3,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ALTImates</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,700;0,800;1,700&family=DM+Mono:wght@400;500&display=swap">
 <style>
@@ -423,6 +427,20 @@ select.form-input{appearance:none}
 .hydra-input-row:last-child{border-bottom:none}
 .hydra-num{width:52px;padding:4px 6px;border:.5px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--mono);text-align:center;background:rgba(255,255,255,.8);color:var(--ink)}
 .hydra-unit{font-size:10px;color:var(--ink3);font-family:var(--mono)}
+
+/* ── AUTH ── */
+.auth-screen{position:fixed;inset:0;z-index:500;background:var(--kraft);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+.auth-logo{margin-bottom:32px;text-align:center}
+.auth-card{background:rgba(255,255,255,.85);border:.5px solid var(--border2);border-radius:16px;padding:28px 24px;width:100%;max-width:340px;text-align:center;backdrop-filter:blur(8px)}
+.auth-title{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.3px;margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--ink3);font-family:var(--mono);margin-bottom:24px;line-height:1.6}
+.auth-google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:10px;border:.5px solid var(--border2);background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink);transition:background .15s;font-family:var(--font)}
+.auth-google-btn:hover{background:var(--kraft2)}
+.auth-google-btn img{width:20px;height:20px}
+.auth-error{margin-top:14px;padding:10px 14px;background:var(--red-bg);border:.5px solid #F0A090;border-radius:8px;font-size:11px;color:var(--red);font-family:var(--mono);display:none}
+.auth-loading{margin-top:14px;font-size:11px;color:var(--ink3);font-family:var(--mono);display:none}
+.user-badge{display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--kraft2);border-radius:20px;font-size:10px;font-family:var(--mono);color:var(--ink3)}
+.user-badge img{width:20px;height:20px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -514,6 +532,39 @@ select.form-input{appearance:none}
   <line x1="24" y1="426" x2="30" y2="426"/>
 </g>
 </svg>
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="auth-screen">
+  <!-- Topo background -->
+  <div class="topo-bg" style="opacity:.4">
+    <svg width="100%" height="100%" viewBox="0 0 480 900" preserveAspectRatio="xMidYMid slice">
+      <g fill="none" stroke="#8C856E" stroke-width="0.7" opacity="0.4">
+        <path d="M-10,44 Q30,36 70,42 Q110,48 160,34 Q200,22 250,38 Q300,54 340,36 Q390,18 440,32 Q460,37 490,34"/>
+        <path d="M-10,86 Q42,74 85,84 Q130,94 178,75 Q224,57 270,77 Q320,97 362,76 Q412,53 453,72 Q467,78 490,75"/>
+        <path d="M-10,152 Q50,135 98,149 Q150,163 194,137 Q248,111 288,137 Q338,163 383,136 Q436,107 465,131 Q476,138 490,136"/>
+        <path d="M-10,266 Q65,247 120,263 Q177,279 228,249 Q290,219 337,244 Q387,269 438,239 Q472,217 482,227"/>
+      </g>
+    </svg>
+  </div>
+  <div class="auth-logo">
+    <svg width="56" height="56" viewBox="0 0 44 44" style="display:block;margin:0 auto 12px">
+      <rect width="44" height="44" rx="11" fill="#2D2D2A"/>
+      <path d="M4,36 L14,10 L24,28 L34,8 L44,36" fill="none" stroke="#E8C84A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <div style="font-weight:800;font-size:22px;color:var(--ink);letter-spacing:.04em">ALTI<span style="font-weight:700;font-style:italic;color:var(--gold2)">mates</span></div>
+    <div style="font-size:9px;color:var(--ink4);font-family:var(--mono);letter-spacing:.1em;margin-top:4px">PLAN · GEAR UP · SUMMIT TOGETHER</div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-title">Bienvenue dans la cordée</div>
+    <div class="auth-sub">Connecte-toi pour accéder à l'app et rejoindre ton groupe</div>
+    <button class="auth-google-btn" onclick="signInWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Continuer avec Google
+    </button>
+    <div class="auth-error" id="auth-error">Accès réservé à la cordée ALTImates.<br>Contacte Nordine pour être ajouté.</div>
+    <div class="auth-loading" id="auth-loading">Connexion en cours…</div>
+  </div>
 </div>
 
 <!-- TUTORIAL -->
@@ -1041,11 +1092,21 @@ window.addEventListener('popstate',()=>{const o=document.querySelector('.modal-w
 let touchY=0;
 document.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY},{passive:true});
 document.addEventListener('touchend',e=>{const dy=e.changedTouches[0].clientY-touchY;if(dy>80){const o=document.querySelector('.modal-wrap.open');if(o){closeModal(o.id);history.back();}}},{passive:true});
-function saveUser(){try{localStorage.setItem(USER_KEY,JSON.stringify(user));}catch(e){}}
+function saveUser(){
+  try{localStorage.setItem(USER_KEY,JSON.stringify(user));}catch(e){}
+  if(currentUser) saveUserProfile();
+}
 function loadUser(){try{const s=localStorage.getItem(USER_KEY);if(s){user=JSON.parse(s);return true;}}catch(e){}return false;}
-function saveFB(){try{localStorage.setItem(FB_KEY,JSON.stringify(feedbacks));}catch(e){}}
+function saveFB(){
+  try{localStorage.setItem(FB_KEY,JSON.stringify(feedbacks));}catch(e){}
+  if(currentUser) feedbacks.forEach(f=>saveFeedbackToFirestore(f));
+}
 function loadFB(){try{const s=localStorage.getItem(FB_KEY);if(s)feedbacks=JSON.parse(s);}catch(e){}}
-function saveRandos(){try{localStorage.setItem(RANDOS_KEY,JSON.stringify(randos));}catch(e){}}
+function saveRandos(){
+  try{localStorage.setItem(RANDOS_KEY,JSON.stringify(randos));}catch(e){}
+  // Sync Firestore si connecté
+  if(currentUser) randos.forEach(r=>saveRandoToFirestore(r));
+}
 function loadRandos(){try{const s=localStorage.getItem(RANDOS_KEY);if(s){const r=JSON.parse(s);if(r.length)randos=r;}}catch(e){}}
 
 // ── TUTORIAL ──────────────────────────────────────────────
@@ -1205,6 +1266,7 @@ function vote(id,v){
   const r=randos.find(x=>x.id===id);
   if(r.myVote===v){r.myVote=null;r.votes[v]--;}else{if(r.myVote)r.votes[r.myVote]--;r.myVote=v;r.votes[v]++;}
   saveRandos();
+  if(currentUser) saveRandoToFirestore(r);
   const m=document.querySelector(`#rc-${id} .rcard-main`);if(m)m.innerHTML=rcardMain(r);
   toast(v==='oui'?'✓ PARTANT !':'VOTE ENREGISTRÉ');
 }
@@ -1275,6 +1337,7 @@ function setDurType(t){
 function deleteRando(id){
   randos=randos.filter(x=>x.id!==id);
   saveRandos();
+  if(currentUser) deleteRandoFromFirestore(id);
   renderRandos();
   toast('RANDO SUPPRIMÉE');
 }
@@ -1623,11 +1686,13 @@ function togglePin(id){
   const m=messages.find(x=>x.id===id);
   if(!m)return;
   m.pinned=!m.pinned;
+  if(currentUser) saveMsgToFirestore(m);
   renderRadio();
   toast(m.pinned?'MESSAGE ÉPINGLÉ':'MESSAGE DÉSÉPINGLÉ');
 }
 function deleteMsg(id){
   messages=messages.filter(x=>x.id!==id);
+  if(currentUser) deleteMsgFromFirestore(id);
   renderRadio();
   toast('MESSAGE SUPPRIMÉ');
 }
@@ -1703,6 +1768,7 @@ function assignDepart(id){
 }
 function deleteDepart(id){
   departItems=departItems.filter(x=>x.id!==id);
+  if(currentUser) deleteDepartItemFromFirestore(id);
   renderCordee();
   toast('ARTICLE SUPPRIMÉ');
 }
@@ -2017,6 +2083,7 @@ function deleteFeedback(id){
   if(!confirm('Supprimer cette idée ?')) return;
   feedbacks = feedbacks.filter(x=>x.id!==id);
   saveFB();
+  if(currentUser) deleteFeedbackFromFirestore(id);
   if(ideeView==='kanban') renderKanban();
   else renderFeedback();
   toast('IDÉE SUPPRIMÉE');
@@ -2042,7 +2109,10 @@ let ravitoData = {};
 const RAVITO_KEY = 'altimates_ravito';
 
 function loadRavito(){ try{ const s=localStorage.getItem(RAVITO_KEY); if(s) ravitoData=JSON.parse(s); }catch(e){} }
-function saveRavito(){ try{ localStorage.setItem(RAVITO_KEY, JSON.stringify(ravitoData)); }catch(e){} }
+function saveRavito(){
+  try{localStorage.setItem(RAVITO_KEY, JSON.stringify(ravitoData));}catch(e){}
+  if(currentUser) saveRavitoToFirestore();
+}
 
 const MEAL_CATS = [
   {id:'petitdej', label:'Petit déj', icon:'<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>'},
@@ -2250,7 +2320,10 @@ function updateStock(randoId, memberName, cat, val){
 let hydraData = {};
 const HYDRA_KEY = 'altimates_hydra';
 function loadHydra(){ try{ const s=localStorage.getItem(HYDRA_KEY); if(s) hydraData=JSON.parse(s); }catch(e){} }
-function saveHydra(){ try{ localStorage.setItem(HYDRA_KEY, JSON.stringify(hydraData)); }catch(e){} }
+function saveHydra(){
+  try{localStorage.setItem(HYDRA_KEY, JSON.stringify(hydraData));}catch(e){}
+  if(currentUser) saveHydraToFirestore();
+}
 
 // Sources d'eau possibles
 const WATER_SOURCES = [
@@ -2434,23 +2507,342 @@ function removeHydraSegment(randoId, idx){
   document.getElementById('rtab-hydra-content').innerHTML = renderHydraHTML(randoId);
 }
 
-function init(){
-  loadRandos();loadFB();loadRavito();loadHydra();
-  document.getElementById('grp-sub').textContent=`GROUPE · ${membres.length+1} MEMBRES`;
-  setTimeout(()=>setDurType('day'),100);
-  const tutoDone=localStorage.getItem(TUTO_KEY);
+// ── FIREBASE CONFIG ──────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBHJUlBtfKWg2kgwO_qMar5qR2X-SgHcPM",
+  authDomain: "altimates-4c37f.firebaseapp.com",
+  projectId: "altimates-4c37f",
+  storageBucket: "altimates-4c37f.firebasestorage.app",
+  messagingSenderId: "457113501581",
+  appId: "1:457113501581:web:42354801d3eb52ffe3c7c4"
+};
+
+// Liste blanche — emails autorisés
+const ALLOWED_EMAILS = [
+  "hammadou.nordine@gmail.com",
+  "mrbouchemoua.ismail@gmail.com",
+  "wacil78@gmail.com"
+];
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Activer la persistance offline
+db.enablePersistence({synchronizeTabs:true}).catch(err=>{
+  console.warn("Persistance offline non disponible:", err.code);
+});
+
+let currentUser = null;
+
+// ── AUTH ──────────────────────────────────────────────
+function signInWithGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  document.getElementById('auth-loading').style.display = 'block';
+  document.getElementById('auth-error').style.display = 'none';
+  auth.signInWithPopup(provider).catch(err=>{
+    console.error("Auth error:", err);
+    document.getElementById('auth-loading').style.display = 'none';
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('auth-error').textContent = "Erreur de connexion. Réessaie.";
+  });
+}
+
+function signOut(){
+  auth.signOut().then(()=>{
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('tuto-wrap').classList.remove('open');
+  });
+}
+
+// Observer d'état d'authentification
+auth.onAuthStateChanged(async (firebaseUser)=>{
+  if(!firebaseUser){
+    // Non connecté — afficher écran auth
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+    return;
+  }
+
+  const email = firebaseUser.email;
+
+  // Vérifier liste blanche
+  if(!ALLOWED_EMAILS.includes(email)){
+    await auth.signOut();
+    document.getElementById('auth-loading').style.display = 'none';
+    document.getElementById('auth-error').style.display = 'block';
+    return;
+  }
+
+  // Utilisateur autorisé
+  currentUser = firebaseUser;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('auth-loading').style.display = 'none';
+
+  // Charger/créer le profil utilisateur dans Firestore
+  await loadOrCreateUserProfile(firebaseUser);
+
+  // Lancer l'app
+  initApp();
+});
+
+async function loadOrCreateUserProfile(firebaseUser){
+  const userRef = db.collection('users').doc(firebaseUser.uid);
+  const snap = await userRef.get();
+
+  if(snap.exists){
+    // Profil existant — charger
+    const data = snap.data();
+    user = data.profile || null;
+    if(user){
+      const av = document.getElementById('hdr-av');
+      if(av){
+        av.textContent = user.name.slice(0,2).toUpperCase();
+        av.style = avS(4);
+      }
+    }
+  } else {
+    // Nouveau membre — créer profil minimal
+    await userRef.set({
+      email: firebaseUser.email,
+      displayName: firebaseUser.displayName || '',
+      photoURL: firebaseUser.photoURL || '',
+      profile: null,
+      kitChecked: {},
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    user = null;
+  }
+}
+
+// ── FIRESTORE — LISTENERS TEMPS RÉEL ─────────────────
+function setupFirestoreListeners(){
+  // Randos
+  db.collection('randos').orderBy('createdAt','desc').onSnapshot(snap=>{
+    if(!snap.empty){
+      randos = snap.docs.map(d=>({...d.data(), id:d.id, _docId:d.id}));
+    }
+    if(document.getElementById('tab-sommets').classList.contains('active')){
+      renderRandos();
+    }
+  }, err=>console.warn("Randos listener:", err));
+
+  // Messages Radio
+  db.collection('messages').orderBy('createdAt','asc').onSnapshot(snap=>{
+    if(!snap.empty){
+      messages = snap.docs.map(d=>({...d.data(), id:d.id}));
+    }
+    if(document.getElementById('tab-radio').classList.contains('active')){
+      renderRadio();
+    }
+  }, err=>console.warn("Messages listener:", err));
+
+  // Feedbacks / Idées
+  db.collection('feedbacks').orderBy('createdAt','desc').onSnapshot(snap=>{
+    if(!snap.empty){
+      feedbacks = snap.docs.map(d=>({...d.data(), id:d.id}));
+    }
+    if(document.getElementById('tab-idees').classList.contains('active')){
+      if(ideeView==='kanban') renderKanban();
+      else renderFeedback();
+    }
+  }, err=>console.warn("Feedbacks listener:", err));
+
+  // Checklist départ
+  db.collection('departItems').orderBy('createdAt','asc').onSnapshot(snap=>{
+    if(!snap.empty){
+      departItems = snap.docs.map(d=>({...d.data(), id:d.id}));
+    }
+    if(document.getElementById('tab-cordee').classList.contains('active')){
+      renderCordee();
+    }
+  }, err=>console.warn("DepartItems listener:", err));
+
+  // Profils membres (pour la cordée)
+  db.collection('users').onSnapshot(snap=>{
+    if(!snap.empty){
+      const allUsers = snap.docs.map(d=>d.data()).filter(u=>u.profile);
+      // Mettre à jour les membres affichés dans Cordée
+      if(document.getElementById('tab-cordee').classList.contains('active')){
+        renderCordee();
+      }
+    }
+  }, err=>console.warn("Users listener:", err));
+}
+
+// ── FIRESTORE — SAVE FUNCTIONS ────────────────────────
+
+// Remplacer saveRandos — écrire dans Firestore
+async function saveRandoToFirestore(r){
+  try{
+    const data = {...r, createdAt: r.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
+    if(r._docId){
+      await db.collection('randos').doc(r._docId).set(data);
+    } else {
+      const ref = await db.collection('randos').add(data);
+      r._docId = ref.id;
+    }
+  }catch(e){ console.warn("saveRando:", e); }
+}
+
+async function deleteRandoFromFirestore(id){
+  try{
+    const snap = await db.collection('randos').where('id','==',id).get();
+    snap.docs.forEach(d=>d.ref.delete());
+  }catch(e){ console.warn("deleteRando:", e); }
+}
+
+async function saveMsgToFirestore(msg){
+  try{
+    const data = {...msg, createdAt: firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('messages').doc(String(msg.id)).set(data);
+  }catch(e){ console.warn("saveMsg:", e); }
+}
+
+async function deleteMsgFromFirestore(id){
+  try{
+    await db.collection('messages').doc(String(id)).delete();
+  }catch(e){ console.warn("deleteMsg:", e); }
+}
+
+async function saveFeedbackToFirestore(f){
+  try{
+    const data = {...f, createdAt: f.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('feedbacks').doc(String(f.id)).set(data);
+  }catch(e){ console.warn("saveFeedback:", e); }
+}
+
+async function deleteFeedbackFromFirestore(id){
+  try{
+    await db.collection('feedbacks').doc(String(id)).delete();
+  }catch(e){ console.warn("deleteFeedback:", e); }
+}
+
+async function saveDepartItemToFirestore(item){
+  try{
+    const data = {...item, createdAt: item.createdAt || firebase.firestore.FieldValue.serverTimestamp()};
+    await db.collection('departItems').doc(String(item.id)).set(data);
+  }catch(e){ console.warn("saveDepartItem:", e); }
+}
+
+async function deleteDepartItemFromFirestore(id){
+  try{
+    await db.collection('departItems').doc(String(id)).delete();
+  }catch(e){ console.warn("deleteDepartItem:", e); }
+}
+
+async function saveUserProfile(){
+  if(!currentUser) return;
+  try{
+    await db.collection('users').doc(currentUser.uid).update({
+      profile: user,
+      kitChecked: user.checked || {}
+    });
+  }catch(e){ console.warn("saveUserProfile:", e); }
+}
+
+async function saveRavitoToFirestore(){
+  if(!currentUser) return;
+  try{
+    await db.collection('ravito').doc('shared').set(ravitoData);
+  }catch(e){ console.warn("saveRavito:", e); }
+}
+
+async function saveHydraToFirestore(){
+  if(!currentUser) return;
+  try{
+    await db.collection('hydra').doc('shared').set(hydraData);
+  }catch(e){ console.warn("saveHydra:", e); }
+}
+
+// ── INIT APP APRÈS AUTH ───────────────────────────────
+async function initApp(){
+  // Charger données initiales depuis Firestore
+  try{
+    // Randos
+    const randosSnap = await db.collection('randos').orderBy('createdAt','desc').get();
+    if(!randosSnap.empty){
+      randos = randosSnap.docs.map(d=>({...d.data(), id:d.id, _docId:d.id}));
+    } else {
+      // Peupler avec les données par défaut si première utilisation
+      for(const r of randos){
+        await saveRandoToFirestore(r);
+      }
+    }
+
+    // Messages
+    const msgsSnap = await db.collection('messages').orderBy('createdAt','asc').get();
+    if(!msgsSnap.empty){
+      messages = msgsSnap.docs.map(d=>({...d.data(), id:d.id}));
+    } else {
+      for(const m of messages){
+        await saveMsgToFirestore(m);
+      }
+    }
+
+    // Feedbacks
+    const fbSnap = await db.collection('feedbacks').orderBy('createdAt','desc').get();
+    if(!fbSnap.empty){
+      feedbacks = fbSnap.docs.map(d=>({...d.data(), id:d.id}));
+    } else {
+      for(const f of feedbacks){
+        await saveFeedbackToFirestore(f);
+      }
+    }
+
+    // Checklist départ
+    const depSnap = await db.collection('departItems').orderBy('createdAt','asc').get();
+    if(!depSnap.empty){
+      departItems = depSnap.docs.map(d=>({...d.data(), id:d.id}));
+    } else {
+      for(const item of departItems){
+        await saveDepartItemToFirestore(item);
+      }
+    }
+
+    // Ravito
+    const ravSnap = await db.collection('ravito').doc('shared').get();
+    if(ravSnap.exists) ravitoData = ravSnap.data();
+
+    // Hydra
+    const hydSnap = await db.collection('hydra').doc('shared').get();
+    if(hydSnap.exists) hydraData = hydSnap.data();
+
+  }catch(e){
+    console.warn("Chargement Firestore:", e);
+    // Fallback localStorage
+    loadRandos(); loadFB(); loadRavito(); loadHydra();
+  }
+
+  // Mettre en place les listeners temps réel
+  setupFirestoreListeners();
+
+  // Lancer l'UI
+  document.getElementById('grp-sub').textContent = `GROUPE · ${ALLOWED_EMAILS.length} MEMBRES`;
+  setTimeout(()=>setDurType('day'), 100);
+
+  const tutoDone = localStorage.getItem(TUTO_KEY);
   if(!tutoDone){
     startTuto();
   } else {
-    document.getElementById('main-app').style.cssText='display:flex;flex-direction:column';
-    if(loadUser()){
-      const av=document.getElementById('hdr-av');
-      av.textContent=user.name.slice(0,2).toUpperCase();av.style=avS(4);
+    document.getElementById('main-app').style.cssText = 'display:flex;flex-direction:column';
+    if(user){
+      const av = document.getElementById('hdr-av');
+      if(av){ av.textContent = user.name.slice(0,2).toUpperCase(); av.style = avS(4); }
     } else {
-      setTimeout(()=>openModal('onb-modal'),400);
+      document.getElementById('onb-cancel-btn').style.display = 'none';
+      setTimeout(()=>openModal('onb-modal'), 400);
     }
     renderRandos();
   }
+}
+
+function init(){
+  // Firebase auth observer prend le relais — initApp() est appelé après auth réussie
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
 }
 init();
 </script>
